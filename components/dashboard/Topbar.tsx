@@ -11,7 +11,15 @@ const TITLES: Record<string, string> = {
   "/dashboard/settings": "Settings",
 };
 
-export function Topbar({ email, onMenuClick }: { email: string; onMenuClick: () => void }) {
+export function Topbar({
+  email,
+  username,
+  onMenuClick,
+}: {
+  email: string;
+  username: string | null;
+  onMenuClick: () => void;
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -53,6 +61,16 @@ export function Topbar({ email, onMenuClick }: { email: string; onMenuClick: () 
       </div>
 
       <div className="flex items-center gap-3">
+        {username && (
+          <a
+            href={`/${username}`}
+            target="_blank"
+            rel="noreferrer"
+            className="rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-3 py-1.5 text-xs font-medium text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400"
+          >
+            View my page ↗
+          </a>
+        )}
         <span className="hidden font-mono text-xs text-zinc-500 sm:inline">{email}</span>
         <button
           onClick={handleSignOut}
