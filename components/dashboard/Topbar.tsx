@@ -4,13 +4,14 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const TITLES: Record<string, string> = {
-  "/dashboard": "Overview",
+  "/dashboard": "Dashboard",
   "/dashboard/notes": "Notes",
   "/dashboard/goals": "Goals",
   "/dashboard/streaks": "Streaks",
+  "/dashboard/settings": "Settings",
 };
 
-export function Topbar({ email }: { email: string }) {
+export function Topbar({ email, onMenuClick }: { email: string; onMenuClick: () => void }) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -27,15 +28,28 @@ export function Topbar({ email }: { email: string }) {
 
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/5 bg-ink-950/70 px-6 py-4 backdrop-blur-xl sm:px-8">
-      <div>
-        <h1 className="text-lg font-semibold text-white">{title}</h1>
-        <p className="font-mono text-[11px] text-zinc-600">
-          {new Date().toLocaleDateString("en-US", {
-            weekday: "long",
-            month: "long",
-            day: "numeric",
-          })}
-        </p>
+      <div className="flex items-center gap-4">
+        <button
+          onClick={onMenuClick}
+          aria-label="Toggle menu"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-zinc-300 transition hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-white"
+        >
+          <span className="flex flex-col items-center gap-[3px]">
+            <span className="block h-[1.5px] w-4 bg-current" />
+            <span className="block h-[1.5px] w-4 bg-current" />
+            <span className="block h-[1.5px] w-4 bg-current" />
+          </span>
+        </button>
+        <div>
+          <h1 className="text-lg font-semibold text-white">{title}</h1>
+          <p className="font-mono text-[11px] text-zinc-600">
+            {new Date().toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-3">

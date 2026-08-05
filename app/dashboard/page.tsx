@@ -55,8 +55,16 @@ export default async function OverviewPage() {
     })
     .slice(0, 4);
 
+  const hour = new Date().getHours();
+  const greeting = hour < 5 ? "Still up" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
   return (
     <div className="space-y-8">
+      <div>
+        <h2 className="text-2xl font-semibold text-white">{greeting}, Zane.</h2>
+        <p className="mt-1 text-sm text-zinc-500">Here&apos;s where things stand.</p>
+      </div>
+
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard label="Active goals" value={activeGoals.length} sub={`${completedGoals.length} completed`} icon="◎" />

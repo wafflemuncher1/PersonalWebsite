@@ -1,3 +1,41 @@
+export type Plan = "free" | "pro";
+export type SubscriptionStatus =
+  | "inactive"
+  | "trialing"
+  | "active"
+  | "past_due"
+  | "canceled";
+
+export type ProfileLink = {
+  label: string;
+  url: string;
+  icon?: string;
+};
+
+export type Profile = {
+  id: string;
+  username: string;
+  display_name: string;
+  bio: string;
+  avatar_url: string | null;
+  links: ProfileLink[];
+  theme: string;
+  show_stats: boolean;
+  plan: Plan;
+  subscription_status: SubscriptionStatus;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PublicStats = {
+  goals_completed: number;
+  active_goals: number;
+  active_streaks: number;
+  total_check_ins: number;
+};
+
 export type Note = {
   id: string;
   user_id: string;
