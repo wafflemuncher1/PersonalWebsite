@@ -29,13 +29,17 @@ is never exposed to the browser.
 - `app/page.tsx` — marketing site (main domain): what Nocturne is, pricing teaser, signup CTA
 - `app/pricing` — full plan comparison
 - `app/signup`, `app/login` — account creation / sign-in
-- `app/[username]` — public bio-link page for each user (avatar, bio, links, opt-in stats)
-- `app/dashboard` — private, per-user area (notes, goals, streaks, settings) — gated by `middleware.ts`
-- `app/dashboard/settings` — includes the public-profile editor and billing panel
+- `app/[username]` — public bio-link page for each user (avatar, bio, links, opt-in stats, view counter)
+- `app/dashboard` — private, per-user area — gated by `middleware.ts`:
+  - `/dashboard` — overview: momentum score, achievement badges, streaks, journal/notes/goals previews
+  - `/dashboard/journal` — mood + freeform entries, with a rolling mood-trend strip
+  - `/dashboard/goals`, `/dashboard/streaks`, `/dashboard/notes` — the original trackers
+  - `/dashboard/settings` — public-profile editor (avatar upload, bio, links, stats toggle) + billing panel
 - `app/api/stripe/*` — checkout, billing portal, and webhook routes
 - `middleware.ts` — refreshes the Supabase session and gates `/dashboard/*`
 - `lib/supabase` — browser / server / middleware / **admin** (service-role, server-only) clients
 - `lib/stripe.ts`, `lib/plans.ts` — Stripe SDK init and the single source of truth for plan pricing
+- `lib/profanity.ts`, `lib/reserved-usernames.ts` — shared validation used by signup + settings
 - `supabase/migrations` — SQL migrations, applied directly to the Supabase project
 
 ## Data model
@@ -57,12 +61,22 @@ is never exposed to the browser.
 ## How access is locked down
 
 - Signups are open to everyone (the earlier single-owner restriction has been removed).
+  Email uniqueness is enforced by Supabase Auth itself; username uniqueness is a DB
+  `unique` constraint plus a pre-signup availability check in the UI.
 - RLS is enabled on every table. `profiles` allows public `select`; every other table is
   scoped to `auth.uid() = user_id` for select/insert/update/delete.
+- A trigger on `profiles` (`guard_profile_language`) rejects profanity in `username`,
+  `display_name`, or `bio` at the database level — this backs up the client-side check
+  in `lib/profanity.ts` (which uses the `bad-words` package and also covers link
+  labels). Deliberately **not** applied to notes/goals/journal entries — those are
+  private, and filtering someone's own private space would undercut the point of it
+  being private.
 - The Stripe webhook is the one place allowed to write another user's `plan` /
   `subscription_status` — it does so via the service-role admin client
   (`lib/supabase/admin.ts`), after verifying the Stripe signature. That key never ships
   to the client.
+- Avatars live in a public Supabase Storage bucket (`avatars`), one folder per user ID,
+  with storage RLS policies restricting writes to the owner.
 
 ## Billing (Stripe)
 

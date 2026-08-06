@@ -5,10 +5,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/dashboard", label: "Dashboard", icon: "◈", exact: true },
-  { href: "/dashboard/notes", label: "Notes", icon: "✎" },
+  { href: "/dashboard", label: "Overview", icon: "◈", exact: true },
+  { href: "/dashboard/journal", label: "Journal", icon: "📓" },
   { href: "/dashboard/goals", label: "Goals", icon: "◎" },
   { href: "/dashboard/streaks", label: "Streaks", icon: "🔥" },
+  { href: "/dashboard/notes", label: "Notes", icon: "✎" },
   { href: "/dashboard/settings", label: "Settings", icon: "⚙" },
 ];
 

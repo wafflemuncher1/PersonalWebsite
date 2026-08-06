@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { isReservedUsername } from "@/lib/reserved-usernames";
+import { containsProfanity } from "@/lib/profanity";
 
 const USERNAME_RE = /^[a-z0-9_-]{3,20}$/;
 
@@ -41,6 +42,11 @@ function SignupForm() {
       setErrorMsg("That username is reserved. Try another.");
       return;
     }
+    if (containsProfanity(cleanUsername)) {
+      setStatus("error");
+      setErrorMsg("Let's keep it clean — try a different username.");
+      return;
+    }
     if (password.length < 8) {
       setStatus("error");
       setErrorMsg("Password must be at least 8 characters.");
@@ -69,7 +75,21 @@ function SignupForm() {
 
     if (error) {
       setStatus("error");
-      setErrorMsg(error.message);
+      setErrorMsg(
+        error.message.toLowerCase().includes("already registered") ||
+          error.message.toLowerCase().includes("already exists")
+          ? "An account with that email already exists. Try logging in instead."
+          : error.message
+      );
+      return;
+    }
+
+    // Supabase returns a 200 with an empty `identities` array (instead of an
+    // error) when the email is already registered — this is the documented
+    // way to detect it without leaking which emails exist to attackers.
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      setStatus("error");
+      setErrorMsg("An account with that email already exists. Try logging in instead.");
       return;
     }
 

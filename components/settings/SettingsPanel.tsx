@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatDateTime } from "@/lib/utils";
 import { getPlan } from "@/lib/plans";
 import { isReservedUsername } from "@/lib/reserved-usernames";
+import { firstProfaneField } from "@/lib/profanity";
 import type { Profile, ProfileLink } from "@/lib/types";
 
 const USERNAME_RE = /^[a-z0-9_-]{3,20}$/;
@@ -176,6 +177,7 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
   );
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [error, setError] = useState("");
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   function updateLink(i: number, patch: Partial<ProfileLink>) {
     setLinks((prev) => prev.map((l, idx) => (idx === i ? { ...l, ...patch } : l)));
@@ -189,10 +191,49 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
     setLinks((prev) => prev.filter((_, idx) => idx !== i));
   }
 
+  async function handleAvatarUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !profile) return;
+
+    if (!file.type.startsWith("image/")) {
+      setStatus("error");
+      setError("Avatar must be an image.");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      setStatus("error");
+      setError("Avatar must be under 3MB.");
+      return;
+    }
+
+    setError("");
+    setAvatarUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${profile.id}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(path, file, { upsert: true, cacheControl: "3600" });
+
+    if (uploadError) {
+      setStatus("error");
+      setError(uploadError.message);
+      setAvatarUploading(false);
+      return;
+    }
+
+    const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+    setAvatarUrl(`${data.publicUrl}?t=${Date.now()}`);
+    setAvatarUploading(false);
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     const cleanUsername = username.trim().toLowerCase();
+    const cleanDisplayName = displayName.trim();
+    const cleanBio = bio.trim();
 
     if (!USERNAME_RE.test(cleanUsername)) {
       setStatus("error");
@@ -205,18 +246,33 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
       return;
     }
 
-    setStatus("saving");
-
     const cleanLinks = links
       .map((l) => ({ label: l.label.trim(), url: l.url.trim() }))
       .filter((l) => l.label && l.url);
+
+    const profanityCheck: Record<string, string> = {
+      username: cleanUsername,
+      "display name": cleanDisplayName,
+      bio: cleanBio,
+    };
+    cleanLinks.forEach((l, i) => {
+      profanityCheck[`link ${i + 1} label`] = l.label;
+    });
+    const badField = firstProfaneField(profanityCheck);
+    if (badField) {
+      setStatus("error");
+      setError(`Let's keep it clean — please revise the ${badField}.`);
+      return;
+    }
+
+    setStatus("saving");
 
     const { error: updateError } = await supabase
       .from("profiles")
       .update({
         username: cleanUsername,
-        display_name: displayName.trim(),
-        bio: bio.trim(),
+        display_name: cleanDisplayName,
+        bio: cleanBio,
         avatar_url: avatarUrl.trim() || null,
         show_stats: showStats,
         links: cleanLinks,
@@ -228,7 +284,9 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
       setError(
         updateError.message.includes("duplicate")
           ? "That username is taken."
-          : updateError.message
+          : updateError.message.includes("not allowed")
+            ? "That contains language that isn't allowed. Please revise."
+            : updateError.message
       );
       return;
     }
@@ -243,7 +301,7 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
 
   return (
     <Card className="p-6">
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-1 flex items-center justify-between">
         <h2 className="text-sm font-medium text-white">Public profile</h2>
         <a
           href={`/${profile.username}`}
@@ -256,10 +314,41 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
       </div>
       <p className="mb-5 text-xs text-zinc-500">
         This is what anyone visiting nocturne.co/{profile.username} sees. Nothing from your
-        private dashboard shows up here unless you turn it on below.
+        private dashboard shows up here unless you turn it on below.{" "}
+        <span className="text-zinc-600">
+          {(profile.view_count ?? 0).toLocaleString()} view{profile.view_count === 1 ? "" : "s"} so far.
+        </span>
       </p>
 
       <form onSubmit={handleSave} className="space-y-4">
+        <div>
+          <label className="mb-1.5 block text-xs font-medium text-zinc-400">Profile picture</label>
+          <div className="flex items-center gap-4">
+            {avatarUrl ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={avatarUrl}
+                alt="Avatar preview"
+                className="h-14 w-14 rounded-full object-cover ring-2 ring-white/10"
+              />
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-violet-500 text-lg font-semibold text-white">
+                {(displayName || username || "?").trim().charAt(0).toUpperCase()}
+              </div>
+            )}
+            <label className="cursor-pointer rounded-lg border border-white/10 bg-white/[0.04] px-3.5 py-2 text-xs font-medium text-zinc-200 transition hover:bg-white/[0.08]">
+              {avatarUploading ? "Uploading…" : "Upload photo"}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={avatarUploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+        </div>
+
         <div>
           <label className="mb-1.5 block text-xs font-medium text-zinc-400">Username</label>
           <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition focus-within:border-violet-500/60 focus-within:ring-2 focus-within:ring-violet-500/20">
@@ -284,15 +373,6 @@ function PublicProfileCard({ profile }: { profile: Profile | null }) {
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             placeholder="A line or two about you."
-          />
-        </div>
-
-        <div>
-          <label className="mb-1.5 block text-xs font-medium text-zinc-400">Avatar URL</label>
-          <Input
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-            placeholder="https://…"
           />
         </div>
 

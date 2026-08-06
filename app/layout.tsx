@@ -15,8 +15,15 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zane Risinger",
-  description: "Personal site & private command center.",
+  title: {
+    default: "Nocturne — bio link + private life tracker",
+    template: "%s · Nocturne",
+  },
+  description:
+    "Nocturne: a public bio-link page out front, a private notes/goals/streaks/journal dashboard behind it.",
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL
+    ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+    : undefined,
 };
 
 export default function RootLayout({

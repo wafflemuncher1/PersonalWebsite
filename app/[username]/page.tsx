@@ -28,6 +28,11 @@ export default async function PublicProfilePage({
     notFound();
   }
 
+  // Awaited (not truly fire-and-forget) because a serverless function can
+  // terminate the moment the response is sent — an un-awaited call here
+  // would sometimes just never run.
+  await supabase.rpc("increment_profile_view", { p_username: username });
+
   const p = profile as Profile;
   const links = Array.isArray(p.links) ? (p.links as ProfileLink[]) : [];
 

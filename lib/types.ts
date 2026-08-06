@@ -25,6 +25,18 @@ export type Profile = {
   subscription_status: SubscriptionStatus;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  view_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Mood = "great" | "good" | "neutral" | "low" | "rough";
+
+export type JournalEntry = {
+  id: string;
+  user_id: string;
+  mood: Mood;
+  entry: string;
   created_at: string;
   updated_at: string;
 };

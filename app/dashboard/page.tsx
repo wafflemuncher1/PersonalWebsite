@@ -1,36 +1,65 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { StatCard } from "@/components/dashboard/StatCard";
+import { Momentum } from "@/components/dashboard/Momentum";
+import { Achievements, type Achievement } from "@/components/dashboard/Achievements";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Badge } from "@/components/ui/Badge";
 import { TodayStreaks } from "@/components/streaks/TodayStreaks";
 import { computeStreakStats, relativeTime, todayKey } from "@/lib/utils";
-import type { Goal, Note, Streak, StreakLog } from "@/lib/types";
+import type { Goal, JournalEntry, Note, Profile, Streak, StreakLog } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+const MOOD_EMOJI: Record<string, string> = {
+  great: "🤩",
+  good: "🙂",
+  neutral: "😐",
+  low: "😕",
+  rough: "😣",
+};
 
 export default async function OverviewPage() {
   const supabase = createClient();
 
-  const [{ data: notes }, notesCountRes, { data: goals }, { data: streaks }, { data: logs }] =
-    await Promise.all([
-      supabase.from("notes").select("*").order("updated_at", { ascending: false }).limit(4),
-      supabase.from("notes").select("*", { count: "exact", head: true }),
-      supabase.from("goals").select("*").order("updated_at", { ascending: false }),
-      supabase.from("streaks").select("*").eq("archived", false).order("created_at"),
-      supabase
-        .from("streak_logs")
-        .select("*")
-        .gte("log_date", new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString().slice(0, 10)),
-    ]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const [
+    { data: notes },
+    notesCountRes,
+    { data: goals },
+    { data: streaks },
+    { data: logs },
+    { data: journalEntries },
+    journalCountRes,
+    { data: profileData },
+  ] = await Promise.all([
+    supabase.from("notes").select("*").order("updated_at", { ascending: false }).limit(4),
+    supabase.from("notes").select("*", { count: "exact", head: true }),
+    supabase.from("goals").select("*").order("updated_at", { ascending: false }),
+    supabase.from("streaks").select("*").eq("archived", false).order("created_at"),
+    supabase
+      .from("streak_logs")
+      .select("*")
+      .gte("log_date", new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString().slice(0, 10)),
+    supabase.from("journal_entries").select("*").order("created_at", { ascending: false }).limit(30),
+    supabase.from("journal_entries").select("*", { count: "exact", head: true }),
+    user ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
 
   const notesCount = notesCountRes.count ?? 0;
+  const journalCount = journalCountRes.count ?? 0;
 
   const allGoals = (goals ?? []) as Goal[];
   const allStreaks = (streaks ?? []) as Streak[];
   const allLogs = (logs ?? []) as StreakLog[];
   const recentNotes = (notes ?? []) as Note[];
+  const recentJournal = ((journalEntries ?? []) as JournalEntry[]).slice(0, 3);
+  const journalForStats = (journalEntries ?? []) as JournalEntry[];
+  const profile = profileData as Profile | null;
 
   const activeGoals = allGoals.filter((g) => g.status === "active");
   const completedGoals = allGoals.filter((g) => g.status === "completed");
@@ -47,6 +76,7 @@ export default async function OverviewPage() {
     streakStatsById.set(s.id, computeStreakStats(keys));
   }
   const bestCurrent = Math.max(0, ...allStreaks.map((s) => streakStatsById.get(s.id)?.current ?? 0));
+  const bestLongest = Math.max(0, ...allStreaks.map((s) => streakStatsById.get(s.id)?.longest ?? 0));
 
   const topGoals = [...activeGoals]
     .sort((a, b) => {
@@ -55,18 +85,51 @@ export default async function OverviewPage() {
     })
     .slice(0, 4);
 
+  // Momentum: blended, gamified score — not a metric anyone else can see.
+  const journalLast7 = journalForStats.filter(
+    (e) => Date.now() - new Date(e.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
+  ).length;
+  const momentum = Math.round(
+    (avgProgress / 100) * 40 + (Math.min(bestCurrent, 14) / 14) * 30 + (Math.min(journalLast7, 7) / 7) * 30
+  );
+
+  const achievements: Achievement[] = [
+    { id: "first-goal", emoji: "◎", label: "First goal set", unlocked: allGoals.length >= 1 },
+    { id: "goal-getter", emoji: "🎯", label: "Goal getter", unlocked: completedGoals.length >= 1 },
+    { id: "goal-crusher", emoji: "🏆", label: "Goal crusher ×10", unlocked: completedGoals.length >= 10 },
+    { id: "streak-3", emoji: "🔥", label: "3-day streak", unlocked: bestCurrent >= 3 },
+    { id: "streak-7", emoji: "⚡", label: "Week on fire", unlocked: bestCurrent >= 7 },
+    { id: "streak-30", emoji: "🌋", label: "Unstoppable ×30", unlocked: bestLongest >= 30 },
+    { id: "journaler", emoji: "📓", label: "Journaler ×5", unlocked: journalCount >= 5 },
+    { id: "note-taker", emoji: "✎", label: "Note taker ×10", unlocked: notesCount >= 10 },
+  ];
+
+  const greetName = profile?.display_name?.trim() || user?.email?.split("@")[0] || "there";
   const hour = new Date().getHours();
   const greeting = hour < 5 ? "Still up" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-semibold text-white">{greeting}, Zane.</h2>
-        <p className="mt-1 text-sm text-zinc-500">Here&apos;s where things stand.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold text-white">
+            {greeting}, {greetName}.
+          </h2>
+          <p className="mt-1 text-sm text-zinc-500">Here&apos;s where things stand.</p>
+        </div>
+        {profile?.username && (
+          <Link
+            href={`/${profile.username}`}
+            target="_blank"
+            className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300"
+          >
+            nocturne.co/{profile.username} ↗
+          </Link>
+        )}
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         <StatCard label="Active goals" value={activeGoals.length} sub={`${completedGoals.length} completed`} icon="◎" />
         <StatCard label="Avg. progress" value={`${avgProgress}%`} sub="across active goals" icon="▲" accent="emerald" />
         <StatCard
@@ -77,6 +140,15 @@ export default async function OverviewPage() {
           accent="amber"
         />
         <StatCard label="Notes" value={notesCount} sub="saved" icon="✎" />
+        <StatCard label="Profile views" value={profile?.view_count ?? 0} sub="all time" icon="👁" />
+      </div>
+
+      {/* Momentum + achievements */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Momentum score={momentum} />
+        <div className="lg:col-span-2">
+          <Achievements achievements={achievements} />
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -103,7 +175,38 @@ export default async function OverviewPage() {
           )}
         </Card>
 
-        {/* Recent notes */}
+        {/* Journal preview */}
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-white">Journal</h2>
+            <Link href="/dashboard/journal" className="text-xs text-violet-400 hover:text-violet-300">
+              view all →
+            </Link>
+          </div>
+          {recentJournal.length === 0 ? (
+            <EmptyState message="No entries yet." href="/dashboard/journal" cta="Write one" />
+          ) : (
+            <div className="space-y-3">
+              {recentJournal.map((e) => (
+                <Link
+                  key={e.id}
+                  href="/dashboard/journal"
+                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition hover:border-violet-500/30 hover:bg-white/[0.04]"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-base leading-none">{MOOD_EMOJI[e.mood] ?? "😐"}</span>
+                    <span className="font-mono text-[10px] text-zinc-600">{relativeTime(e.created_at)}</span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-xs text-zinc-500">{e.entry}</p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Recent notes + priority goals */}
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Recent notes</h2>
@@ -132,37 +235,36 @@ export default async function OverviewPage() {
             </div>
           )}
         </Card>
-      </div>
 
-      {/* Priority goals */}
-      <Card className="p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-white">Priority goals</h2>
-          <Link href="/dashboard/goals" className="text-xs text-violet-400 hover:text-violet-300">
-            view all →
-          </Link>
-        </div>
-        {topGoals.length === 0 ? (
-          <EmptyState message="No active goals yet." href="/dashboard/goals" cta="Set a goal" />
-        ) : (
-          <div className="grid gap-3 sm:grid-cols-2">
-            {topGoals.map((g) => (
-              <div key={g.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
-                <div className="mb-2 flex items-center justify-between gap-2">
-                  <p className="truncate text-sm font-medium text-zinc-200">{g.title}</p>
-                  <Badge
-                    color={g.priority === "high" ? "red" : g.priority === "medium" ? "amber" : "zinc"}
-                  >
-                    {g.priority}
-                  </Badge>
-                </div>
-                <ProgressBar value={g.progress} />
-                <p className="mt-1.5 font-mono text-[10px] text-zinc-600">{g.progress}% complete</p>
-              </div>
-            ))}
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-white">Priority goals</h2>
+            <Link href="/dashboard/goals" className="text-xs text-violet-400 hover:text-violet-300">
+              view all →
+            </Link>
           </div>
-        )}
-      </Card>
+          {topGoals.length === 0 ? (
+            <EmptyState message="No active goals yet." href="/dashboard/goals" cta="Set a goal" />
+          ) : (
+            <div className="space-y-3">
+              {topGoals.map((g) => (
+                <div key={g.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                  <div className="mb-2 flex items-center justify-between gap-2">
+                    <p className="truncate text-sm font-medium text-zinc-200">{g.title}</p>
+                    <Badge
+                      color={g.priority === "high" ? "red" : g.priority === "medium" ? "amber" : "zinc"}
+                    >
+                      {g.priority}
+                    </Badge>
+                  </div>
+                  <ProgressBar value={g.progress} />
+                  <p className="mt-1.5 font-mono text-[10px] text-zinc-600">{g.progress}% complete</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
     </div>
   );
 }

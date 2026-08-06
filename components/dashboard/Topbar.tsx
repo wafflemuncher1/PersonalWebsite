@@ -4,7 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 const TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
+  "/dashboard": "Overview",
+  "/dashboard/journal": "Journal",
   "/dashboard/notes": "Notes",
   "/dashboard/goals": "Goals",
   "/dashboard/streaks": "Streaks",
