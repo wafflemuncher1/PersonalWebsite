@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import "./globals.css";
 
 const inter = Inter({
@@ -34,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`dark ${inter.variable} ${mono.variable}`}>
       <body className="min-h-screen bg-ink-950 font-sans antialiased noise">
-        {children}
+        <TransitionProvider>{children}</TransitionProvider>
       </body>
     </html>
   );

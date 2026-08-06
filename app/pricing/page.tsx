@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { PLANS } from "@/lib/plans";
 
 export default function PricingPage() {
@@ -8,10 +9,7 @@ export default function PricingPage() {
       <div className="pointer-events-none absolute inset-0 bg-grid-lines bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)]" />
 
       <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-6 pt-8">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-violet-500 shadow-[0_0_14px_3px_rgba(139,92,246,0.7)]" />
-          <span className="text-sm font-semibold tracking-wide text-white">NOCTURNE</span>
-        </Link>
+        <Logo />
         <nav className="flex items-center gap-6 text-sm">
           <Link href="/login" className="text-zinc-400 transition hover:text-white">
             Log in

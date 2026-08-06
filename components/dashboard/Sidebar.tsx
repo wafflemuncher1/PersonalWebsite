@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -64,10 +65,7 @@ export function Sidebar({
       )}
     >
       <div className="flex items-center justify-between px-6 py-6">
-        <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-violet-500 shadow-[0_0_14px_3px_rgba(139,92,246,0.7)]" />
-          <span className="text-sm font-semibold tracking-wide text-white">NOCTURNE</span>
-        </div>
+        <Logo onBeforeNavigate={onClose} />
         <button
           onClick={onClose}
           className="rounded-full p-1.5 text-zinc-500 transition hover:bg-white/10 hover:text-white"

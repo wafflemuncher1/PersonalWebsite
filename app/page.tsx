@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 import { PLANS } from "@/lib/plans";
 
 const STEPS = [
@@ -24,10 +25,7 @@ export default function HomePage() {
 
       {/* Nav */}
       <header className="relative z-10 mx-auto flex max-w-5xl items-center justify-between px-6 pt-8">
-        <div className="flex items-center gap-2">
-          <div className="h-2.5 w-2.5 rounded-full bg-violet-500 shadow-[0_0_14px_3px_rgba(139,92,246,0.7)]" />
-          <span className="text-sm font-semibold tracking-wide text-white">NOCTURNE</span>
-        </div>
+        <Logo />
         <nav className="flex items-center gap-6 text-sm">
           <Link href="/pricing" className="text-zinc-400 transition hover:text-white">
             Pricing
