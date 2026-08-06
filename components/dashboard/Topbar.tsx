@@ -10,6 +10,9 @@ const TITLES: Record<string, string> = {
   "/dashboard/goals": "Goals",
   "/dashboard/streaks": "Streaks",
   "/dashboard/settings": "Settings",
+  "/dashboard/profile/customize": "Customize",
+  "/dashboard/profile/links": "Links",
+  "/dashboard/profile/templates": "Templates",
 };
 
 export function Topbar({

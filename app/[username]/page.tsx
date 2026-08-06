@@ -49,7 +49,21 @@ export default async function PublicProfilePage({
       <div className="pointer-events-none absolute inset-0 bg-radial-glow" />
       <div className="pointer-events-none absolute inset-0 bg-grid-lines bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black,transparent)]" />
 
-      <div className="relative z-10 mx-auto max-w-md px-6 pb-16 pt-16 sm:pt-24">
+      {/* Custom background banner — only renders if the user set one */}
+      {p.background_url && (
+        <div
+          className="absolute inset-x-0 top-0 z-0 h-56 bg-cover bg-center"
+          style={{ backgroundImage: `url(${p.background_url})` }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-ink-950" />
+        </div>
+      )}
+
+      <div
+        className={`relative z-10 mx-auto max-w-md px-6 pb-16 sm:pt-24 ${
+          p.background_url ? "pt-32" : "pt-16"
+        }`}
+      >
         {/* Avatar + identity */}
         <div className="flex flex-col items-center text-center">
           {p.avatar_url ? (
@@ -57,10 +71,16 @@ export default async function PublicProfilePage({
             <img
               src={p.avatar_url}
               alt={p.display_name || p.username}
-              className="h-20 w-20 rounded-full object-cover ring-2 ring-white/10"
+              className={`h-20 w-20 rounded-full object-cover ${
+                p.background_url ? "ring-4 ring-ink-950" : "ring-2 ring-white/10"
+              }`}
             />
           ) : (
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-violet-500 text-2xl font-semibold text-white shadow-glow">
+            <div
+              className={`flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-violet-500 text-2xl font-semibold text-white shadow-glow ${
+                p.background_url ? "ring-4 ring-ink-950" : ""
+              }`}
+            >
               {initial}
             </div>
           )}
@@ -68,6 +88,12 @@ export default async function PublicProfilePage({
             {p.display_name || p.username}
           </h1>
           <p className="font-mono text-xs text-zinc-500">@{p.username}</p>
+          {p.location && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-zinc-500">
+              <span>📍</span>
+              {p.location}
+            </p>
+          )}
           {p.bio && (
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-zinc-400">{p.bio}</p>
           )}

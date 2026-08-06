@@ -26,7 +26,7 @@ export function DashboardShell({
         />
       )}
 
-      <Sidebar open={open} onClose={() => setOpen(false)} />
+      <Sidebar open={open} onClose={() => setOpen(false)} username={username} />
 
       <div className="relative">
         <Topbar email={email} username={username} onMenuClick={() => setOpen((o) => !o)} />

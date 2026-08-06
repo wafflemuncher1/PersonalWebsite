@@ -17,7 +17,9 @@ export type Profile = {
   username: string;
   display_name: string;
   bio: string;
+  location: string;
   avatar_url: string | null;
+  background_url: string | null;
   links: ProfileLink[];
   theme: string;
   show_stats: boolean;
