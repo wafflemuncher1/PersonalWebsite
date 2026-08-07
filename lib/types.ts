@@ -50,6 +50,7 @@ export type Customizer2Settings = {
   backgroundUrl: string;
   avatarUrl: string;
   cursorUrl: string;
+  cursorEffect: string;
   frame: string;
   opacity: number;
   blur: number;
@@ -57,6 +58,8 @@ export type Customizer2Settings = {
   backgroundEffect: string;
   location: string;
   description: string;
+  audioUrl: string;
+  audioAutoplay: boolean;
   glow: {
     username: boolean;
     socials: boolean;
@@ -70,6 +73,10 @@ export type Customizer2Settings = {
     backgroundEffect: string;
     primary: string;
     secondary: string;
+    name: string;
+    description: string;
+    location: string;
+    uid: string;
   };
   disableGradients: boolean;
   toggles: {

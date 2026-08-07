@@ -71,6 +71,10 @@ const config: Config = {
           "10%": { opacity: "1" },
           "100%": { transform: "translateY(420%)", opacity: "0.15" },
         },
+        fadeTrail: {
+          "0%": { opacity: "1", transform: "translate(-50%, -50%) scale(1)" },
+          "100%": { opacity: "0", transform: "translate(-50%, -50%) scale(0.2)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out both",
@@ -80,6 +84,7 @@ const config: Config = {
         float: "floatY 3s ease-in-out infinite",
         sparkle: "sparkle 1.8s ease-in-out infinite",
         fall: "fall 4s linear infinite",
+        "fade-trail": "fadeTrail 0.6s ease-out forwards",
       },
     },
   },

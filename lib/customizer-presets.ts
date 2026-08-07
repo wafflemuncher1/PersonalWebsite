@@ -4,6 +4,7 @@ export const DEFAULT_CUSTOMIZER2_SETTINGS: Customizer2Settings = {
   backgroundUrl: "",
   avatarUrl: "",
   cursorUrl: "",
+  cursorEffect: "none",
   frame: "none",
   opacity: 100,
   blur: 0,
@@ -11,6 +12,8 @@ export const DEFAULT_CUSTOMIZER2_SETTINGS: Customizer2Settings = {
   backgroundEffect: "none",
   location: "",
   description: "",
+  audioUrl: "",
+  audioAutoplay: false,
   glow: { username: false, socials: false, badges: false },
   colors: {
     accent: "#8b5cf6",
@@ -20,6 +23,10 @@ export const DEFAULT_CUSTOMIZER2_SETTINGS: Customizer2Settings = {
     backgroundEffect: "#8b5cf6",
     primary: "#8b5cf6",
     secondary: "#6d28d9",
+    name: "#ffffff",
+    description: "#a1a1aa",
+    location: "#a1a1aa",
+    uid: "#71717a",
   },
   disableGradients: false,
   toggles: {
@@ -64,6 +71,30 @@ export const BACKGROUND_EFFECTS: EffectPreset[] = [
   { key: "waves", label: "Waves", icon: "〰", description: "Shimmering gradient waves." },
 ];
 
+// Cursor "effects" — a trail that follows the mouse. Unlike the custom cursor
+// image, this renders for every visitor on the real public page, not just you.
+// Deep-ish merge so older saved objects missing newly-added nested keys
+// (colors.name, toggles.*, etc.) never blow up at read time.
+export function mergeCustomizer2Settings(
+  raw: Partial<Customizer2Settings> | null | undefined
+): Customizer2Settings {
+  if (!raw) return DEFAULT_CUSTOMIZER2_SETTINGS;
+  return {
+    ...DEFAULT_CUSTOMIZER2_SETTINGS,
+    ...raw,
+    glow: { ...DEFAULT_CUSTOMIZER2_SETTINGS.glow, ...raw.glow },
+    colors: { ...DEFAULT_CUSTOMIZER2_SETTINGS.colors, ...raw.colors },
+    toggles: { ...DEFAULT_CUSTOMIZER2_SETTINGS.toggles, ...raw.toggles },
+  };
+}
+
+export const CURSOR_EFFECTS: EffectPreset[] = [
+  { key: "none", label: "None", icon: "▢", description: "Normal cursor, no trail." },
+  { key: "sparkle", label: "Sparkle Trail", icon: "✨", description: "Twinkling sparkles follow the cursor." },
+  { key: "glow", label: "Glow Trail", icon: "🌟", description: "A soft glowing orb follows the cursor." },
+  { key: "rainbow", label: "Rainbow Trail", icon: "🌈", description: "A color-cycling trail follows the cursor." },
+];
+
 export const CUSTOMIZER2_SECTIONS = [
   "Background & Avatar",
   "Frame & Cursor",
@@ -71,5 +102,6 @@ export const CUSTOMIZER2_SECTIONS = [
   "Location & Description",
   "Glow Settings",
   "Color Customizer",
+  "Audio",
   "Customization",
 ] as const;

@@ -1,8 +1,10 @@
 "use client";
 
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { FRAME_PRESETS } from "@/lib/customizer-presets";
 import { BackgroundEffectOverlay, ProfileEffectOverlay } from "@/components/customizer2/EffectOverlays";
+import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { Customizer2Settings } from "@/lib/types";
 
 export function LivePreview({
@@ -17,11 +19,13 @@ export function LivePreview({
   const frame = FRAME_PRESETS.find((f) => f.key === settings.frame) ?? FRAME_PRESETS[0];
   const isSpinFrame = frame.key === "spin";
   const glowShadow = { textShadow: `0 0 12px ${settings.colors.accent}` };
+  const cardRef = useRef<HTMLDivElement>(null);
 
   return (
     <div className="sticky top-4">
       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">Live Preview</p>
       <div
+        ref={cardRef}
         className="relative overflow-hidden rounded-2xl border border-white/10 shadow-glow"
         style={{
           opacity: settings.opacity / 100,
@@ -30,6 +34,7 @@ export function LivePreview({
           cursor: settings.cursorUrl ? `url(${settings.cursorUrl}), auto` : undefined,
         }}
       >
+        <CursorTrail effect={settings.cursorEffect} color={settings.colors.accent} containerRef={cardRef} />
         {settings.backgroundUrl && (
           <div
             className="absolute inset-0 bg-cover bg-center"
@@ -71,14 +76,30 @@ export function LivePreview({
             </div>
           </div>
 
-          <p className="mt-4 text-lg font-semibold" style={settings.glow.username ? glowShadow : undefined}>
+          <p
+            className="mt-4 text-lg font-semibold"
+            style={{ color: settings.colors.name, ...(settings.glow.username ? glowShadow : {}) }}
+          >
             {displayName || username || "Your Name"}
           </p>
-          <p className="text-xs opacity-70">@{username || "username"}</p>
+          <p className="text-xs" style={{ color: settings.colors.uid }}>
+            @{username || "username"}
+          </p>
 
-          {settings.location && <p className="mt-1 text-xs opacity-60">📍 {settings.location}</p>}
+          {settings.location && (
+            <p className="mt-1 text-xs" style={{ color: settings.colors.location }}>
+              📍 {settings.location}
+            </p>
+          )}
           {settings.description && (
-            <p className="mt-3 max-w-xs text-sm leading-relaxed opacity-80">{settings.description}</p>
+            <p className="mt-3 max-w-xs text-sm leading-relaxed" style={{ color: settings.colors.description }}>
+              {settings.description}
+            </p>
+          )}
+          {settings.audioUrl && (
+            <p className="mt-3 flex items-center gap-1.5 text-[11px] opacity-70">
+              <span>🎵</span> Audio track added
+            </p>
           )}
 
           <div className="mt-5 flex gap-2" style={settings.glow.socials ? glowShadow : undefined}>

@@ -8,6 +8,7 @@ import { LivePreview } from "@/components/customizer2/LivePreview";
 import { SectionCard, Slider, ColorField, ToggleRow, UploadTile } from "@/components/customizer2/controls";
 import {
   BACKGROUND_EFFECTS,
+  CURSOR_EFFECTS,
   CUSTOMIZER2_SECTIONS,
   FRAME_PRESETS,
   PROFILE_EFFECTS,
@@ -16,6 +17,12 @@ import type { Customizer2Settings } from "@/lib/types";
 
 function validateImage(file: File, maxMb: number): string | null {
   if (!file.type.startsWith("image/")) return "Must be an image (PNG, JPG, GIF, etc).";
+  if (file.size > maxMb * 1024 * 1024) return `Must be under ${maxMb}MB.`;
+  return null;
+}
+
+function validateAudio(file: File, maxMb: number): string | null {
+  if (!file.type.startsWith("audio/")) return "Must be an audio file (MP3, WAV, OGG, etc).";
   if (file.size > maxMb * 1024 * 1024) return `Must be under ${maxMb}MB.`;
   return null;
 }
@@ -36,6 +43,7 @@ export function ProfileCustomizer2({
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [backgroundUploading, setBackgroundUploading] = useState(false);
   const [cursorUploading, setCursorUploading] = useState(false);
+  const [audioUploading, setAudioUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [effectMenuOpen, setEffectMenuOpen] = useState(false);
@@ -83,12 +91,15 @@ export function ProfileCustomizer2({
 
   async function uploadTo(
     file: File,
-    kind: "avatar" | "background" | "cursor",
+    kind: "avatar" | "background" | "cursor" | "audio",
     setUploading: (v: boolean) => void,
     setUrl: (v: string) => void
   ) {
     if (!profileId) return;
-    const problem = validateImage(file, kind === "cursor" ? 1 : 8);
+    const problem =
+      kind === "audio"
+        ? validateAudio(file, 15)
+        : validateImage(file, kind === "cursor" ? 1 : 8);
     if (problem) {
       setUploadError(problem);
       return;
@@ -128,7 +139,7 @@ export function ProfileCustomizer2({
       <div className="relative">
         <div
           ref={containerRef}
-          className="h-[70vh] space-y-8 overflow-y-auto scroll-smooth rounded-2xl border border-white/10 bg-white/[0.01] p-5 pr-8 sm:p-6 sm:pr-10"
+          className="h-[70vh] snap-y snap-mandatory overflow-y-auto scroll-smooth rounded-2xl border border-white/10 bg-white/[0.01] p-5 pr-8 sm:p-6 sm:pr-10"
         >
           {/* 1. Background & Avatar */}
           <section
@@ -136,6 +147,7 @@ export function ProfileCustomizer2({
               sectionRefs.current[0] = el;
             }}
             data-section-index={0}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Background & Avatar" description="GIFs are supported for both.">
               <div className="grid gap-4 sm:grid-cols-2">
@@ -174,6 +186,7 @@ export function ProfileCustomizer2({
               sectionRefs.current[1] = el;
             }}
             data-section-index={1}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Frame & Cursor">
               <div>
@@ -203,6 +216,24 @@ export function ProfileCustomizer2({
                 }}
                 onRemove={() => patch({ cursorUrl: "" })}
               />
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Cursor Effect</label>
+                <p className="mb-2 text-[11px] text-zinc-600">
+                  A trail that follows the mouse — shown to anyone visiting your page, not just you.
+                </p>
+                <select
+                  value={settings.cursorEffect}
+                  onChange={(e) => patch({ cursorEffect: e.target.value })}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50"
+                >
+                  {CURSOR_EFFECTS.map((eff) => (
+                    <option key={eff.key} value={eff.key} className="bg-ink-950">
+                      {eff.icon} {eff.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </SectionCard>
           </section>
 
@@ -212,6 +243,7 @@ export function ProfileCustomizer2({
               sectionRefs.current[2] = el;
             }}
             data-section-index={2}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Opacity, Blur & Effects">
               <Slider label="Profile Opacity" value={settings.opacity} onChange={(v) => patch({ opacity: v })} min={20} max={100} unit="%" />
@@ -277,6 +309,7 @@ export function ProfileCustomizer2({
               sectionRefs.current[3] = el;
             }}
             data-section-index={3}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Location & Description">
               <div>
@@ -305,6 +338,7 @@ export function ProfileCustomizer2({
               sectionRefs.current[4] = el;
             }}
             data-section-index={4}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Glow Settings" description="Choose what glows using your accent color.">
               <ToggleRow label="Username" checked={settings.glow.username} onChange={(v) => patchGlow({ username: v })} />
@@ -319,6 +353,7 @@ export function ProfileCustomizer2({
               sectionRefs.current[5] = el;
             }}
             data-section-index={5}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Color Customizer">
               <ToggleRow
@@ -350,15 +385,92 @@ export function ProfileCustomizer2({
                   disabled={settings.disableGradients}
                 />
               </div>
+
+              <div>
+                <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                  Per-element text colors
+                </p>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <ColorField label="Name Color" value={settings.colors.name} onChange={(v) => patchColor("name", v)} />
+                  <ColorField label="UID Color" value={settings.colors.uid} onChange={(v) => patchColor("uid", v)} />
+                  <ColorField
+                    label="Location Color"
+                    value={settings.colors.location}
+                    onChange={(v) => patchColor("location", v)}
+                  />
+                  <ColorField
+                    label="Description Color"
+                    value={settings.colors.description}
+                    onChange={(v) => patchColor("description", v)}
+                  />
+                </div>
+              </div>
             </SectionCard>
           </section>
 
-          {/* 7. Customization */}
+          {/* 7. Audio */}
           <section
             ref={(el) => {
               sectionRefs.current[6] = el;
             }}
             data-section-index={6}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
+          >
+            <SectionCard title="Audio" description="Add a track that plays on your profile page.">
+              <div>
+                <p className="mb-2 text-sm text-zinc-300">Track</p>
+                <label className="flex cursor-pointer items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3.5 transition hover:bg-white/[0.03]">
+                  <span className="flex items-center gap-2 text-sm text-zinc-300">
+                    <span>🎵</span>
+                    {settings.audioUrl ? "Track uploaded" : audioUploading ? "Uploading…" : "Click to upload audio"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    disabled={audioUploading}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) uploadTo(file, "audio", setAudioUploading, (v) => patch({ audioUrl: v }));
+                    }}
+                  />
+                </label>
+                <p className="mt-1.5 text-[11px] text-zinc-600">MP3, WAV, or OGG, up to 15MB.</p>
+              </div>
+
+              {settings.audioUrl && (
+                <div className="space-y-3">
+                  <audio controls src={settings.audioUrl} className="w-full" />
+                  <button
+                    type="button"
+                    onClick={() => patch({ audioUrl: "" })}
+                    className="text-xs text-red-400 transition hover:text-red-300"
+                  >
+                    Remove track
+                  </button>
+                </div>
+              )}
+
+              <ToggleRow
+                label="Autoplay"
+                sub="Try to play automatically when someone opens your page. Browsers may still block this until they interact with the page."
+                checked={settings.audioAutoplay}
+                onChange={(v) => patch({ audioAutoplay: v })}
+              />
+              <p className="text-[11px] text-zinc-600">
+                Turn on &quot;Volume Control&quot; in Customization so visitors get a volume slider.
+              </p>
+            </SectionCard>
+          </section>
+
+          {/* 8. Customization */}
+          <section
+            ref={(el) => {
+              sectionRefs.current[7] = el;
+            }}
+            data-section-index={7}
+            className="flex min-h-full snap-start flex-col justify-center py-2"
           >
             <SectionCard title="Customization">
               <ToggleRow label="Monochrome Icons" checked={settings.toggles.monochromeIcons} onChange={(v) => patchToggle("monochromeIcons", v)} />

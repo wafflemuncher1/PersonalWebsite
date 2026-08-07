@@ -7,12 +7,14 @@ export function TrackedLink({
   label,
   url,
   className,
+  style,
   children,
 }: {
   username: string;
   label: string;
   url: string;
   className?: string;
+  style?: React.CSSProperties;
   children: ReactNode;
 }) {
   function handleClick() {
@@ -43,6 +45,7 @@ export function TrackedLink({
       rel="noreferrer"
       onClick={handleClick}
       className={className}
+      style={style}
     >
       {children}
     </a>
