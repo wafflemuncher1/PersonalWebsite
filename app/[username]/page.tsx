@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isReservedUsername } from "@/lib/reserved-usernames";
 import { TrackedLink } from "@/components/profile/TrackedLink";
 import { AudioPlayer } from "@/components/profile/AudioPlayer";
+import { LikeButton } from "@/components/profile/LikeButton";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import { BackgroundEffectOverlay, ProfileEffectOverlay } from "@/components/customizer2/EffectOverlays";
 import { FRAME_PRESETS, mergeCustomizer2Settings } from "@/lib/customizer-presets";
@@ -243,7 +244,7 @@ export default async function PublicProfilePage({
             ))
           )}
 
-          {hasC2 && c2.profileEffect !== "none" && (
+          {hasC2 && c2.profileEffect !== "none" && links.length > 0 && (
             <ProfileEffectOverlay effect={c2.profileEffect} color={c2.colors.accent} />
           )}
         </div>
@@ -260,23 +261,27 @@ export default async function PublicProfilePage({
         <AudioPlayer src={c2.audioUrl} autoplay={c2.audioAutoplay} showVolumeSlider={c2.toggles.volumeControl} />
       )}
 
-      {useCornerStats && (
-        <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 rounded-full border border-white/10 bg-ink-950/70 px-3 py-1.5 text-[11px] text-zinc-400 backdrop-blur">
-          <span className="flex items-center gap-1">
-            <span>👁</span>
-            {p.view_count.toLocaleString()}
-          </span>
-          {effectiveLocation && (
-            <>
-              <span className="text-zinc-700">·</span>
-              <span className="flex items-center gap-1">
-                <span>📍</span>
-                {effectiveLocation}
-              </span>
-            </>
-          )}
-        </div>
-      )}
+      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 rounded-full border border-white/10 bg-ink-950/70 px-3 py-1.5 text-[11px] text-zinc-400 backdrop-blur">
+        {useCornerStats && (
+          <>
+            <span className="flex items-center gap-1" title="Views">
+              <span>👁</span>
+              {p.view_count.toLocaleString()}
+            </span>
+            {effectiveLocation && (
+              <>
+                <span className="text-zinc-700">·</span>
+                <span className="flex items-center gap-1" title="Location">
+                  <span>📍</span>
+                  {effectiveLocation}
+                </span>
+              </>
+            )}
+            <span className="text-zinc-700">·</span>
+          </>
+        )}
+        <LikeButton username={username} />
+      </div>
     </main>
   );
 }
