@@ -4,6 +4,20 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+/** Convert a #hex color + an opacity percent (0-100) into an rgba() string,
+ * so transparency can be baked into a background-color alone — this fades
+ * only the fill, never the content stacked on top of it. */
+export function hexToRgba(hex: string, opacityPercent: number): string {
+  const clean = hex.replace("#", "").trim();
+  const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+  const r = parseInt(full.slice(0, 2), 16);
+  const g = parseInt(full.slice(2, 4), 16);
+  const b = parseInt(full.slice(4, 6), 16);
+  const a = Math.max(0, Math.min(100, opacityPercent)) / 100;
+  if ([r, g, b].some((n) => Number.isNaN(n))) return hex;
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
 export function toDateKey(d: Date): string {
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, "0");

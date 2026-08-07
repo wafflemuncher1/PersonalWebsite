@@ -28,10 +28,14 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [bgColor, setBgColor] = useState(profile?.bg_color ?? "#000000");
   const [bgColor2, setBgColor2] = useState(profile?.bg_color_2 ?? "#4c1d95");
   const [nameColor, setNameColor] = useState(profile?.name_color ?? "#111111");
-  const [nameAnimated, setNameAnimated] = useState(profile?.name_animated ?? false);
+  const [nameAnimation, setNameAnimation] = useState<"none" | "typewriter">(profile?.name_animation ?? "none");
   const [cardColor, setCardColor] = useState(profile?.card_color ?? "#ffffff");
   const [cardOpacity, setCardOpacity] = useState(profile?.card_opacity ?? 100);
   const [cardBorderColor, setCardBorderColor] = useState(profile?.card_border_color ?? "#e5e7eb");
+  const [showLocationTag, setShowLocationTag] = useState(profile?.show_location ?? false);
+  const [locationPosition, setLocationPosition] = useState<"bottom-left" | "bottom-right" | "card">(
+    profile?.location_position ?? "card"
+  );
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
@@ -94,10 +98,12 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         bg_color: bgColor,
         bg_color_2: bgColor2,
         name_color: nameColor,
-        name_animated: nameAnimated,
+        name_animation: nameAnimation,
         card_color: cardColor,
         card_opacity: cardOpacity,
         card_border_color: cardBorderColor,
+        show_location: showLocationTag,
+        location_position: locationPosition,
       })
       .eq("id", profile?.id);
 
@@ -243,12 +249,15 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               <ColorField label="Display Name Color" value={nameColor} onChange={setNameColor} />
             </div>
             <div className="mt-3">
-              <ToggleRow
-                label="Animate Display Name"
-                sub="Types itself out in a loop instead of sitting still."
-                checked={nameAnimated}
-                onChange={setNameAnimated}
-              />
+              <label className="mb-1.5 block text-xs font-medium text-zinc-400">Name Animation</label>
+              <select
+                value={nameAnimation}
+                onChange={(e) => setNameAnimation(e.target.value as "none" | "typewriter")}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              >
+                <option value="none" className="bg-ink-950">None</option>
+                <option value="typewriter" className="bg-ink-950">Typewriter</option>
+              </select>
             </div>
           </div>
 
@@ -260,7 +269,32 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             </div>
             <div className="mt-4">
               <Slider label="Box Transparency" value={cardOpacity} onChange={setCardOpacity} min={0} max={100} unit="%" />
+              <p className="mt-1.5 text-[11px] text-zinc-600">Only the box fill fades — your picture and name stay fully visible.</p>
             </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Location</p>
+            <ToggleRow
+              label="Enable Location"
+              sub="Show the location from the General section above on your public profile."
+              checked={showLocationTag}
+              onChange={setShowLocationTag}
+            />
+            {showLocationTag && (
+              <div className="mt-3">
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Location Position</label>
+                <select
+                  value={locationPosition}
+                  onChange={(e) => setLocationPosition(e.target.value as "bottom-left" | "bottom-right" | "card")}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+                >
+                  <option value="card" className="bg-ink-950">On Card</option>
+                  <option value="bottom-left" className="bg-ink-950">Bottom Left</option>
+                  <option value="bottom-right" className="bg-ink-950">Bottom Right</option>
+                </select>
+              </div>
+            )}
           </div>
         </div>
 
