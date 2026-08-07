@@ -22,6 +22,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [location, setLocation] = useState(profile?.location ?? "");
   const [showStats, setShowStats] = useState(profile?.show_stats ?? false);
+  const [layout, setLayout] = useState<"top" | "side">(profile?.layout ?? "top");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
@@ -79,6 +80,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         bio: cleanBio,
         location: cleanLocation,
         show_stats: showStats,
+        layout,
       })
       .eq("id", profile?.id);
 
@@ -134,6 +136,36 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
       <Card className="p-6">
         <h2 className="mb-4 text-lg font-semibold text-white">General</h2>
         <div className="grid gap-4 sm:grid-cols-2">
+          <div className="sm:col-span-2">
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Profile Layout</label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setLayout("top")}
+                className={`rounded-lg border p-3 text-left text-sm transition ${
+                  layout === "top"
+                    ? "border-violet-500/50 bg-violet-500/10 text-white"
+                    : "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-white/25"
+                }`}
+              >
+                <p className="font-medium">Top</p>
+                <p className="text-xs text-zinc-500">Picture centered above your name.</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => setLayout("side")}
+                className={`rounded-lg border p-3 text-left text-sm transition ${
+                  layout === "side"
+                    ? "border-violet-500/50 bg-violet-500/10 text-white"
+                    : "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-white/25"
+                }`}
+              >
+                <p className="font-medium">Side</p>
+                <p className="text-xs text-zinc-500">Picture on the left, name beside it.</p>
+              </button>
+            </div>
+          </div>
+
           <div className="sm:col-span-2">
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Description</label>
             <Textarea

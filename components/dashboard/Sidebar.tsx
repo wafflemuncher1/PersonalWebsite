@@ -25,7 +25,6 @@ const NAV_GROUPS = [
       { href: "/dashboard/profile/links", label: "Links" },
       { href: "/dashboard/profile/templates", label: "Templates" },
       { href: "/dashboard/badges", label: "Badges" },
-      { href: "/dashboard/profile/customizer2", label: "Customizer 2" },
     ],
   },
   {

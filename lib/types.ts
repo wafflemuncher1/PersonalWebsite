@@ -31,6 +31,7 @@ export type Profile = {
   background_url: string | null;
   links: ProfileLink[];
   theme: string;
+  layout: "top" | "side";
   show_stats: boolean;
   plan: Plan;
   subscription_status: SubscriptionStatus;
