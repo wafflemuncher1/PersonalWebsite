@@ -11,6 +11,8 @@ const TITLES: Record<string, string> = {
   "/dashboard/streaks": "Streaks",
   "/dashboard/analytics": "Account Analytics",
   "/dashboard/badges": "All Badges",
+  "/dashboard/dashboard-2": "Dashboard 2",
+  "/dashboard/dashboard-builder": "Dashboard Builder",
   "/dashboard/settings": "Settings",
   "/dashboard/profile/customize": "Customize",
   "/dashboard/profile/links": "Links",

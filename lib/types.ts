@@ -28,6 +28,7 @@ export type Profile = {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   view_count: number;
+  dashboard2_layout: string[] | null;
   created_at: string;
   updated_at: string;
 };

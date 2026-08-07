@@ -10,6 +10,8 @@ const NAV_TOP = [{ href: "/dashboard", label: "Overview", icon: "◈", exact: tr
 
 const NAV_BOTTOM = [
   { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
+  { href: "/dashboard/dashboard-2", label: "Dashboard 2", icon: "🧪" },
+  { href: "/dashboard/dashboard-builder", label: "Dashboard Builder", icon: "🎛" },
   { href: "/dashboard/settings", label: "Settings", icon: "⚙" },
 ];
 
