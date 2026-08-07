@@ -40,6 +40,8 @@ export type Profile = {
   card_color: string;
   card_opacity: number;
   card_border_color: string;
+  card_outline_enabled: boolean;
+  card_outline_width: number;
   show_location: boolean;
   location_position: "bottom-left" | "bottom-right" | "card";
   show_stats: boolean;

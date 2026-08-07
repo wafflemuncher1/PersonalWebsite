@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isReservedUsername } from "@/lib/reserved-usernames";
+import { Eye, MapPin } from "lucide-react";
 import { cn, hexToRgba } from "@/lib/utils";
 import { AnimatedName } from "@/components/profile/AnimatedName";
 import type { Profile } from "@/lib/types";
@@ -67,12 +68,14 @@ export default async function PublicProfilePage({
     <main className="flex min-h-screen items-center justify-center px-6" style={mainStyle}>
       <div
         className={cn(
-          "w-full max-w-xl rounded-2xl border p-10 shadow-xl",
+          "w-full max-w-xl rounded-2xl p-10 shadow-xl",
           isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
         )}
         style={{
           backgroundColor: hexToRgba(p.card_color, p.card_opacity),
-          borderColor: p.card_border_color,
+          border: p.card_outline_enabled
+            ? `${p.card_outline_width}px solid ${p.card_border_color}`
+            : "none",
         }}
       >
         <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
@@ -100,9 +103,15 @@ export default async function PublicProfilePage({
           )}
           <p className="font-mono text-xs text-zinc-500">@{p.username}</p>
           {showLocationOnCard && (
-            <p className={cn("mt-1.5 flex items-center gap-1 text-xs text-zinc-500", isSide ? "" : "justify-center")}>
-              <span>📍</span>
-              {p.location}
+            <p className={cn("mt-1.5 flex items-center gap-2 text-xs text-zinc-500", isSide ? "" : "justify-center")}>
+              <span className="flex items-center gap-1">
+                <Eye className="h-3 w-3" />
+                {p.view_count.toLocaleString()}
+              </span>
+              <span className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {p.location}
+              </span>
             </p>
           )}
         </div>
@@ -111,12 +120,18 @@ export default async function PublicProfilePage({
       {showLocationCorner && (
         <div
           className={cn(
-            "fixed bottom-4 z-40 flex items-center gap-1 rounded-full border border-white/10 bg-ink-950/70 px-3 py-1.5 text-[11px] text-zinc-300 backdrop-blur",
+            "fixed bottom-4 z-40 flex items-center gap-2 rounded-full border border-white/10 bg-ink-950/70 px-3 py-1.5 text-[11px] text-zinc-300 backdrop-blur",
             p.location_position === "bottom-left" ? "left-4" : "right-4"
           )}
         >
-          <span>📍</span>
-          {p.location}
+          <span className="flex items-center gap-1">
+            <Eye className="h-3 w-3" />
+            {p.view_count.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <MapPin className="h-3 w-3" />
+            {p.location}
+          </span>
         </div>
       )}
     </main>

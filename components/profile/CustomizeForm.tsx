@@ -32,6 +32,8 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [cardColor, setCardColor] = useState(profile?.card_color ?? "#ffffff");
   const [cardOpacity, setCardOpacity] = useState(profile?.card_opacity ?? 100);
   const [cardBorderColor, setCardBorderColor] = useState(profile?.card_border_color ?? "#e5e7eb");
+  const [outlineEnabled, setOutlineEnabled] = useState(profile?.card_outline_enabled ?? true);
+  const [outlineWidth, setOutlineWidth] = useState(profile?.card_outline_width ?? 1);
   const [showLocationTag, setShowLocationTag] = useState(profile?.show_location ?? false);
   const [locationPosition, setLocationPosition] = useState<"bottom-left" | "bottom-right" | "card">(
     profile?.location_position ?? "card"
@@ -102,6 +104,8 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         card_color: cardColor,
         card_opacity: cardOpacity,
         card_border_color: cardBorderColor,
+        card_outline_enabled: outlineEnabled,
+        card_outline_width: outlineWidth,
         show_location: showLocationTag,
         location_position: locationPosition,
       })
@@ -265,12 +269,26 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile Box</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <ColorField label="Box Color" value={cardColor} onChange={setCardColor} />
-              <ColorField label="Box Outline Color" value={cardBorderColor} onChange={setCardBorderColor} />
             </div>
             <div className="mt-4">
               <Slider label="Box Transparency" value={cardOpacity} onChange={setCardOpacity} min={0} max={100} unit="%" />
               <p className="mt-1.5 text-[11px] text-zinc-600">Only the box fill fades — your picture and name stay fully visible.</p>
             </div>
+
+            <div className="mt-4">
+              <ToggleRow
+                label="Box Outline"
+                sub="Turn off for a completely borderless box."
+                checked={outlineEnabled}
+                onChange={setOutlineEnabled}
+              />
+            </div>
+            {outlineEnabled && (
+              <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                <Slider label="Outline Thickness" value={outlineWidth} onChange={setOutlineWidth} min={1} max={8} unit="px" />
+                <ColorField label="Outline Color" value={cardBorderColor} onChange={setCardBorderColor} />
+              </div>
+            )}
           </div>
 
           <div className="border-t border-white/5 pt-5">
