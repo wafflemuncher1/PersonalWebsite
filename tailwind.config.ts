@@ -54,11 +54,32 @@ const config: Config = {
           "0%, 100%": { opacity: "0.6" },
           "50%": { opacity: "1" },
         },
+        spinSlow: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        floatY: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+        sparkle: {
+          "0%, 100%": { opacity: "0.25", transform: "scale(0.8)" },
+          "50%": { opacity: "1", transform: "scale(1.15)" },
+        },
+        fall: {
+          "0%": { transform: "translateY(-10%)", opacity: "0" },
+          "10%": { opacity: "1" },
+          "100%": { transform: "translateY(420%)", opacity: "0.15" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out both",
         shimmer: "shimmer 3s linear infinite",
         "pulse-glow": "pulseGlow 2.5s ease-in-out infinite",
+        "spin-slow": "spinSlow 4s linear infinite",
+        float: "floatY 3s ease-in-out infinite",
+        sparkle: "sparkle 1.8s ease-in-out infinite",
+        fall: "fall 4s linear infinite",
       },
     },
   },
