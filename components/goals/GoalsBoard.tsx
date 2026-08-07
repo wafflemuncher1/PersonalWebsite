@@ -173,6 +173,8 @@ export function GoalsBoard({
 
   return (
     <div>
+      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Goals</h1>
+
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] p-1">
           {FILTERS.map((f) => (

@@ -81,6 +81,8 @@ export function JournalBoard({ initialEntries }: { initialEntries: JournalEntry[
 
   return (
     <div className="mx-auto max-w-2xl">
+      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Journal</h1>
+
       {/* Mood trend strip */}
       {trend.length > 1 && (
         <div className="mb-6 flex items-center gap-1.5 overflow-x-auto rounded-xl border border-white/5 bg-white/[0.02] p-3">

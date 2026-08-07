@@ -2,9 +2,10 @@ import { Card } from "@/components/ui/Card";
 
 export default function TemplatesPage() {
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
+      <h1 className="text-3xl font-extrabold tracking-tight text-white">Templates</h1>
+
       <Card className="p-6">
-        <h2 className="mb-1 text-sm font-medium text-white">Templates</h2>
         <p className="mb-5 text-xs text-zinc-500">
           Coming soon. Until you pick one, your page keeps the default look — the same
           blank, unstyled layout it uses right now.

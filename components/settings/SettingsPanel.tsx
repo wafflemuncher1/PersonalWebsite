@@ -138,7 +138,9 @@ export function SettingsPanel({
   }
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
+      <h1 className="text-3xl font-extrabold tracking-tight text-white">Settings</h1>
+
       <BillingCard profile={profile} autoCheckout={searchParams.get("checkout")} />
 
       <Card className="p-6">

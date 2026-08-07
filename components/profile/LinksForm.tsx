@@ -67,9 +67,11 @@ export function LinksForm({ profile }: { profile: Profile | null }) {
   if (!profile) return null;
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-6">
+      <h1 className="text-3xl font-extrabold tracking-tight text-white">Links</h1>
+
       <Card className="p-6">
-        <h2 className="mb-1 text-sm font-medium text-white">Links</h2>
+        <h2 className="mb-1 text-sm font-medium text-white">Your links</h2>
         <p className="mb-5 text-xs text-zinc-500">
           These show up as buttons on your public page, in order.
         </p>

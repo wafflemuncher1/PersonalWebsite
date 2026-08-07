@@ -94,6 +94,8 @@ export function StreaksGrid({
 
   return (
     <div>
+      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Streaks</h1>
+
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] p-1">
           <button

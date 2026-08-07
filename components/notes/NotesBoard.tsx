@@ -101,6 +101,8 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
 
   return (
     <div>
+      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Notes</h1>
+
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <Input
           placeholder="Search notes…"

@@ -21,14 +21,14 @@ export function DashboardShell({
 
       {open && (
         <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity"
+          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity lg:hidden"
           onClick={() => setOpen(false)}
         />
       )}
 
       <Sidebar open={open} onClose={() => setOpen(false)} username={username} />
 
-      <div className="relative">
+      <div className="relative lg:pl-72">
         <Topbar email={email} username={username} onMenuClick={() => setOpen((o) => !o)} />
         <main className="relative z-10 px-6 py-8 sm:px-8">{children}</main>
       </div>

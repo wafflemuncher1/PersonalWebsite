@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { HeroStat } from "@/components/dashboard/HeroStat";
-import { ManageAccountCard } from "@/components/dashboard/ManageAccountCard";
-import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
+import { SectionSummaryCard } from "@/components/dashboard/SectionSummaryCard";
 import { Achievements, type Achievement } from "@/components/dashboard/Achievements";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -115,31 +114,9 @@ export default async function OverviewPage() {
     { id: "note-taker", emoji: "✎", label: "Note taker ×10", unlocked: notesCount >= 10 },
   ];
 
-  const greetName = profile?.display_name?.trim() || user?.email?.split("@")[0] || "there";
-  const hour = new Date().getHours();
-  const greeting = hour < 5 ? "Still up" : hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-white">
-            {greeting}, {greetName}.
-          </h2>
-          <p className="mt-1 text-sm text-zinc-500">Here&apos;s where things stand.</p>
-        </div>
-        {profile?.username && (
-          <Link
-            href={`/${profile.username}`}
-            target="_blank"
-            className="inline-flex items-center gap-1.5 text-xs text-violet-400 hover:text-violet-300"
-          >
-            nocturne.co/{profile.username} ↗
-          </Link>
-        )}
-      </div>
-
-      <h2 className="text-lg font-semibold text-white">Account Overview</h2>
+      <h1 className="text-3xl font-extrabold tracking-tight text-white">Account Overview</h1>
 
       {/* Hero stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -164,14 +141,36 @@ export default async function OverviewPage() {
         />
       </div>
 
-      <h2 className="text-lg font-semibold text-white">Account Statistics</h2>
-
-      {/* Profile completion + manage account */}
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <ProfileCompletionCard profile={profile} />
-        </div>
-        <ManageAccountCard />
+      {/* Quick jump into each part of the app */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <SectionSummaryCard
+          icon="🔥"
+          title="Streaks"
+          value={bestCurrent}
+          label={bestCurrent === 1 ? "day, your biggest streak" : "days, your biggest streak"}
+          href="/dashboard/streaks"
+        />
+        <SectionSummaryCard
+          icon="◎"
+          title="Goals"
+          value={activeGoals.length}
+          label="active right now"
+          href="/dashboard/goals"
+        />
+        <SectionSummaryCard
+          icon="✎"
+          title="Notes"
+          value={notesCount}
+          label="saved"
+          href="/dashboard/notes"
+        />
+        <SectionSummaryCard
+          icon="📓"
+          title="Journal"
+          value={journalCount}
+          label="entries written"
+          href="/dashboard/journal"
+        />
       </div>
 
       <Achievements achievements={achievements} />

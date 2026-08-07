@@ -44,7 +44,7 @@ export function Topbar({
         <button
           onClick={onMenuClick}
           aria-label="Toggle menu"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-zinc-300 transition hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-zinc-300 transition hover:border-violet-500/40 hover:bg-violet-500/10 hover:text-white lg:hidden"
         >
           <span className="flex flex-col items-center gap-[3px]">
             <span className="block h-[1.5px] w-4 bg-current" />
@@ -70,7 +70,7 @@ export function Topbar({
             href={`/${username}`}
             target="_blank"
             rel="noreferrer"
-            className="rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-3 py-1.5 text-xs font-medium text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400"
+            className="rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-3 py-1.5 text-xs font-medium text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400 lg:hidden"
           >
             View my page ↗
           </a>

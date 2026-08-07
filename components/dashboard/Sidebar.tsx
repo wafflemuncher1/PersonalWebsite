@@ -72,7 +72,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-ink-950/95 backdrop-blur-xl transition-transform duration-300 ease-out",
+        "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-ink-950/95 backdrop-blur-xl transition-transform duration-300 ease-out lg:translate-x-0",
         open ? "translate-x-0" : "-translate-x-full"
       )}
     >
@@ -80,7 +80,7 @@ export function Sidebar({
         <Logo onBeforeNavigate={onClose} />
         <button
           onClick={onClose}
-          className="rounded-full p-1.5 text-zinc-500 transition hover:bg-white/10 hover:text-white"
+          className="rounded-full p-1.5 text-zinc-500 transition hover:bg-white/10 hover:text-white lg:hidden"
           aria-label="Close menu"
         >
           ✕
