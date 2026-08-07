@@ -32,6 +32,14 @@ export type Profile = {
   links: ProfileLink[];
   theme: string;
   layout: "top" | "side";
+  bg_type: "solid" | "gradient";
+  bg_color: string;
+  bg_color_2: string;
+  name_color: string;
+  name_animated: boolean;
+  card_color: string;
+  card_opacity: number;
+  card_border_color: string;
   show_stats: boolean;
   plan: Plan;
   subscription_status: SubscriptionStatus;

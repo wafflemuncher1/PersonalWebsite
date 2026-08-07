@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
+import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { firstProfaneField } from "@/lib/profanity";
 import type { Profile } from "@/lib/types";
 
@@ -23,6 +24,14 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [location, setLocation] = useState(profile?.location ?? "");
   const [showStats, setShowStats] = useState(profile?.show_stats ?? false);
   const [layout, setLayout] = useState<"top" | "side">(profile?.layout ?? "top");
+  const [bgType, setBgType] = useState<"solid" | "gradient">(profile?.bg_type ?? "solid");
+  const [bgColor, setBgColor] = useState(profile?.bg_color ?? "#000000");
+  const [bgColor2, setBgColor2] = useState(profile?.bg_color_2 ?? "#4c1d95");
+  const [nameColor, setNameColor] = useState(profile?.name_color ?? "#111111");
+  const [nameAnimated, setNameAnimated] = useState(profile?.name_animated ?? false);
+  const [cardColor, setCardColor] = useState(profile?.card_color ?? "#ffffff");
+  const [cardOpacity, setCardOpacity] = useState(profile?.card_opacity ?? 100);
+  const [cardBorderColor, setCardBorderColor] = useState(profile?.card_border_color ?? "#e5e7eb");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
@@ -81,6 +90,14 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         location: cleanLocation,
         show_stats: showStats,
         layout,
+        bg_type: bgType,
+        bg_color: bgColor,
+        bg_color_2: bgColor2,
+        name_color: nameColor,
+        name_animated: nameAnimated,
+        card_color: cardColor,
+        card_opacity: cardOpacity,
+        card_border_color: cardBorderColor,
       })
       .eq("id", profile?.id);
 
@@ -197,6 +214,54 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-violet-500"
             />
           </label>
+        </div>
+
+      </Card>
+
+      <Card className="p-6">
+        <h2 className="mb-4 text-lg font-semibold text-white">Appearance</h2>
+
+        <div className="space-y-5">
+          <ToggleRow
+            label="Gradient Background"
+            sub="Blend two colors instead of one flat color."
+            checked={bgType === "gradient"}
+            onChange={(v) => setBgType(v ? "gradient" : "solid")}
+          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <ColorField label="Background Color" value={bgColor} onChange={setBgColor} />
+            <ColorField
+              label="Background Color 2"
+              value={bgColor2}
+              onChange={setBgColor2}
+              disabled={bgType !== "gradient"}
+            />
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ColorField label="Display Name Color" value={nameColor} onChange={setNameColor} />
+            </div>
+            <div className="mt-3">
+              <ToggleRow
+                label="Animate Display Name"
+                sub="Types itself out in a loop instead of sitting still."
+                checked={nameAnimated}
+                onChange={setNameAnimated}
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile Box</p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ColorField label="Box Color" value={cardColor} onChange={setCardColor} />
+              <ColorField label="Box Outline Color" value={cardBorderColor} onChange={setCardBorderColor} />
+            </div>
+            <div className="mt-4">
+              <Slider label="Box Transparency" value={cardOpacity} onChange={setCardOpacity} min={0} max={100} unit="%" />
+            </div>
+          </div>
         </div>
 
         <div className="mt-5 space-y-3">
