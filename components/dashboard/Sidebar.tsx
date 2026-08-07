@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
@@ -33,9 +33,21 @@ export function Sidebar({
   const pathname = usePathname();
   const [manualOpen, setManualOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [query, setQuery] = useState("");
 
   const profileActive = pathname?.startsWith("/dashboard/profile") ?? false;
-  const profileExpanded = profileActive || manualOpen;
+
+  const q = query.trim().toLowerCase();
+  const filteredNav = useMemo(
+    () => (q ? NAV.filter((item) => item.label.toLowerCase().includes(q)) : NAV),
+    [q]
+  );
+  const filteredProfileSub = useMemo(
+    () => (q ? PROFILE_SUB.filter((item) => item.label.toLowerCase().includes(q)) : PROFILE_SUB),
+    [q]
+  );
+  const profileMatches = q ? "profile".includes(q) || filteredProfileSub.length > 0 : true;
+  const profileExpanded = profileActive || manualOpen || (q.length > 0 && filteredProfileSub.length > 0);
 
   async function handleShare() {
     if (!username) return;
@@ -75,8 +87,21 @@ export function Sidebar({
         </button>
       </div>
 
+      <div className="px-4 pb-3">
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5">
+          <span className="text-zinc-600">⌕</span>
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search features…"
+            className="w-full bg-transparent text-sm text-white placeholder:text-zinc-600 outline-none"
+          />
+          {!query && <span className="font-mono text-[10px] text-zinc-700">⌘K</span>}
+        </div>
+      </div>
+
       <nav className="flex-1 space-y-2 overflow-y-auto px-4">
-        {NAV.map((item) => {
+        {filteredNav.map((item) => {
           const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
           return (
             <Link
@@ -104,79 +129,84 @@ export function Sidebar({
         })}
 
         {/* Profile — expandable */}
-        <div>
-          <button
-            type="button"
-            onClick={() => setManualOpen((o) => !o)}
-            className={cn(
-              "flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
-              profileActive
-                ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-                : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
-            )}
-          >
-            <span className="flex items-center gap-3">
-              <span
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
-                  profileActive ? "bg-white/15" : "bg-white/[0.04]"
-                )}
-              >
-                👤
+        {profileMatches && (
+          <div>
+            <button
+              type="button"
+              onClick={() => setManualOpen((o) => !o)}
+              className={cn(
+                "flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
+                profileActive
+                  ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
+                  : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
+              )}
+            >
+              <span className="flex items-center gap-3">
+                <span
+                  className={cn(
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
+                    profileActive ? "bg-white/15" : "bg-white/[0.04]"
+                  )}
+                >
+                  👤
+                </span>
+                Profile
               </span>
-              Profile
-            </span>
-            <span className={cn("text-xs transition-transform duration-200", profileExpanded ? "rotate-180" : "")}>
-              ⌄
-            </span>
-          </button>
+              <span
+                className={cn("text-xs transition-transform duration-200", profileExpanded ? "rotate-180" : "")}
+              >
+                ⌄
+              </span>
+            </button>
 
-          {profileExpanded && (
-            <div className="ml-4 mt-1.5 space-y-1 border-l border-white/10 pl-4">
-              {PROFILE_SUB.map((sub) => {
-                const subActive = pathname === sub.href;
-                return (
-                  <Link
-                    key={sub.href}
-                    href={sub.href}
-                    onClick={onClose}
-                    className={cn(
-                      "block rounded-xl px-3.5 py-2 text-xs font-medium transition",
-                      subActive
-                        ? "bg-violet-500/15 text-violet-300"
-                        : "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200"
-                    )}
-                  >
-                    {sub.label}
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </div>
+            {profileExpanded && (
+              <div className="ml-4 mt-1.5 space-y-1 border-l border-white/10 pl-4">
+                {filteredProfileSub.map((sub) => {
+                  const subActive = pathname === sub.href;
+                  return (
+                    <Link
+                      key={sub.href}
+                      href={sub.href}
+                      onClick={onClose}
+                      className={cn(
+                        "block rounded-xl px-3.5 py-2 text-xs font-medium transition",
+                        subActive
+                          ? "bg-violet-500/15 text-violet-300"
+                          : "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200"
+                      )}
+                    >
+                      {sub.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </nav>
 
-      <div className="space-y-2 border-t border-white/5 p-4">
-        {username && (
-          <>
+      {username && (
+        <div className="space-y-3 border-t border-white/5 p-4">
+          <div>
+            <p className="mb-2 px-1 text-xs text-zinc-500">Check out your page</p>
             <a
               href={`/${username}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-3.5 shadow-glow transition hover:from-violet-500 hover:to-violet-400"
+              className="flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm font-semibold text-violet-300 transition hover:bg-violet-500/20"
             >
-              <span className="text-sm font-bold text-white">My Page</span>
-              <span className="text-white/80">↗</span>
+              <span>↗</span> My Page
             </a>
-            <button
-              onClick={handleShare}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-xs font-medium text-zinc-200 transition hover:bg-white/[0.08]"
-            >
-              {copied ? "Link copied ✓" : "Share my profile"}
-            </button>
-          </>
-        )}
-      </div>
+          </div>
+          <button
+            onClick={handleShare}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-3 text-sm font-semibold text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400"
+          >
+            <span>⇱</span>
+            {copied ? "Link copied ✓" : "Share Your Profile"}
+          </button>
+        </div>
+      )}
     </aside>
   );
 }

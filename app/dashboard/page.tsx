@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { StatCard } from "@/components/dashboard/StatCard";
-import { Momentum } from "@/components/dashboard/Momentum";
+import { HeroStat } from "@/components/dashboard/HeroStat";
+import { ManageAccountCard } from "@/components/dashboard/ManageAccountCard";
+import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { Achievements, type Achievement } from "@/components/dashboard/Achievements";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -92,6 +93,16 @@ export default async function OverviewPage() {
   const momentum = Math.round(
     (avgProgress / 100) * 40 + (Math.min(bestCurrent, 14) / 14) * 30 + (Math.min(journalLast7, 7) / 7) * 30
   );
+  const momentumVibe =
+    momentum >= 85
+      ? "Locked in"
+      : momentum >= 60
+        ? "On a roll"
+        : momentum >= 35
+          ? "Building steam"
+          : momentum >= 10
+            ? "Just getting started"
+            : "Wide open";
 
   const achievements: Achievement[] = [
     { id: "first-goal", emoji: "◎", label: "First goal set", unlocked: allGoals.length >= 1 },
@@ -128,28 +139,44 @@ export default async function OverviewPage() {
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-        <StatCard label="Active goals" value={activeGoals.length} sub={`${completedGoals.length} completed`} icon="◎" />
-        <StatCard label="Avg. progress" value={`${avgProgress}%`} sub="across active goals" icon="▲" accent="emerald" />
-        <StatCard
+      <h2 className="text-lg font-semibold text-white">Account Overview</h2>
+
+      {/* Hero stats */}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <HeroStat
           label="Best streak"
           value={bestCurrent}
           sub={bestCurrent === 1 ? "day running" : "days running"}
           icon="🔥"
-          accent="amber"
         />
-        <StatCard label="Notes" value={notesCount} sub="saved" icon="✎" />
-        <StatCard label="Profile views" value={profile?.view_count ?? 0} sub="all time" icon="👁" />
+        <HeroStat
+          label="Profile views"
+          value={(profile?.view_count ?? 0).toLocaleString()}
+          sub="all time"
+          icon="👁"
+        />
+        <HeroStat label="Momentum" value={momentum} sub={momentumVibe} icon="⚡" />
+        <HeroStat
+          label="Active goals"
+          value={activeGoals.length}
+          sub={`${completedGoals.length} completed`}
+          icon="◎"
+        />
       </div>
 
-      {/* Momentum + achievements */}
+      <h2 className="text-lg font-semibold text-white">Account Statistics</h2>
+
+      {/* Profile completion + manage account */}
       <div className="grid gap-6 lg:grid-cols-3">
-        <Momentum score={momentum} />
         <div className="lg:col-span-2">
-          <Achievements achievements={achievements} />
+          <ProfileCompletionCard profile={profile} />
         </div>
+        <ManageAccountCard />
       </div>
+
+      <Achievements achievements={achievements} />
+
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Your activity</h2>
 
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Today's streaks */}
