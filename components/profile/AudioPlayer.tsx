@@ -1,7 +1,7 @@
 "use client";
 
 import H5AudioPlayer, { RHAP_UI } from "react-h5-audio-player";
-import "react-h5-audio-player/dist/styles.css";
+import "react-h5-audio-player/lib/styles.css";
 
 export function AudioPlayer({
   src,
