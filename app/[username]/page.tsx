@@ -82,6 +82,7 @@ export default async function PublicProfilePage({
   const linksGlow = hasC2 && c2.glow.socials ? { textShadow: `0 0 14px ${c2.colors.accent}` } : undefined;
 
   const animatedTitle = hasC2 && c2.toggles.animatedTitle;
+  const useCornerStats = hasC2 && c2.toggles.statsCorner;
 
   return (
     <main
@@ -157,25 +158,35 @@ export default async function PublicProfilePage({
             </div>
           </div>
 
-          {animatedTitle ? (
-            <h1
-              className="mt-4 bg-clip-text text-xl font-semibold text-transparent"
-              style={{
-                animation: "fade-up 0.5s ease-out 0.08s both, shimmer 3s linear infinite",
-                backgroundImage: `linear-gradient(90deg, ${c2.colors.primary}, ${c2.colors.secondary}, ${c2.colors.primary})`,
-                backgroundSize: "200% 100%",
-              }}
-            >
-              {p.display_name || p.username}
-            </h1>
-          ) : (
-            <h1
-              className="mt-4 animate-fade-up text-xl font-semibold text-white"
-              style={{ animationDelay: "0.08s", color: hasC2 ? c2.colors.name : undefined, ...nameGlow }}
-            >
-              {p.display_name || p.username}
-            </h1>
-          )}
+          <div className="mt-4 flex items-center gap-1.5">
+            {animatedTitle ? (
+              <h1
+                className="bg-clip-text text-xl font-semibold text-transparent"
+                style={{
+                  animation: "fade-up 0.5s ease-out 0.08s both, shimmer 3s linear infinite",
+                  backgroundImage: `linear-gradient(90deg, ${c2.colors.primary}, ${c2.colors.secondary}, ${c2.colors.primary})`,
+                  backgroundSize: "200% 100%",
+                }}
+              >
+                {p.display_name || p.username}
+              </h1>
+            ) : (
+              <h1
+                className="animate-fade-up text-xl font-semibold text-white"
+                style={{ animationDelay: "0.08s", color: hasC2 ? c2.colors.name : undefined, ...nameGlow }}
+              >
+                {p.display_name || p.username}
+              </h1>
+            )}
+            {p.plan === "pro" && (
+              <span
+                className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-violet-400 text-[9px] font-bold text-white shadow-[0_0_8px_1px_rgba(139,92,246,0.6)]"
+                title="Pro member"
+              >
+                ✓
+              </span>
+            )}
+          </div>
 
           <p
             className="animate-fade-up font-mono text-xs text-zinc-500"
@@ -184,7 +195,7 @@ export default async function PublicProfilePage({
             @{p.username}
           </p>
 
-          {effectiveLocation && (
+          {effectiveLocation && !useCornerStats && (
             <p
               className="mt-1 flex animate-fade-up items-center gap-1 text-xs text-zinc-500"
               style={{ animationDelay: "0.18s", color: hasC2 ? c2.colors.location : undefined }}
@@ -247,6 +258,24 @@ export default async function PublicProfilePage({
 
       {hasC2 && c2.audioUrl && (
         <AudioPlayer src={c2.audioUrl} autoplay={c2.audioAutoplay} showVolumeSlider={c2.toggles.volumeControl} />
+      )}
+
+      {useCornerStats && (
+        <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 rounded-full border border-white/10 bg-ink-950/70 px-3 py-1.5 text-[11px] text-zinc-400 backdrop-blur">
+          <span className="flex items-center gap-1">
+            <span>👁</span>
+            {p.view_count.toLocaleString()}
+          </span>
+          {effectiveLocation && (
+            <>
+              <span className="text-zinc-700">·</span>
+              <span className="flex items-center gap-1">
+                <span>📍</span>
+                {effectiveLocation}
+              </span>
+            </>
+          )}
+        </div>
       )}
     </main>
   );

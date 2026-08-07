@@ -412,6 +412,12 @@ export function ProfileCustomizer2({
                   checked={settings.toggles.discordAvatarDecoration}
                   onChange={(v) => patchToggle("discordAvatarDecoration", v)}
                 />
+                <ToggleRow
+                  label="Show Views & Location"
+                  sub="guns.lol style — moves your view count and location into a small corner tag instead of showing location inline."
+                  checked={settings.toggles.statsCorner}
+                  onChange={(v) => patchToggle("statsCorner", v)}
+                />
 
                 <div className="flex flex-wrap items-center gap-3 border-t border-white/5 pt-5">
                   <motion.button

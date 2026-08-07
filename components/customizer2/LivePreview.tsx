@@ -112,7 +112,7 @@ export function LivePreview({
             @{username || "username"}
           </motion.p>
 
-          {settings.location && (
+          {settings.location && !settings.toggles.statsCorner && (
             <motion.p
               variants={fadeUp}
               initial="hidden"
@@ -177,6 +177,22 @@ export function LivePreview({
         </div>
 
         <ProfileEffectOverlay effect={settings.profileEffect} color={settings.colors.accent} />
+
+        {settings.toggles.statsCorner && (
+          <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1.5 rounded-full border border-white/10 bg-black/50 px-2.5 py-1 text-[10px] text-zinc-400 backdrop-blur">
+            <span className="flex items-center gap-1">
+              <span>👁</span> 1,204
+            </span>
+            {settings.location && (
+              <>
+                <span className="text-zinc-700">·</span>
+                <span className="flex items-center gap-1">
+                  <span>📍</span> {settings.location}
+                </span>
+              </>
+            )}
+          </div>
+        )}
       </motion.div>
       <p className="mt-2 text-center text-[10px] text-zinc-600">
         Preview only — this test page doesn&apos;t change your real public profile.

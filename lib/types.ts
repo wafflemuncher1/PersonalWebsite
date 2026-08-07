@@ -86,6 +86,7 @@ export type Customizer2Settings = {
     volumeControl: boolean;
     useDiscordAvatar: boolean;
     discordAvatarDecoration: boolean;
+    statsCorner: boolean;
   };
 };
 

@@ -36,6 +36,7 @@ export const DEFAULT_CUSTOMIZER2_SETTINGS: Customizer2Settings = {
     volumeControl: false,
     useDiscordAvatar: false,
     discordAvatarDecoration: false,
+    statsCorner: true,
   },
 };
 
