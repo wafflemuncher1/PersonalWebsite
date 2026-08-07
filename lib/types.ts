@@ -50,6 +50,22 @@ export type PublicStats = {
   total_check_ins: number;
 };
 
+export type ProfileViewEvent = {
+  id: string;
+  profile_id: string;
+  viewed_at: string;
+  country: string | null;
+  device: string | null;
+};
+
+export type LinkClickEvent = {
+  id: string;
+  profile_id: string;
+  link_label: string;
+  link_url: string;
+  clicked_at: string;
+};
+
 export type Note = {
   id: string;
   user_id: string;

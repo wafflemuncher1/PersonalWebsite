@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { HeroStat } from "@/components/dashboard/HeroStat";
-import { SectionSummaryCard } from "@/components/dashboard/SectionSummaryCard";
+import { StatTile } from "@/components/dashboard/StatTile";
+import { ManageAccountCard } from "@/components/dashboard/ManageAccountCard";
 import { Achievements, type Achievement } from "@/components/dashboard/Achievements";
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
@@ -78,6 +79,12 @@ export default async function OverviewPage() {
   const bestCurrent = Math.max(0, ...allStreaks.map((s) => streakStatsById.get(s.id)?.current ?? 0));
   const bestLongest = Math.max(0, ...allStreaks.map((s) => streakStatsById.get(s.id)?.longest ?? 0));
 
+  const topStreak = allStreaks.reduce<Streak | null>((top, s) => {
+    const cur = streakStatsById.get(s.id)?.current ?? 0;
+    const topCur = top ? streakStatsById.get(top.id)?.current ?? 0 : -1;
+    return cur > topCur ? s : top;
+  }, null);
+
   const topGoals = [...activeGoals]
     .sort((a, b) => {
       const pr = { high: 0, medium: 1, low: 2 };
@@ -141,36 +148,42 @@ export default async function OverviewPage() {
         />
       </div>
 
-      {/* Quick jump into each part of the app */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <SectionSummaryCard
-          icon="🔥"
-          title="Streaks"
-          value={bestCurrent}
-          label={bestCurrent === 1 ? "day, your biggest streak" : "days, your biggest streak"}
-          href="/dashboard/streaks"
-        />
-        <SectionSummaryCard
-          icon="◎"
-          title="Goals"
-          value={activeGoals.length}
-          label="active right now"
-          href="/dashboard/goals"
-        />
-        <SectionSummaryCard
-          icon="✎"
-          title="Notes"
-          value={notesCount}
-          label="saved"
-          href="/dashboard/notes"
-        />
-        <SectionSummaryCard
-          icon="📓"
-          title="Journal"
-          value={journalCount}
-          label="entries written"
-          href="/dashboard/journal"
-        />
+      <h2 className="text-lg font-semibold text-white">Account Statistics</h2>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="p-6 lg:col-span-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatTile
+              icon="🔥"
+              title="Top streak"
+              value={topStreak ? `${topStreak.emoji} ${topStreak.name}` : "No streaks yet"}
+              sub={topStreak ? `${bestCurrent} day${bestCurrent === 1 ? "" : "s"}` : undefined}
+              href="/dashboard/streaks"
+            />
+            <StatTile
+              icon="◎"
+              title="Top goal"
+              value={topGoals[0]?.title ?? "No goals yet"}
+              sub={topGoals[0] ? `${topGoals[0].progress}% complete` : undefined}
+              href="/dashboard/goals"
+            />
+            <StatTile
+              icon="✎"
+              title="Recent note"
+              value={recentNotes[0] ? recentNotes[0].title || "Untitled" : "No notes yet"}
+              sub={recentNotes[0]?.content}
+              href="/dashboard/notes"
+            />
+            <StatTile
+              icon="📓"
+              title="Journal"
+              value={`${journalCount} ${journalCount === 1 ? "entry" : "entries"}`}
+              sub={recentJournal[0]?.entry}
+              href="/dashboard/journal"
+            />
+          </div>
+        </Card>
+        <ManageAccountCard />
       </div>
 
       <Achievements achievements={achievements} />

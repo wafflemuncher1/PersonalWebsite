@@ -1,10 +1,19 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isReservedUsername } from "@/lib/reserved-usernames";
+import { TrackedLink } from "@/components/profile/TrackedLink";
 import type { Profile, ProfileLink, PublicStats } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
+
+function detectDevice(ua: string | null): string {
+  if (!ua) return "Unknown";
+  if (/tablet|ipad/i.test(ua)) return "Tablet";
+  if (/mobi|android|iphone/i.test(ua)) return "Mobile";
+  return "Desktop";
+}
 
 export default async function PublicProfilePage({
   params,
@@ -31,7 +40,14 @@ export default async function PublicProfilePage({
   // Awaited (not truly fire-and-forget) because a serverless function can
   // terminate the moment the response is sent — an un-awaited call here
   // would sometimes just never run.
-  await supabase.rpc("increment_profile_view", { p_username: username });
+  const headerList = headers();
+  const country = headerList.get("x-vercel-ip-country");
+  const device = detectDevice(headerList.get("user-agent"));
+  await supabase.rpc("increment_profile_view", {
+    p_username: username,
+    p_country: country,
+    p_device: device,
+  });
 
   const p = profile as Profile;
   const links = Array.isArray(p.links) ? (p.links as ProfileLink[]) : [];
@@ -115,15 +131,15 @@ export default async function PublicProfilePage({
             <p className="text-center text-sm text-zinc-600">No links yet.</p>
           ) : (
             links.map((link, i) => (
-              <a
+              <TrackedLink
                 key={`${link.url}-${i}`}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
+                username={username}
+                label={link.label}
+                url={link.url}
                 className="glass glass-hover flex items-center justify-center rounded-xl px-5 py-3.5 text-sm font-medium text-zinc-200 transition"
               >
                 {link.label}
-              </a>
+              </TrackedLink>
             ))
           )}
         </div>
