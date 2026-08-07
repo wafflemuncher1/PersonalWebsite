@@ -65,6 +65,44 @@ body {
   color: transparent;
 }
 
+/* Customizer 2 — Swiper vertical section nav */
+.c2-swiper {
+  height: 100%;
+}
+.c2-swiper .swiper-wrapper {
+  height: 100%;
+}
+.c2-swiper .swiper-slide {
+  height: 100%;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.c2-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.c2-pagination .swiper-pagination-bullet {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.25);
+  opacity: 1;
+  margin: 0;
+  transition: all 0.25s ease;
+}
+.c2-pagination .swiper-pagination-bullet:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+.c2-pagination .swiper-pagination-bullet-active {
+  width: 10px;
+  height: 10px;
+  background: #a78bfa;
+  box-shadow: 0 0 10px 2px rgba(139, 92, 246, 0.7);
+}
+
 .noise::before {
   content: "";
   position: fixed;

@@ -1,7 +1,15 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 
+// This stays hand-rolled rather than moving to tsparticles' external "trail"
+// interaction: that plugin isn't part of the slim bundle (it ships as a
+// separate @tsparticles/interaction-external-trail package) and its
+// interactivity.modes.trail option shape isn't stable enough to verify
+// without a local build to compile against. The custom animation ask is
+// covered instead by animating each point with framer-motion below, instead
+// of the old CSS keyframe.
 type Point = { x: number; y: number; id: number; hue: number };
 
 export function CursorTrail({
@@ -43,7 +51,7 @@ export function CursorTrail({
     return () => window.removeEventListener("mousemove", onMove);
   }, [effect, containerRef]);
 
-  if (effect === "none" || points.length === 0) return null;
+  if (effect === "none") return null;
 
   const wrapperClass = containerRef
     ? "pointer-events-none absolute inset-0 overflow-hidden"
@@ -51,24 +59,30 @@ export function CursorTrail({
 
   return (
     <div className={wrapperClass}>
-      {points.map((p) => {
-        const dotColor = effect === "rainbow" ? `hsl(${p.hue}, 90%, 65%)` : color;
-        const size = effect === "glow" ? 14 : 7;
-        return (
-          <span
-            key={p.id}
-            className="absolute animate-fade-trail rounded-full"
-            style={{
-              left: p.x,
-              top: p.y,
-              width: size,
-              height: size,
-              background: dotColor,
-              boxShadow: effect === "glow" ? `0 0 16px 4px ${color}` : `0 0 8px 2px ${dotColor}`,
-            }}
-          />
-        );
-      })}
+      <AnimatePresence>
+        {points.map((p) => {
+          const dotColor = effect === "rainbow" ? `hsl(${p.hue}, 90%, 65%)` : color;
+          const size = effect === "glow" ? 14 : 7;
+          return (
+            <motion.span
+              key={p.id}
+              className="absolute rounded-full"
+              style={{
+                left: p.x,
+                top: p.y,
+                width: size,
+                height: size,
+                background: dotColor,
+                boxShadow: effect === "glow" ? `0 0 16px 4px ${color}` : `0 0 8px 2px ${dotColor}`,
+              }}
+              initial={{ opacity: 0.9, scale: 1 }}
+              animate={{ opacity: 0, scale: 0.25 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.65, ease: "easeOut" }}
+            />
+          );
+        })}
+      </AnimatePresence>
     </div>
   );
 }

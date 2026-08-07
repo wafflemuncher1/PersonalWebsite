@@ -1,11 +1,17 @@
 "use client";
 
 import { useRef } from "react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { FRAME_PRESETS } from "@/lib/customizer-presets";
 import { BackgroundEffectOverlay, ProfileEffectOverlay } from "@/components/customizer2/EffectOverlays";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { Customizer2Settings } from "@/lib/types";
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0 },
+};
 
 export function LivePreview({
   settings,
@@ -24,8 +30,11 @@ export function LivePreview({
   return (
     <div className="sticky top-4">
       <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">Live Preview</p>
-      <div
+      <motion.div
         ref={cardRef}
+        initial={{ scale: 0.96 }}
+        animate={{ scale: 1 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
         className="relative overflow-hidden rounded-2xl border border-white/10 shadow-glow"
         style={{
           opacity: settings.opacity / 100,
@@ -50,7 +59,13 @@ export function LivePreview({
         <BackgroundEffectOverlay effect={settings.backgroundEffect} color={settings.colors.backgroundEffect} />
 
         <div className="relative z-10 flex flex-col items-center px-6 py-10 text-center">
-          <div className={cn("relative h-20 w-20 rounded-full", !isSpinFrame && frame.className)}>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ duration: 0.4, delay: 0.05 }}
+            className={cn("relative h-20 w-20 rounded-full", !isSpinFrame && frame.className)}
+          >
             {isSpinFrame && (
               <div
                 className="absolute inset-0 animate-spin-slow rounded-full"
@@ -74,27 +89,52 @@ export function LivePreview({
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
-          <p
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ duration: 0.4, delay: 0.1 }}
             className="mt-4 text-lg font-semibold"
             style={{ color: settings.colors.name, ...(settings.glow.username ? glowShadow : {}) }}
           >
             {displayName || username || "Your Name"}
-          </p>
-          <p className="text-xs" style={{ color: settings.colors.uid }}>
+          </motion.p>
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ duration: 0.4, delay: 0.14 }}
+            className="text-xs"
+            style={{ color: settings.colors.uid }}
+          >
             @{username || "username"}
-          </p>
+          </motion.p>
 
           {settings.location && (
-            <p className="mt-1 text-xs" style={{ color: settings.colors.location }}>
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={{ duration: 0.4, delay: 0.18 }}
+              className="mt-1 text-xs"
+              style={{ color: settings.colors.location }}
+            >
               📍 {settings.location}
-            </p>
+            </motion.p>
           )}
           {settings.description && (
-            <p className="mt-3 max-w-xs text-sm leading-relaxed" style={{ color: settings.colors.description }}>
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              animate="show"
+              transition={{ duration: 0.4, delay: 0.22 }}
+              className="mt-3 max-w-xs text-sm leading-relaxed"
+              style={{ color: settings.colors.description }}
+            >
               {settings.description}
-            </p>
+            </motion.p>
           )}
           {settings.audioUrl && (
             <p className="mt-3 flex items-center gap-1.5 text-[11px] opacity-70">
@@ -102,7 +142,14 @@ export function LivePreview({
             </p>
           )}
 
-          <div className="mt-5 flex gap-2" style={settings.glow.socials ? glowShadow : undefined}>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ duration: 0.4, delay: 0.28 }}
+            className="mt-5 flex gap-2"
+            style={settings.glow.socials ? glowShadow : undefined}
+          >
             {["🔗", "🎮", "🐦"].map((icon, i) => (
               <span
                 key={i}
@@ -111,19 +158,26 @@ export function LivePreview({
                 {icon}
               </span>
             ))}
-          </div>
+          </motion.div>
 
-          <div className="mt-3 flex gap-1.5" style={settings.glow.badges ? glowShadow : undefined}>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="show"
+            transition={{ duration: 0.4, delay: 0.32 }}
+            className="mt-3 flex gap-1.5"
+            style={settings.glow.badges ? glowShadow : undefined}
+          >
             {["🏅", "⭐"].map((icon, i) => (
               <span key={i} className="text-base">
                 {icon}
               </span>
             ))}
-          </div>
+          </motion.div>
         </div>
 
         <ProfileEffectOverlay effect={settings.profileEffect} color={settings.colors.accent} />
-      </div>
+      </motion.div>
       <p className="mt-2 text-center text-[10px] text-zinc-600">
         Preview only — this test page doesn&apos;t change your real public profile.
       </p>

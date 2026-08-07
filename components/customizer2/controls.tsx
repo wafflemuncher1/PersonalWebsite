@@ -1,5 +1,9 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { HexColorPicker } from "react-colorful";
+import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/Card";
 
@@ -40,10 +44,16 @@ export function Slider({
     <div>
       <div className="mb-1.5 flex items-center justify-between text-xs">
         <span className="font-medium text-zinc-300">{label}</span>
-        <span className="font-mono text-zinc-500">
+        <motion.span
+          key={value}
+          initial={{ opacity: 0.4, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.15 }}
+          className="font-mono text-zinc-500"
+        >
           {value}
           {unit}
-        </span>
+        </motion.span>
       </div>
       <input
         type="range"
@@ -68,25 +78,58 @@ export function ColorField({
   onChange: (v: string) => void;
   disabled?: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onClickOutside(e: MouseEvent) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [open]);
+
   return (
-    <label
-      className={cn(
-        "flex items-center justify-between gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3",
-        disabled && "pointer-events-none opacity-40"
-      )}
-    >
-      <span className="text-xs font-medium text-zinc-300">{label}</span>
-      <span className="flex items-center gap-2">
-        <span className="font-mono text-[10px] uppercase text-zinc-500">{value}</span>
-        <input
-          type="color"
-          value={value}
-          disabled={disabled}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-7 w-9 cursor-pointer rounded border border-white/10 bg-transparent p-0"
-        />
-      </span>
-    </label>
+    <div ref={wrapRef} className="relative">
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => setOpen((o) => !o)}
+        className={cn(
+          "flex w-full items-center justify-between gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3 text-left transition hover:border-white/15",
+          disabled && "pointer-events-none opacity-40"
+        )}
+      >
+        <span className="text-xs font-medium text-zinc-300">{label}</span>
+        <span className="flex items-center gap-2">
+          <span className="font-mono text-[10px] uppercase text-zinc-500">{value}</span>
+          <span
+            className="h-6 w-9 rounded-md border border-white/15 shadow-inner"
+            style={{ background: value }}
+          />
+        </span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -6 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -6 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute right-0 top-full z-30 mt-2 rounded-xl border border-white/10 bg-ink-950 p-3 shadow-glow"
+          >
+            <HexColorPicker color={value} onChange={onChange} />
+            <input
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              className="mt-2 w-full rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-center font-mono text-xs text-white outline-none focus:border-violet-500/50"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -102,18 +145,30 @@ export function ToggleRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <label className="flex items-center justify-between gap-4 rounded-lg border border-white/5 bg-white/[0.02] p-3.5">
+    <div className="flex items-center justify-between gap-4 rounded-lg border border-white/5 bg-white/[0.02] p-3.5">
       <div>
         <p className="text-sm text-zinc-200">{label}</p>
         {sub && <p className="text-xs text-zinc-500">{sub}</p>}
       </div>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-violet-500"
-      />
-    </label>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+        onClick={() => onChange(!checked)}
+        className={cn(
+          "flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200",
+          checked ? "bg-violet-500" : "bg-white/10"
+        )}
+      >
+        <motion.span
+          layout
+          transition={{ type: "spring", stiffness: 500, damping: 32 }}
+          className="h-5 w-5 rounded-full bg-white shadow"
+          style={{ marginLeft: checked ? "auto" : 0 }}
+        />
+      </button>
+    </div>
   );
 }
 
@@ -129,26 +184,42 @@ export function UploadTile({
   hint?: string;
   previewUrl: string;
   uploading: boolean;
-  onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onUpload: (file: File) => void;
   onRemove: () => void;
 }) {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (accepted) => {
+      const file = accepted[0];
+      if (file) onUpload(file);
+    },
+    accept: { "image/*": [] },
+    multiple: false,
+    disabled: uploading,
+  });
   const ext = previewUrl.split("?")[0].split(".").pop();
+
   return (
     <div>
       <p className="mb-2 text-sm text-zinc-300">{label}</p>
-      <div className="relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
-        <label className="flex h-full w-full cursor-pointer items-center justify-center transition hover:bg-white/[0.03]">
-          {previewUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={previewUrl} alt={label} className="h-full w-full object-cover" />
-          ) : (
-            <div className="flex flex-col items-center gap-2 text-zinc-600">
-              <span className="text-2xl">+</span>
-              <span className="text-xs">Click to upload</span>
-            </div>
-          )}
-          <input type="file" accept="image/*" className="hidden" onChange={onUpload} disabled={uploading} />
-        </label>
+      <motion.div
+        {...getRootProps()}
+        whileHover={uploading ? undefined : { scale: 1.01 }}
+        whileTap={uploading ? undefined : { scale: 0.99 }}
+        className={cn(
+          "relative aspect-video cursor-pointer overflow-hidden rounded-xl border transition-colors",
+          isDragActive ? "border-violet-400 bg-violet-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.03]"
+        )}
+      >
+        <input {...getInputProps()} />
+        {previewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={previewUrl} alt={label} className="h-full w-full object-cover" />
+        ) : (
+          <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-zinc-600">
+            <span className="text-2xl">{isDragActive ? "⬇" : "+"}</span>
+            <span className="text-xs">{isDragActive ? "Drop to upload" : "Click or drag to upload"}</span>
+          </div>
+        )}
 
         {uploading && (
           <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-xs text-white">
@@ -165,7 +236,10 @@ export function UploadTile({
             )}
             <button
               type="button"
-              onClick={onRemove}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove();
+              }}
               className="pointer-events-auto flex h-5 w-5 items-center justify-center rounded-md bg-red-500/80 text-[10px] text-white transition hover:bg-red-500"
               aria-label={`Remove ${label.toLowerCase()}`}
             >
@@ -173,7 +247,56 @@ export function UploadTile({
             </button>
           </div>
         )}
-      </div>
+      </motion.div>
+      {hint && <p className="mt-1.5 text-[11px] text-zinc-600">{hint}</p>}
+    </div>
+  );
+}
+
+export function AudioDropzone({
+  hint,
+  hasFile,
+  uploading,
+  onUpload,
+}: {
+  hint?: string;
+  hasFile: boolean;
+  uploading: boolean;
+  onUpload: (file: File) => void;
+}) {
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop: (accepted) => {
+      const file = accepted[0];
+      if (file) onUpload(file);
+    },
+    accept: { "audio/*": [] },
+    multiple: false,
+    disabled: uploading,
+  });
+
+  return (
+    <div>
+      <motion.div
+        {...getRootProps()}
+        whileHover={uploading ? undefined : { scale: 1.005 }}
+        whileTap={uploading ? undefined : { scale: 0.995 }}
+        className={cn(
+          "flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3.5 transition-colors",
+          isDragActive ? "border-violet-400 bg-violet-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.03]"
+        )}
+      >
+        <input {...getInputProps()} />
+        <span className="flex items-center gap-2 text-sm text-zinc-300">
+          <span>🎵</span>
+          {uploading
+            ? "Uploading…"
+            : hasFile
+              ? "Track uploaded — click or drag to replace"
+              : isDragActive
+                ? "Drop to upload"
+                : "Click or drag audio here"}
+        </span>
+      </motion.div>
       {hint && <p className="mt-1.5 text-[11px] text-zinc-600">{hint}</p>}
     </div>
   );

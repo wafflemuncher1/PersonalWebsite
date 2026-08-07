@@ -1,79 +1,64 @@
-// Precomputed (not random) particle layouts so server-rendered and
-// client-rendered markup always match — no hydration mismatch.
+"use client";
 
-const SPARKLE_DOTS = [
-  { left: "8%", top: "15%", delay: "0s", size: "10px" },
-  { left: "88%", top: "22%", delay: "0.3s", size: "8px" },
-  { left: "20%", top: "72%", delay: "0.6s", size: "9px" },
-  { left: "70%", top: "80%", delay: "0.9s", size: "7px" },
-  { left: "45%", top: "10%", delay: "1.2s", size: "8px" },
-  { left: "92%", top: "60%", delay: "0.4s", size: "6px" },
-];
+import { useEffect, useId, useState } from "react";
+import Particles, { initParticlesEngine } from "@tsparticles/react";
+import { loadSlim } from "@tsparticles/slim";
+import { motion } from "framer-motion";
+import {
+  floatingOptions,
+  rainOptions,
+  snowOptions,
+  sparkleOptions,
+  starsOptions,
+} from "@/lib/particles-options";
 
-const FLOAT_DOTS = [
-  { left: "12%", top: "30%", delay: "0s", size: "6px" },
-  { left: "80%", top: "40%", delay: "0.5s", size: "5px" },
-  { left: "35%", top: "68%", delay: "1s", size: "7px" },
-  { left: "62%", top: "18%", delay: "1.5s", size: "5px" },
-];
+// True particle presets (sparkle/floating/stars/rain/snow) render through
+// tsparticles. Presets that are really just an animated border or gradient
+// (glow-pulse, rainbow-border, waves) stay as framer-motion — there's no
+// particle system involved, so a particles library would be the wrong tool.
+function useParticlesReady() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let mounted = true;
+    initParticlesEngine(async (engine) => {
+      await loadSlim(engine);
+    }).then(() => {
+      if (mounted) setReady(true);
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  return ready;
+}
 
-const STARS = [
-  { left: "5%", top: "10%", delay: "0s" },
-  { left: "18%", top: "35%", delay: "0.4s" },
-  { left: "30%", top: "8%", delay: "0.8s" },
-  { left: "48%", top: "25%", delay: "1.1s" },
-  { left: "60%", top: "60%", delay: "0.2s" },
-  { left: "72%", top: "15%", delay: "0.6s" },
-  { left: "85%", top: "45%", delay: "1.3s" },
-  { left: "92%", top: "70%", delay: "0.9s" },
-  { left: "40%", top: "80%", delay: "1.5s" },
-  { left: "10%", top: "60%", delay: "0.7s" },
-];
-
-const FALL_STREAKS = [
-  { left: "8%", delay: "0s", duration: "3.2s" },
-  { left: "20%", delay: "0.5s", duration: "3.8s" },
-  { left: "34%", delay: "1s", duration: "3.1s" },
-  { left: "48%", delay: "0.2s", duration: "4s" },
-  { left: "60%", delay: "1.4s", duration: "3.4s" },
-  { left: "74%", delay: "0.8s", duration: "3.6s" },
-  { left: "86%", delay: "0.3s", duration: "3.9s" },
-];
+const shimmerTransition = { duration: 3, repeat: Infinity, ease: "linear" as const };
+const shimmerAnimate = { backgroundPosition: ["0% 50%", "200% 50%"] };
 
 export function ProfileEffectOverlay({ effect, color }: { effect: string; color: string }) {
-  if (effect === "sparkle") {
-    return (
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {SPARKLE_DOTS.map((d, i) => (
-          <span
-            key={i}
-            className="absolute animate-sparkle rounded-full"
-            style={{ left: d.left, top: d.top, width: d.size, height: d.size, background: color, animationDelay: d.delay }}
-          />
-        ))}
-      </div>
-    );
-  }
+  const ready = useParticlesReady();
+  const rawId = useId().replace(/[^a-zA-Z0-9-]/g, "");
 
-  if (effect === "floating") {
+  if (effect === "sparkle" || effect === "floating") {
+    if (!ready) return null;
     return (
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {FLOAT_DOTS.map((d, i) => (
-          <span
-            key={i}
-            className="absolute animate-float rounded-full opacity-50"
-            style={{ left: d.left, top: d.top, width: d.size, height: d.size, background: color, animationDelay: d.delay }}
-          />
-        ))}
+        <Particles
+          id={`profile-${effect}-${rawId}`}
+          options={effect === "sparkle" ? sparkleOptions(color) : floatingOptions(color)}
+          className="h-full w-full"
+        />
       </div>
     );
   }
 
   if (effect === "glow-pulse") {
     return (
-      <div
-        className="pointer-events-none absolute inset-0 animate-pulse-glow rounded-2xl"
+      <motion.div
+        className="pointer-events-none absolute inset-0 rounded-2xl"
         style={{ boxShadow: `inset 0 0 0 2px ${color}, 0 0 30px 2px ${color}55` }}
+        animate={{ opacity: [0.55, 1, 0.55] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
       />
     );
   }
@@ -85,10 +70,10 @@ export function ProfileEffectOverlay({ effect, color }: { effect: string; color:
     };
     return (
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-[3px] animate-shimmer" style={gradient} />
-        <div className="absolute inset-x-0 bottom-0 h-[3px] animate-shimmer" style={gradient} />
-        <div className="absolute inset-y-0 left-0 w-[3px] animate-shimmer" style={gradient} />
-        <div className="absolute inset-y-0 right-0 w-[3px] animate-shimmer" style={gradient} />
+        <motion.div className="absolute inset-x-0 top-0 h-[3px]" style={gradient} animate={shimmerAnimate} transition={shimmerTransition} />
+        <motion.div className="absolute inset-x-0 bottom-0 h-[3px]" style={gradient} animate={shimmerAnimate} transition={shimmerTransition} />
+        <motion.div className="absolute inset-y-0 left-0 w-[3px]" style={gradient} animate={shimmerAnimate} transition={shimmerTransition} />
+        <motion.div className="absolute inset-y-0 right-0 w-[3px]" style={gradient} animate={shimmerAnimate} transition={shimmerTransition} />
       </div>
     );
   }
@@ -97,62 +82,29 @@ export function ProfileEffectOverlay({ effect, color }: { effect: string; color:
 }
 
 export function BackgroundEffectOverlay({ effect, color }: { effect: string; color: string }) {
-  if (effect === "stars") {
-    return (
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {STARS.map((s, i) => (
-          <span
-            key={i}
-            className="absolute h-[3px] w-[3px] animate-sparkle rounded-full bg-white"
-            style={{ left: s.left, top: s.top, animationDelay: s.delay }}
-          />
-        ))}
-      </div>
-    );
-  }
+  const ready = useParticlesReady();
+  const rawId = useId().replace(/[^a-zA-Z0-9-]/g, "");
 
-  if (effect === "rain") {
+  if (effect === "stars" || effect === "rain" || effect === "snow") {
+    if (!ready) return null;
+    const options = effect === "stars" ? starsOptions() : effect === "rain" ? rainOptions() : snowOptions();
     return (
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {FALL_STREAKS.map((s, i) => (
-          <span
-            key={i}
-            className="absolute top-0 w-px animate-fall opacity-60"
-            style={{
-              left: s.left,
-              height: "26%",
-              background: "linear-gradient(to bottom, transparent, rgba(255,255,255,0.7))",
-              animationDelay: s.delay,
-              animationDuration: s.duration,
-            }}
-          />
-        ))}
-      </div>
-    );
-  }
-
-  if (effect === "snow") {
-    return (
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {FALL_STREAKS.map((s, i) => (
-          <span
-            key={i}
-            className="absolute top-0 h-1.5 w-1.5 animate-fall rounded-full bg-white/80"
-            style={{ left: s.left, animationDelay: s.delay, animationDuration: s.duration }}
-          />
-        ))}
+        <Particles id={`bg-${effect}-${rawId}`} options={options} className="h-full w-full" />
       </div>
     );
   }
 
   if (effect === "waves") {
     return (
-      <div
-        className="pointer-events-none absolute inset-0 animate-shimmer opacity-40"
+      <motion.div
+        className="pointer-events-none absolute inset-0 opacity-40"
         style={{
           backgroundImage: `linear-gradient(120deg, transparent 20%, ${color}55 50%, transparent 80%)`,
           backgroundSize: "200% 100%",
         }}
+        animate={shimmerAnimate}
+        transition={shimmerTransition}
       />
     );
   }
