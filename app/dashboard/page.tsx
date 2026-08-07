@@ -152,7 +152,7 @@ export default async function OverviewPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-2">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3">
             <StatTile
               icon="🔥"
               title="Top streak"

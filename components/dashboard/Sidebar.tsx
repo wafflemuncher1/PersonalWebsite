@@ -6,21 +6,36 @@ import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
-const NAV = [
-  { href: "/dashboard", label: "Overview", icon: "◈", exact: true },
-  { href: "/dashboard/journal", label: "Journal", icon: "📓" },
-  { href: "/dashboard/goals", label: "Goals", icon: "◎" },
-  { href: "/dashboard/streaks", label: "Streaks", icon: "🔥" },
-  { href: "/dashboard/notes", label: "Notes", icon: "✎" },
+const NAV_TOP = [{ href: "/dashboard", label: "Overview", icon: "◈", exact: true }];
+
+const NAV_BOTTOM = [
   { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/badges", label: "Badges", icon: "🏅" },
   { href: "/dashboard/settings", label: "Settings", icon: "⚙" },
 ];
 
-const PROFILE_SUB = [
-  { href: "/dashboard/profile/customize", label: "Customize" },
-  { href: "/dashboard/profile/links", label: "Links" },
-  { href: "/dashboard/profile/templates", label: "Templates" },
+const NAV_GROUPS = [
+  {
+    key: "profile",
+    label: "Profile",
+    icon: "👤",
+    items: [
+      { href: "/dashboard/profile/customize", label: "Customize" },
+      { href: "/dashboard/profile/links", label: "Links" },
+      { href: "/dashboard/profile/templates", label: "Templates" },
+      { href: "/dashboard/badges", label: "Badges" },
+    ],
+  },
+  {
+    key: "lifestyle",
+    label: "Lifestyle",
+    icon: "🌙",
+    items: [
+      { href: "/dashboard/notes", label: "Notes" },
+      { href: "/dashboard/journal", label: "Journal" },
+      { href: "/dashboard/streaks", label: "Streaks" },
+      { href: "/dashboard/goals", label: "Goals" },
+    ],
+  },
 ];
 
 export function Sidebar({
@@ -33,23 +48,34 @@ export function Sidebar({
   username: string | null;
 }) {
   const pathname = usePathname();
-  const [manualOpen, setManualOpen] = useState(false);
+  const [manualOpenKey, setManualOpenKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [query, setQuery] = useState("");
 
-  const profileActive = pathname?.startsWith("/dashboard/profile") ?? false;
-
   const q = query.trim().toLowerCase();
-  const filteredNav = useMemo(
-    () => (q ? NAV.filter((item) => item.label.toLowerCase().includes(q)) : NAV),
+
+  const filteredNavTop = useMemo(
+    () => (q ? NAV_TOP.filter((item) => item.label.toLowerCase().includes(q)) : NAV_TOP),
     [q]
   );
-  const filteredProfileSub = useMemo(
-    () => (q ? PROFILE_SUB.filter((item) => item.label.toLowerCase().includes(q)) : PROFILE_SUB),
+  const filteredNavBottom = useMemo(
+    () => (q ? NAV_BOTTOM.filter((item) => item.label.toLowerCase().includes(q)) : NAV_BOTTOM),
     [q]
   );
-  const profileMatches = q ? "profile".includes(q) || filteredProfileSub.length > 0 : true;
-  const profileExpanded = profileActive || manualOpen || (q.length > 0 && filteredProfileSub.length > 0);
+
+  const groups = useMemo(
+    () =>
+      NAV_GROUPS.map((group) => {
+        const filteredItems = q
+          ? group.items.filter((item) => item.label.toLowerCase().includes(q))
+          : group.items;
+        const active = group.items.some((item) => pathname === item.href);
+        const matches = q ? group.label.toLowerCase().includes(q) || filteredItems.length > 0 : true;
+        const expanded = active || manualOpenKey === group.key || (q.length > 0 && filteredItems.length > 0);
+        return { ...group, filteredItems, active, matches, expanded };
+      }),
+    [q, pathname, manualOpenKey]
+  );
 
   async function handleShare() {
     if (!username) return;
@@ -69,6 +95,33 @@ export function Sidebar({
     } catch {
       // clipboard blocked — nothing more we can do silently
     }
+  }
+
+  function renderNavLink(item: { href: string; label: string; icon: string; exact?: boolean }) {
+    const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={onClose}
+        className={cn(
+          "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
+          active
+            ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
+            : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
+        )}
+      >
+        <span
+          className={cn(
+            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
+            active ? "bg-white/15" : "bg-white/[0.04]"
+          )}
+        >
+          {item.icon}
+        </span>
+        {item.label}
+      </Link>
+    );
   }
 
   return (
@@ -103,88 +156,67 @@ export function Sidebar({
       </div>
 
       <nav className="flex-1 space-y-2 overflow-y-auto px-4">
-        {filteredNav.map((item) => {
-          const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onClose}
-              className={cn(
-                "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
-                active
-                  ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-                  : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
-              )}
-            >
-              <span
-                className={cn(
-                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
-                  active ? "bg-white/15" : "bg-white/[0.04]"
-                )}
-              >
-                {item.icon}
-              </span>
-              {item.label}
-            </Link>
-          );
-        })}
+        {filteredNavTop.map((item) => renderNavLink(item))}
 
-        {/* Profile — expandable */}
-        {profileMatches && (
-          <div>
-            <button
-              type="button"
-              onClick={() => setManualOpen((o) => !o)}
-              className={cn(
-                "flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
-                profileActive
-                  ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-                  : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
-              )}
-            >
-              <span className="flex items-center gap-3">
-                <span
+        {groups.map(
+          (group) =>
+            group.matches && (
+              <div key={group.key}>
+                <button
+                  type="button"
+                  onClick={() => setManualOpenKey((k) => (k === group.key ? null : group.key))}
                   className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
-                    profileActive ? "bg-white/15" : "bg-white/[0.04]"
+                    "flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
+                    group.active
+                      ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
+                      : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
                   )}
                 >
-                  👤
-                </span>
-                Profile
-              </span>
-              <span
-                className={cn("text-xs transition-transform duration-200", profileExpanded ? "rotate-180" : "")}
-              >
-                ⌄
-              </span>
-            </button>
-
-            {profileExpanded && (
-              <div className="ml-4 mt-1.5 space-y-1 border-l border-white/10 pl-4">
-                {filteredProfileSub.map((sub) => {
-                  const subActive = pathname === sub.href;
-                  return (
-                    <Link
-                      key={sub.href}
-                      href={sub.href}
-                      onClick={onClose}
+                  <span className="flex items-center gap-3">
+                    <span
                       className={cn(
-                        "block rounded-xl px-3.5 py-2 text-xs font-medium transition",
-                        subActive
-                          ? "bg-violet-500/15 text-violet-300"
-                          : "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200"
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
+                        group.active ? "bg-white/15" : "bg-white/[0.04]"
                       )}
                     >
-                      {sub.label}
-                    </Link>
-                  );
-                })}
+                      {group.icon}
+                    </span>
+                    {group.label}
+                  </span>
+                  <span
+                    className={cn("text-xs transition-transform duration-200", group.expanded ? "rotate-180" : "")}
+                  >
+                    ⌄
+                  </span>
+                </button>
+
+                {group.expanded && (
+                  <div className="ml-4 mt-1.5 space-y-1 border-l border-white/10 pl-4">
+                    {group.filteredItems.map((sub) => {
+                      const subActive = pathname === sub.href;
+                      return (
+                        <Link
+                          key={sub.href}
+                          href={sub.href}
+                          onClick={onClose}
+                          className={cn(
+                            "block rounded-xl px-3.5 py-2 text-xs font-medium transition",
+                            subActive
+                              ? "bg-violet-500/15 text-violet-300"
+                              : "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200"
+                          )}
+                        >
+                          {sub.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            )
         )}
+
+        {filteredNavBottom.map((item) => renderNavLink(item))}
       </nav>
 
       {username && (
