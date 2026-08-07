@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { getDashboardData } from "@/lib/dashboard-data";
-import { DEFAULT_LAYOUT, SPAN_CLASS, WIDGET_BY_KEY, isWidgetKey } from "@/lib/dashboard-widgets";
+import { SPAN_CLASS, WIDGET_BY_KEY, isWidgetKey, normalizeDashboard2Layout } from "@/lib/dashboard-widgets";
 import { WIDGET_COMPONENTS } from "@/components/dashboard/widgets/registry";
 
 export const dynamic = "force-dynamic";
 
 export default async function Dashboard2Page() {
   const data = await getDashboardData();
-  const layout = data.profile?.dashboard2_layout ?? DEFAULT_LAYOUT;
+  const dash = normalizeDashboard2Layout(data.profile?.dashboard2_layout);
+  const layout = dash.layout;
 
   return (
     <div className="space-y-8">
@@ -43,7 +44,7 @@ export default async function Dashboard2Page() {
             if (!Widget || !def) return null;
             return (
               <div key={key} className={SPAN_CLASS[def.span]}>
-                <Widget data={data} />
+                <Widget data={data} accountStats={key === "account_statistics" ? dash.accountStats : undefined} />
               </div>
             );
           })}

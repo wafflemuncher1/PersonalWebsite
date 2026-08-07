@@ -33,6 +33,39 @@ function EmptyState({ message, href, cta }: { message: string; href: string; cta
   );
 }
 
+export function getStatDisplay(
+  key: string,
+  data: DashboardData
+): { icon: string; label: string; value: string; sub?: string } | null {
+  switch (key) {
+    case "hero_best_streak":
+      return {
+        icon: "🔥",
+        label: "Best Streak",
+        value: String(data.bestCurrent),
+        sub: data.bestCurrent === 1 ? "day running" : "days running",
+      };
+    case "hero_profile_views":
+      return {
+        icon: "👁",
+        label: "Profile Views",
+        value: (data.profile?.view_count ?? 0).toLocaleString(),
+        sub: "all time",
+      };
+    case "hero_momentum":
+      return { icon: "⚡", label: "Momentum", value: String(data.momentum), sub: data.momentumVibe };
+    case "hero_active_goals":
+      return {
+        icon: "◎",
+        label: "Active Goals",
+        value: String(data.activeGoals.length),
+        sub: `${data.completedGoalsCount} completed`,
+      };
+    default:
+      return null;
+  }
+}
+
 function HeroBestStreak({ data }: { data: DashboardData }) {
   return (
     <HeroStat
@@ -70,39 +103,57 @@ function HeroActiveGoals({ data }: { data: DashboardData }) {
   );
 }
 
-function AccountStatisticsWidget({ data }: { data: DashboardData }) {
+function AccountStatisticsWidget({ data, accountStats = [] }: { data: DashboardData; accountStats?: string[] }) {
   return (
     <Card className="h-full p-6">
       <h2 className="mb-4 text-sm font-medium text-white">Account Statistics</h2>
       <div className="grid grid-cols-2 gap-3">
-        <StatTile
-          icon="🔥"
-          title="Top streak"
-          value={data.topStreak ? `${data.topStreak.emoji} ${data.topStreak.name}` : "No streaks yet"}
-          sub={data.topStreak ? `${data.bestCurrent} day${data.bestCurrent === 1 ? "" : "s"}` : undefined}
-          href="/dashboard/streaks"
-        />
-        <StatTile
-          icon="◎"
-          title="Top goal"
-          value={data.topGoals[0]?.title ?? "No goals yet"}
-          sub={data.topGoals[0] ? `${data.topGoals[0].progress}% complete` : undefined}
-          href="/dashboard/goals"
-        />
-        <StatTile
-          icon="✎"
-          title="Recent note"
-          value={data.recentNotes[0] ? data.recentNotes[0].title || "Untitled" : "No notes yet"}
-          sub={data.recentNotes[0]?.content}
-          href="/dashboard/notes"
-        />
-        <StatTile
-          icon="📓"
-          title="Journal"
-          value={`${data.journalCount} ${data.journalCount === 1 ? "entry" : "entries"}`}
-          sub={data.recentJournal[0]?.entry}
-          href="/dashboard/journal"
-        />
+        {accountStats.length > 0
+          ? accountStats.map((key) => {
+              const stat = getStatDisplay(key, data);
+              if (!stat) return null;
+              return (
+                <div key={key} className="flex flex-col rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                  <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-zinc-400">
+                    <span className="text-base">{stat.icon}</span> {stat.label}
+                  </div>
+                  <div className="text-lg font-semibold text-white">{stat.value}</div>
+                  {stat.sub && <div className="mt-1 text-xs text-zinc-500">{stat.sub}</div>}
+                </div>
+              );
+            })
+          : (
+            <>
+              <StatTile
+                icon="🔥"
+                title="Top streak"
+                value={data.topStreak ? `${data.topStreak.emoji} ${data.topStreak.name}` : "No streaks yet"}
+                sub={data.topStreak ? `${data.bestCurrent} day${data.bestCurrent === 1 ? "" : "s"}` : undefined}
+                href="/dashboard/streaks"
+              />
+              <StatTile
+                icon="◎"
+                title="Top goal"
+                value={data.topGoals[0]?.title ?? "No goals yet"}
+                sub={data.topGoals[0] ? `${data.topGoals[0].progress}% complete` : undefined}
+                href="/dashboard/goals"
+              />
+              <StatTile
+                icon="✎"
+                title="Recent note"
+                value={data.recentNotes[0] ? data.recentNotes[0].title || "Untitled" : "No notes yet"}
+                sub={data.recentNotes[0]?.content}
+                href="/dashboard/notes"
+              />
+              <StatTile
+                icon="📓"
+                title="Journal"
+                value={`${data.journalCount} ${data.journalCount === 1 ? "entry" : "entries"}`}
+                sub={data.recentJournal[0]?.entry}
+                href="/dashboard/journal"
+              />
+            </>
+          )}
       </div>
     </Card>
   );
@@ -234,7 +285,10 @@ function PriorityGoalsWidget({ data }: { data: DashboardData }) {
   );
 }
 
-export const WIDGET_COMPONENTS: Record<WidgetKey, (props: { data: DashboardData }) => JSX.Element> = {
+export const WIDGET_COMPONENTS: Record<
+  WidgetKey,
+  (props: { data: DashboardData; accountStats?: string[] }) => JSX.Element
+> = {
   hero_best_streak: HeroBestStreak,
   hero_profile_views: HeroProfileViews,
   hero_momentum: HeroMomentum,

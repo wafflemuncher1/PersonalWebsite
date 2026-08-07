@@ -12,6 +12,15 @@ export type ProfileLink = {
   icon?: string;
 };
 
+// Saved shape for the Dashboard Builder: `layout` is the ordered list of
+// top-level widget keys on Dashboard 2; `accountStats` are stat widget keys
+// the user has nested inside the Account Statistics widget instead of
+// leaving as their own default tiles.
+export type Dashboard2Layout = {
+  layout: string[];
+  accountStats: string[];
+};
+
 export type Profile = {
   id: string;
   username: string;
@@ -28,7 +37,7 @@ export type Profile = {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   view_count: number;
-  dashboard2_layout: string[] | null;
+  dashboard2_layout: Dashboard2Layout | null;
   created_at: string;
   updated_at: string;
 };
