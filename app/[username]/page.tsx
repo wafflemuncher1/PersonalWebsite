@@ -75,11 +75,15 @@ export default async function PublicProfilePage({
   const showLocationCorner =
     p.show_location && p.location_position !== "card" && p.location;
 
+  const glowStrength = p.name_glow_strength / 100;
   const nameStyle: React.CSSProperties = {
     color: p.name_color,
     fontSize: `${p.name_font_size}px`,
     fontWeight: p.name_bold ? 700 : 400,
     fontStyle: p.name_italic ? "italic" : "normal",
+    textShadow: p.name_glow_enabled
+      ? `0 0 ${glowStrength * 10}px ${p.name_glow_color}, 0 0 ${glowStrength * 26}px ${p.name_glow_color}`
+      : undefined,
   };
   const descriptionStyle: React.CSSProperties = {
     fontSize: `${p.description_font_size}px`,
@@ -104,7 +108,7 @@ export default async function PublicProfilePage({
 
       <InteractiveCard
         className={cn(
-          "relative z-10 w-full max-w-2xl rounded-2xl p-11 shadow-xl",
+          "relative z-10 w-full max-w-[63rem] rounded-2xl p-[66px] shadow-xl",
           isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
         )}
         style={{

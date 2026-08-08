@@ -44,6 +44,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [descriptionFontSize, setDescriptionFontSize] = useState(profile?.description_font_size ?? 14);
   const [descriptionBold, setDescriptionBold] = useState(profile?.description_bold ?? false);
   const [descriptionItalic, setDescriptionItalic] = useState(profile?.description_italic ?? false);
+  const [nameGlowEnabled, setNameGlowEnabled] = useState(profile?.name_glow_enabled ?? false);
+  const [nameGlowStrength, setNameGlowStrength] = useState(profile?.name_glow_strength ?? 50);
+  const [nameGlowColor, setNameGlowColor] = useState(profile?.name_glow_color ?? "#8b5cf6");
   const [cardColor, setCardColor] = useState(profile?.card_color ?? "#ffffff");
   const [cardOpacity, setCardOpacity] = useState(profile?.card_opacity ?? 100);
   const [cardBorderColor, setCardBorderColor] = useState(profile?.card_border_color ?? "#e5e7eb");
@@ -53,9 +56,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [locationPosition, setLocationPosition] = useState<"bottom-left" | "bottom-right" | "card">(
     profile?.location_position ?? "card"
   );
-  const [cursorAnimation, setCursorAnimation] = useState<"none" | "sparkle" | "glow" | "rainbow">(
-    profile?.cursor_animation ?? "none"
-  );
+  const [cursorAnimation, setCursorAnimation] = useState<
+    "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti"
+  >(profile?.cursor_animation ?? "none");
   const [cursorColor, setCursorColor] = useState(profile?.cursor_color ?? "#8b5cf6");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
@@ -128,6 +131,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         description_font_size: descriptionFontSize,
         description_bold: descriptionBold,
         description_italic: descriptionItalic,
+        name_glow_enabled: nameGlowEnabled,
+        name_glow_strength: nameGlowStrength,
+        name_glow_color: nameGlowColor,
         card_color: cardColor,
         card_opacity: cardOpacity,
         card_border_color: cardBorderColor,
@@ -335,6 +341,27 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               <ToggleRow label="Bold" checked={nameBold} onChange={setNameBold} />
               <ToggleRow label="Italic" checked={nameItalic} onChange={setNameItalic} />
             </div>
+            <div className="mt-3">
+              <ToggleRow
+                label="Name Glow"
+                sub="A soft glow around your display name."
+                checked={nameGlowEnabled}
+                onChange={setNameGlowEnabled}
+              />
+            </div>
+            {nameGlowEnabled && (
+              <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                <Slider
+                  label="Glow Strength"
+                  value={nameGlowStrength}
+                  onChange={setNameGlowStrength}
+                  min={0}
+                  max={100}
+                  unit="%"
+                />
+                <ColorField label="Glow Color" value={nameGlowColor} onChange={setNameGlowColor} />
+              </div>
+            )}
           </div>
 
           <div className="border-t border-white/5 pt-5">
@@ -408,18 +435,26 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Cursor Animation</label>
             <select
               value={cursorAnimation}
-              onChange={(e) => setCursorAnimation(e.target.value as "none" | "sparkle" | "glow" | "rainbow")}
+              onChange={(e) =>
+                setCursorAnimation(
+                  e.target.value as "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti"
+                )
+              }
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
             >
               <option value="none" className="bg-ink-950">None</option>
               <option value="sparkle" className="bg-ink-950">Sparkle Trail</option>
               <option value="glow" className="bg-ink-950">Glow Trail</option>
               <option value="rainbow" className="bg-ink-950">Rainbow Trail</option>
+              <option value="bubble" className="bg-ink-950">Bubble Trail</option>
+              <option value="fire" className="bg-ink-950">Fire Trail</option>
+              <option value="snow" className="bg-ink-950">Snow Trail</option>
+              <option value="confetti" className="bg-ink-950">Confetti Trail</option>
             </select>
             <p className="mt-1.5 text-[11px] text-zinc-600">
               A trail follows the cursor for anyone visiting your page — not just you.
             </p>
-            {cursorAnimation !== "none" && cursorAnimation !== "rainbow" && (
+            {["sparkle", "glow", "bubble"].includes(cursorAnimation) && (
               <div className="mt-3 sm:w-64">
                 <ColorField label="Cursor Trail Color" value={cursorColor} onChange={setCursorColor} />
               </div>

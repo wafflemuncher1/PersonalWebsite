@@ -7,10 +7,95 @@ import { AnimatePresence, motion } from "framer-motion";
 // interaction: that plugin isn't part of the slim bundle (it ships as a
 // separate @tsparticles/interaction-external-trail package) and its
 // interactivity.modes.trail option shape isn't stable enough to verify
-// without a local build to compile against. The custom animation ask is
-// covered instead by animating each point with framer-motion below, instead
-// of the old CSS keyframe.
-type Point = { x: number; y: number; id: number; hue: number };
+// without a local build to compile against. Each effect below is a small,
+// declarative visual recipe rather than its own code path, so adding more
+// effects is just adding another case.
+type Point = { x: number; y: number; id: number; hue: number; seed: number };
+
+type Visual = {
+  background: string;
+  size: number;
+  radius: number;
+  border?: string;
+  boxShadow?: string;
+  initial: { opacity: number; scale: number; y: number; rotate?: number };
+  animate: { opacity: number; scale: number; y: number; rotate?: number };
+};
+
+function getVisual(effect: string, p: Point, color: string): Visual {
+  switch (effect) {
+    case "glow":
+      return {
+        background: color,
+        size: 14,
+        radius: 9999,
+        boxShadow: `0 0 16px 4px ${color}`,
+        initial: { opacity: 0.9, scale: 1, y: 0 },
+        animate: { opacity: 0, scale: 0.25, y: 0 },
+      };
+    case "rainbow": {
+      const c = `hsl(${p.hue}, 90%, 65%)`;
+      return {
+        background: c,
+        size: 7,
+        radius: 9999,
+        boxShadow: `0 0 8px 2px ${c}`,
+        initial: { opacity: 0.9, scale: 1, y: 0 },
+        animate: { opacity: 0, scale: 0.25, y: 0 },
+      };
+    }
+    case "bubble":
+      return {
+        background: `${color}33`,
+        size: 16,
+        radius: 9999,
+        border: `1.5px solid ${color}`,
+        boxShadow: `0 0 6px 1px ${color}55`,
+        initial: { opacity: 0.55, scale: 0.4, y: 0 },
+        animate: { opacity: 0, scale: 1.7, y: 0 },
+      };
+    case "fire": {
+      const c = `hsl(${8 + p.seed * 35}, 95%, 55%)`;
+      return {
+        background: c,
+        size: 8,
+        radius: 9999,
+        boxShadow: `0 0 10px 3px ${c}`,
+        initial: { opacity: 0.95, scale: 1, y: 0 },
+        animate: { opacity: 0, scale: 0.35, y: -18 },
+      };
+    }
+    case "snow":
+      return {
+        background: "#eaf6ff",
+        size: 5 + p.seed * 4,
+        radius: 9999,
+        boxShadow: "0 0 6px 1px rgba(255,255,255,0.6)",
+        initial: { opacity: 0.9, scale: 1, y: 0 },
+        animate: { opacity: 0, scale: 0.9, y: 20 },
+      };
+    case "confetti": {
+      const c = `hsl(${p.hue}, 85%, 60%)`;
+      return {
+        background: c,
+        size: 6,
+        radius: 2,
+        initial: { opacity: 0.95, scale: 1, y: 0, rotate: 0 },
+        animate: { opacity: 0, scale: 0.6, y: 12, rotate: p.seed * 300 - 150 },
+      };
+    }
+    case "sparkle":
+    default:
+      return {
+        background: color,
+        size: 7,
+        radius: 9999,
+        boxShadow: `0 0 8px 2px ${color}`,
+        initial: { opacity: 0.9, scale: 1, y: 0 },
+        animate: { opacity: 0, scale: 0.25, y: 0 },
+      };
+  }
+}
 
 export function CursorTrail({
   effect,
@@ -35,11 +120,11 @@ export function CursorTrail({
       idRef.current += 1;
       const id = idRef.current;
       hueRef.current = (hueRef.current + 35) % 360;
-      const hue = hueRef.current;
-      setPoints((prev) => [...prev.slice(-16), { x, y, id, hue }]);
+      const point: Point = { x, y, id, hue: hueRef.current, seed: Math.random() };
+      setPoints((prev) => [...prev.slice(-16), point]);
       window.setTimeout(() => {
         setPoints((prev) => prev.filter((p) => p.id !== id));
-      }, 650);
+      }, 750);
     }
 
     const scoped = containerRef?.current;
@@ -61,24 +146,25 @@ export function CursorTrail({
     <div className={wrapperClass}>
       <AnimatePresence>
         {points.map((p) => {
-          const dotColor = effect === "rainbow" ? `hsl(${p.hue}, 90%, 65%)` : color;
-          const size = effect === "glow" ? 14 : 7;
+          const v = getVisual(effect, p, color);
           return (
             <motion.span
               key={p.id}
-              className="absolute rounded-full"
+              className="absolute"
               style={{
                 left: p.x,
                 top: p.y,
-                width: size,
-                height: size,
-                background: dotColor,
-                boxShadow: effect === "glow" ? `0 0 16px 4px ${color}` : `0 0 8px 2px ${dotColor}`,
+                width: v.size,
+                height: v.size,
+                background: v.background,
+                borderRadius: v.radius,
+                border: v.border,
+                boxShadow: v.boxShadow,
               }}
-              initial={{ opacity: 0.9, scale: 1 }}
-              animate={{ opacity: 0, scale: 0.25 }}
+              initial={v.initial}
+              animate={v.animate}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.65, ease: "easeOut" }}
+              transition={{ duration: 0.7, ease: "easeOut" }}
             />
           );
         })}
