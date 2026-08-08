@@ -5,6 +5,8 @@ import { isReservedUsername } from "@/lib/reserved-usernames";
 import { Eye, MapPin } from "lucide-react";
 import { cn, hexToRgba } from "@/lib/utils";
 import { AnimatedName } from "@/components/profile/AnimatedName";
+import { NameHover } from "@/components/profile/NameHover";
+import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import type { Profile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -66,9 +68,9 @@ export default async function PublicProfilePage({
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6" style={mainStyle}>
-      <div
+      <InteractiveCard
         className={cn(
-          "w-full max-w-xl rounded-2xl p-10 shadow-xl",
+          "w-full max-w-2xl rounded-2xl p-11 shadow-xl",
           isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
         )}
         style={{
@@ -78,7 +80,7 @@ export default async function PublicProfilePage({
             : "none",
         }}
       >
-        <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
+        <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
           {p.avatar_url ? (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
@@ -94,14 +96,18 @@ export default async function PublicProfilePage({
         </div>
 
         <div className={isSide ? "" : "mt-4"}>
-          {p.name_animation === "typewriter" ? (
-            <AnimatedName text={name} className="text-xl font-semibold" style={{ color: p.name_color }} />
-          ) : (
-            <h1 className="text-xl font-semibold" style={{ color: p.name_color }}>
-              {name}
-            </h1>
+          <NameHover username={p.username}>
+            {p.name_animation === "typewriter" ? (
+              <AnimatedName text={name} className="text-2xl font-semibold" style={{ color: p.name_color }} />
+            ) : (
+              <h1 className="text-2xl font-semibold" style={{ color: p.name_color }}>
+                {name}
+              </h1>
+            )}
+          </NameHover>
+          {p.bio && (
+            <p className={cn("mt-1.5 max-w-sm text-sm text-zinc-500", isSide ? "" : "mx-auto")}>{p.bio}</p>
           )}
-          <p className="font-mono text-xs text-zinc-500">@{p.username}</p>
           {showLocationOnCard && (
             <p className={cn("mt-1.5 flex items-center gap-2 text-xs text-zinc-500", isSide ? "" : "justify-center")}>
               <span className="flex items-center gap-1">
@@ -115,7 +121,7 @@ export default async function PublicProfilePage({
             </p>
           )}
         </div>
-      </div>
+      </InteractiveCard>
 
       {showLocationCorner && (
         <div
