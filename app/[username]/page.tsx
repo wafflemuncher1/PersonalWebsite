@@ -40,7 +40,7 @@ export default async function PublicProfilePage({
     .eq("username", username)
     .maybeSingle();
 
-  if (!profile) {
+  if (!profile || (profile as Profile).is_banned || (profile as Profile).is_deleted) {
     notFound();
   }
 

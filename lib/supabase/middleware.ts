@@ -50,6 +50,23 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (user && isDashboard) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_banned, is_deleted")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profile?.is_banned || profile?.is_deleted) {
+      await supabase.auth.signOut();
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.search = "";
+      url.searchParams.set("error", profile.is_banned ? "banned" : "deleted");
+      return NextResponse.redirect(url);
+    }
+  }
+
   if (user && isLogin) {
     const url = request.nextUrl.clone();
     url.pathname = "/dashboard";

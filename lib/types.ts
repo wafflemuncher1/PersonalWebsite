@@ -93,6 +93,10 @@ export type Profile = {
   show_stats: boolean;
   username_changed_at: string | null;
   is_dev: boolean;
+  is_banned: boolean;
+  banned_at: string | null;
+  is_deleted: boolean;
+  deleted_at: string | null;
   plan: Plan;
   subscription_status: SubscriptionStatus;
   stripe_customer_id: string | null;

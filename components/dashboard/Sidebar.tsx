@@ -46,7 +46,10 @@ const DEV_GROUP = {
   key: "developer",
   label: "Developer",
   icon: "🛠",
-  items: [{ href: "/dashboard/developer", label: "Overview" }],
+  items: [
+    { href: "/dashboard/developer", label: "Overview" },
+    { href: "/dashboard/developer/users", label: "Users" },
+  ],
 };
 
 export function Sidebar({
