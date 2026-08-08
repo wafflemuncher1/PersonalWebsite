@@ -40,14 +40,25 @@ const NAV_GROUPS = [
   },
 ];
 
+// Only ever shown to profiles with is_dev = true (set manually in Supabase).
+// Contents are a placeholder for now — more will land here later.
+const DEV_GROUP = {
+  key: "developer",
+  label: "Developer",
+  icon: "🛠",
+  items: [{ href: "/dashboard/developer", label: "Overview" }],
+};
+
 export function Sidebar({
   open,
   onClose,
   username,
+  isDev = false,
 }: {
   open: boolean;
   onClose: () => void;
   username: string | null;
+  isDev?: boolean;
 }) {
   const pathname = usePathname();
   const [manualOpenKey, setManualOpenKey] = useState<string | null>(null);
@@ -55,6 +66,8 @@ export function Sidebar({
   const [query, setQuery] = useState("");
 
   const q = query.trim().toLowerCase();
+
+  const navGroups = useMemo(() => (isDev ? [...NAV_GROUPS, DEV_GROUP] : NAV_GROUPS), [isDev]);
 
   const filteredNavTop = useMemo(
     () => (q ? NAV_TOP.filter((item) => item.label.toLowerCase().includes(q)) : NAV_TOP),
@@ -67,7 +80,7 @@ export function Sidebar({
 
   const groups = useMemo(
     () =>
-      NAV_GROUPS.map((group) => {
+      navGroups.map((group) => {
         const filteredItems = q
           ? group.items.filter((item) => item.label.toLowerCase().includes(q))
           : group.items;
@@ -76,7 +89,7 @@ export function Sidebar({
         const expanded = active || manualOpenKey === group.key || (q.length > 0 && filteredItems.length > 0);
         return { ...group, filteredItems, active, matches, expanded };
       }),
-    [q, pathname, manualOpenKey]
+    [navGroups, q, pathname, manualOpenKey]
   );
 
   async function handleShare() {

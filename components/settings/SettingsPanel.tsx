@@ -14,6 +14,7 @@ import { containsProfanity } from "@/lib/profanity";
 import type { Profile } from "@/lib/types";
 
 const USERNAME_RE = /^[a-z0-9_-]{3,20}$/;
+const USERNAME_COOLDOWN_DAYS = 30;
 
 export function SettingsPanel({
   email,
@@ -30,17 +31,28 @@ export function SettingsPanel({
   const [confirmPassword, setConfirmPassword] = useState("");
   const [pwStatus, setPwStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [pwError, setPwError] = useState("");
-  const [exporting, setExporting] = useState(false);
   const [username, setUsername] = useState(profile?.username ?? "");
   const [usernameStatus, setUsernameStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [usernameError, setUsernameError] = useState("");
+  const [displayName, setDisplayName] = useState(profile?.display_name ?? "");
+  const [displayNameStatus, setDisplayNameStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
+  const [displayNameError, setDisplayNameError] = useState("");
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const lockedUntil = profile?.username_changed_at
+    ? new Date(new Date(profile.username_changed_at).getTime() + USERNAME_COOLDOWN_DAYS * 24 * 60 * 60 * 1000)
+    : null;
+  const usernameLocked = !!lockedUntil && lockedUntil > new Date();
+  const daysLeft = usernameLocked
+    ? Math.max(1, Math.ceil((lockedUntil!.getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
+    : 0;
+
   async function handleUsernameSave(e: React.FormEvent) {
     e.preventDefault();
     setUsernameError("");
+    if (usernameLocked) return;
     const cleanUsername = username.trim().toLowerCase();
 
     if (!USERNAME_RE.test(cleanUsername)) {
@@ -73,6 +85,44 @@ export function SettingsPanel({
 
     setUsername(cleanUsername);
     setUsernameStatus("done");
+    router.refresh();
+  }
+
+  async function handleDisplayNameSave(e: React.FormEvent) {
+    e.preventDefault();
+    setDisplayNameError("");
+    const cleanName = displayName.trim();
+
+    if (!cleanName) {
+      setDisplayNameStatus("error");
+      setDisplayNameError("Display name can't be empty.");
+      return;
+    }
+    if (cleanName.length > 40) {
+      setDisplayNameStatus("error");
+      setDisplayNameError("Keep it under 40 characters.");
+      return;
+    }
+    if (containsProfanity(cleanName)) {
+      setDisplayNameStatus("error");
+      setDisplayNameError("Let's keep it clean — try something else.");
+      return;
+    }
+
+    setDisplayNameStatus("saving");
+    const { error: updateError } = await supabase
+      .from("profiles")
+      .update({ display_name: cleanName })
+      .eq("id", profile?.id);
+
+    if (updateError) {
+      setDisplayNameStatus("error");
+      setDisplayNameError(updateError.message);
+      return;
+    }
+
+    setDisplayName(cleanName);
+    setDisplayNameStatus("done");
   }
 
   async function handleChangePassword(e: React.FormEvent) {
@@ -98,37 +148,6 @@ export function SettingsPanel({
     setPwStatus("done");
     setNewPassword("");
     setConfirmPassword("");
-  }
-
-  async function handleExport() {
-    setExporting(true);
-    const [notes, goals, categories, streaks, streakLogs] = await Promise.all([
-      supabase.from("notes").select("*"),
-      supabase.from("goals").select("*"),
-      supabase.from("goal_categories").select("*"),
-      supabase.from("streaks").select("*"),
-      supabase.from("streak_logs").select("*"),
-    ]);
-
-    const payload = {
-      exported_at: new Date().toISOString(),
-      notes: notes.data ?? [],
-      goals: goals.data ?? [],
-      goal_categories: categories.data ?? [],
-      streaks: streaks.data ?? [],
-      streak_logs: streakLogs.data ?? [],
-    };
-
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `nocturne-export-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    setExporting(false);
   }
 
   async function handleSignOut() {
@@ -166,21 +185,50 @@ export function SettingsPanel({
           <h2 className="mb-1 text-sm font-medium text-white">Page URL</h2>
           <p className="mb-4 text-xs text-zinc-500">
             Your public page lives at nocturne.co/{profile.username}. Background, picture, bio,
-            and links live under Profile in the sidebar.
+            and links live under Profile in the sidebar. You can change this once every{" "}
+            {USERNAME_COOLDOWN_DAYS} days.
           </p>
-          <form onSubmit={handleUsernameSave} className="space-y-3">
-            <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition focus-within:border-violet-500/60 focus-within:ring-2 focus-within:ring-violet-500/20">
-              <span className="text-sm text-zinc-600">nocturne.co/</span>
-              <input
-                value={username}
-                onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                className="w-full bg-transparent px-1 py-2.5 text-sm text-white outline-none"
-              />
-            </div>
-            {usernameStatus === "error" && <p className="text-sm text-red-400">{usernameError}</p>}
-            {usernameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
-            <Button type="submit" disabled={usernameStatus === "saving"}>
-              {usernameStatus === "saving" ? "Saving…" : "Update username"}
+          {usernameLocked ? (
+            <p className="rounded-lg border border-white/5 bg-white/[0.02] px-3.5 py-2.5 text-sm text-zinc-500">
+              You can change your username again in {daysLeft} day{daysLeft === 1 ? "" : "s"}.
+            </p>
+          ) : (
+            <form onSubmit={handleUsernameSave} className="space-y-3">
+              <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition focus-within:border-violet-500/60 focus-within:ring-2 focus-within:ring-violet-500/20">
+                <span className="text-sm text-zinc-600">nocturne.co/</span>
+                <input
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                  className="w-full bg-transparent px-1 py-2.5 text-sm text-white outline-none"
+                />
+              </div>
+              {usernameStatus === "error" && <p className="text-sm text-red-400">{usernameError}</p>}
+              {usernameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
+              <Button type="submit" disabled={usernameStatus === "saving"}>
+                {usernameStatus === "saving" ? "Saving…" : "Update username"}
+              </Button>
+            </form>
+          )}
+        </Card>
+      )}
+
+      {profile && (
+        <Card className="p-6">
+          <h2 className="mb-1 text-sm font-medium text-white">Display Name</h2>
+          <p className="mb-4 text-xs text-zinc-500">
+            Shown on your public page instead of your username. Change it any time.
+          </p>
+          <form onSubmit={handleDisplayNameSave} className="space-y-3">
+            <Input
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              placeholder="Your display name"
+              maxLength={40}
+            />
+            {displayNameStatus === "error" && <p className="text-sm text-red-400">{displayNameError}</p>}
+            {displayNameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
+            <Button type="submit" disabled={displayNameStatus === "saving"}>
+              {displayNameStatus === "saving" ? "Saving…" : "Update display name"}
             </Button>
           </form>
         </Card>
@@ -208,16 +256,6 @@ export function SettingsPanel({
             {pwStatus === "saving" ? "Saving…" : "Update password"}
           </Button>
         </form>
-      </Card>
-
-      <Card className="p-6">
-        <h2 className="mb-1 text-sm font-medium text-white">Export your data</h2>
-        <p className="mb-4 text-xs text-zinc-500">
-          Download every note, goal, and streak as a single JSON file.
-        </p>
-        <Button variant="secondary" onClick={handleExport} disabled={exporting}>
-          {exporting ? "Preparing…" : "Download export"}
-        </Button>
       </Card>
 
       <Card className="p-6">

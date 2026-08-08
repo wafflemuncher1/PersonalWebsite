@@ -6,6 +6,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { isReservedUsername } from "@/lib/reserved-usernames";
 import { containsProfanity } from "@/lib/profanity";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 
 const USERNAME_RE = /^[a-z0-9_-]{3,20}$/;
 
@@ -145,6 +146,17 @@ function SignupForm() {
               <p className="mb-6 text-sm text-zinc-400">
                 Free forever plan. Upgrade any time from Settings.
               </p>
+
+              <GoogleButton label="Sign up with Google" />
+              <p className="mt-2 text-center text-[11px] text-zinc-600">
+                We&apos;ll pick a username from your email — change it any time in Settings.
+              </p>
+
+              <div className="my-5 flex items-center gap-3">
+                <div className="h-px flex-1 bg-white/10" />
+                <span className="text-[11px] uppercase tracking-wide text-zinc-600">or</span>
+                <div className="h-px flex-1 bg-white/10" />
+              </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>

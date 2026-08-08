@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { GoogleButton } from "@/components/auth/GoogleButton";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -50,8 +51,16 @@ export default function LoginPage() {
 
           <h1 className="mb-2 text-2xl font-semibold text-white">Log in to Nocturne</h1>
           <p className="mb-6 text-sm text-zinc-400">
-            Sign in with your email and password to reach your private dashboard.
+            Sign in with Google, or use your email and password.
           </p>
+
+          <GoogleButton label="Sign in with Google" />
+
+          <div className="my-5 flex items-center gap-3">
+            <div className="h-px flex-1 bg-white/10" />
+            <span className="text-[11px] uppercase tracking-wide text-zinc-600">or</span>
+            <div className="h-px flex-1 bg-white/10" />
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

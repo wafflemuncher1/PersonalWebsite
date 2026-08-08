@@ -91,6 +91,8 @@ export type Profile = {
   location_position: "bottom-left" | "bottom-right" | "card";
   link_widget_size: number;
   show_stats: boolean;
+  username_changed_at: string | null;
+  is_dev: boolean;
   plan: Plan;
   subscription_status: SubscriptionStatus;
   stripe_customer_id: string | null;

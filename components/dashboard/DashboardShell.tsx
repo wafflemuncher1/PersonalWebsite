@@ -7,10 +7,12 @@ import { Topbar } from "@/components/dashboard/Topbar";
 export function DashboardShell({
   email,
   username,
+  isDev = false,
   children,
 }: {
   email: string;
   username: string | null;
+  isDev?: boolean;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -26,7 +28,7 @@ export function DashboardShell({
         />
       )}
 
-      <Sidebar open={open} onClose={() => setOpen(false)} username={username} />
+      <Sidebar open={open} onClose={() => setOpen(false)} username={username} isDev={isDev} />
 
       <div className="relative lg:pl-72">
         <Topbar email={email} username={username} onMenuClick={() => setOpen((o) => !o)} />
