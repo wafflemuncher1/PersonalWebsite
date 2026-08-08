@@ -24,7 +24,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [location, setLocation] = useState(profile?.location ?? "");
   const [showStats, setShowStats] = useState(profile?.show_stats ?? false);
   const [layout, setLayout] = useState<"top" | "side">(profile?.layout ?? "top");
-  const [bgType, setBgType] = useState<"solid" | "gradient">(profile?.bg_type ?? "solid");
+  const [bgType, setBgType] = useState<"solid" | "gradient" | "image">(profile?.bg_type ?? "solid");
   const [bgColor, setBgColor] = useState(profile?.bg_color ?? "#000000");
   const [bgColor2, setBgColor2] = useState(profile?.bg_color_2 ?? "#4c1d95");
   const [nameColor, setNameColor] = useState(profile?.name_color ?? "#111111");
@@ -38,6 +38,10 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [locationPosition, setLocationPosition] = useState<"bottom-left" | "bottom-right" | "card">(
     profile?.location_position ?? "card"
   );
+  const [cursorAnimation, setCursorAnimation] = useState<"none" | "sparkle" | "glow" | "rainbow">(
+    profile?.cursor_animation ?? "none"
+  );
+  const [cursorColor, setCursorColor] = useState(profile?.cursor_color ?? "#8b5cf6");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
@@ -108,6 +112,8 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         card_outline_width: outlineWidth,
         show_location: showLocationTag,
         location_position: locationPosition,
+        cursor_animation: cursorAnimation,
+        cursor_color: cursorColor,
       })
       .eq("id", profile?.id);
 
@@ -232,21 +238,34 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         <h2 className="mb-4 text-lg font-semibold text-white">Appearance</h2>
 
         <div className="space-y-5">
-          <ToggleRow
-            label="Gradient Background"
-            sub="Blend two colors instead of one flat color."
-            checked={bgType === "gradient"}
-            onChange={(v) => setBgType(v ? "gradient" : "solid")}
-          />
-          <div className="grid gap-3 sm:grid-cols-2">
-            <ColorField label="Background Color" value={bgColor} onChange={setBgColor} />
-            <ColorField
-              label="Background Color 2"
-              value={bgColor2}
-              onChange={setBgColor2}
-              disabled={bgType !== "gradient"}
-            />
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Background Type</label>
+            <select
+              value={bgType}
+              onChange={(e) => setBgType(e.target.value as "solid" | "gradient" | "image")}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              <option value="solid" className="bg-ink-950">Solid Color</option>
+              <option value="gradient" className="bg-ink-950">Gradient</option>
+              <option value="image" className="bg-ink-950">Image</option>
+            </select>
+            {bgType === "image" && (
+              <p className="mt-1.5 text-[11px] text-zinc-600">
+                Uses the Background image set in Assets above — upload one there if you haven&apos;t.
+              </p>
+            )}
           </div>
+          {bgType !== "image" && (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ColorField label="Background Color" value={bgColor} onChange={setBgColor} />
+              <ColorField
+                label="Background Color 2"
+                value={bgColor2}
+                onChange={setBgColor2}
+                disabled={bgType !== "gradient"}
+              />
+            </div>
+          )}
 
           <div className="border-t border-white/5 pt-5">
             <div className="grid gap-3 sm:grid-cols-2">
@@ -311,6 +330,29 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                   <option value="bottom-left" className="bg-ink-950">Bottom Left</option>
                   <option value="bottom-right" className="bg-ink-950">Bottom Right</option>
                 </select>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Cursor</p>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Cursor Animation</label>
+            <select
+              value={cursorAnimation}
+              onChange={(e) => setCursorAnimation(e.target.value as "none" | "sparkle" | "glow" | "rainbow")}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              <option value="none" className="bg-ink-950">None</option>
+              <option value="sparkle" className="bg-ink-950">Sparkle Trail</option>
+              <option value="glow" className="bg-ink-950">Glow Trail</option>
+              <option value="rainbow" className="bg-ink-950">Rainbow Trail</option>
+            </select>
+            <p className="mt-1.5 text-[11px] text-zinc-600">
+              A trail follows the cursor for anyone visiting your page — not just you.
+            </p>
+            {cursorAnimation !== "none" && cursorAnimation !== "rainbow" && (
+              <div className="mt-3 sm:w-64">
+                <ColorField label="Cursor Trail Color" value={cursorColor} onChange={setCursorColor} />
               </div>
             )}
           </div>

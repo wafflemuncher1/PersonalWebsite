@@ -32,9 +32,11 @@ export type Profile = {
   links: ProfileLink[];
   theme: string;
   layout: "top" | "side";
-  bg_type: "solid" | "gradient";
+  bg_type: "solid" | "gradient" | "image";
   bg_color: string;
   bg_color_2: string;
+  cursor_animation: "none" | "sparkle" | "glow" | "rainbow";
+  cursor_color: string;
   name_color: string;
   name_animation: "none" | "typewriter";
   card_color: string;

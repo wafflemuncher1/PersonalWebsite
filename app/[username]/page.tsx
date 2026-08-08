@@ -7,6 +7,7 @@ import { cn, hexToRgba } from "@/lib/utils";
 import { AnimatedName } from "@/components/profile/AnimatedName";
 import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
+import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { Profile } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -60,7 +61,14 @@ export default async function PublicProfilePage({
   const mainStyle =
     p.bg_type === "gradient"
       ? { backgroundImage: `linear-gradient(135deg, ${p.bg_color}, ${p.bg_color_2})` }
-      : { backgroundColor: p.bg_color };
+      : p.bg_type === "image" && p.background_url
+        ? {
+            backgroundColor: p.bg_color,
+            backgroundImage: `url(${p.background_url})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }
+        : { backgroundColor: p.bg_color };
 
   const showLocationOnCard = p.show_location && p.location_position === "card" && p.location;
   const showLocationCorner =
@@ -68,9 +76,11 @@ export default async function PublicProfilePage({
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6" style={mainStyle}>
+      {p.cursor_animation !== "none" && <CursorTrail effect={p.cursor_animation} color={p.cursor_color} />}
+
       <InteractiveCard
         className={cn(
-          "w-full max-w-2xl rounded-2xl p-11 shadow-xl",
+          "relative w-full max-w-2xl rounded-2xl p-11 shadow-xl",
           isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
         )}
         style={{
@@ -108,19 +118,20 @@ export default async function PublicProfilePage({
           {p.bio && (
             <p className={cn("mt-1.5 max-w-sm text-sm text-zinc-500", isSide ? "" : "mx-auto")}>{p.bio}</p>
           )}
-          {showLocationOnCard && (
-            <p className={cn("mt-1.5 flex items-center gap-2 text-xs text-zinc-500", isSide ? "" : "justify-center")}>
-              <span className="flex items-center gap-1">
-                <Eye className="h-3 w-3" />
-                {p.view_count.toLocaleString()}
-              </span>
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {p.location}
-              </span>
-            </p>
-          )}
         </div>
+
+        {showLocationOnCard && (
+          <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[11px] text-zinc-300 backdrop-blur">
+            <span className="flex items-center gap-1">
+              <Eye className="h-3 w-3" />
+              {p.view_count.toLocaleString()}
+            </span>
+            <span className="flex items-center gap-1">
+              <MapPin className="h-3 w-3" />
+              {p.location}
+            </span>
+          </div>
+        )}
       </InteractiveCard>
 
       {showLocationCorner && (
