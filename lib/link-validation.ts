@@ -1,4 +1,7 @@
-export type Platform = "youtube" | "tiktok" | "instagram" | "facebook";
+export type KnownPlatform = "youtube" | "tiktok" | "instagram" | "facebook";
+export type Platform = KnownPlatform | "custom";
+
+export const KNOWN_PLATFORMS: KnownPlatform[] = ["youtube", "tiktok", "instagram", "facebook"];
 
 export const PLATFORMS: Record<
   Platform,
@@ -28,11 +31,20 @@ export const PLATFORMS: Record<
     hint: "e.g. https://facebook.com/yourpage",
     validate: (url) => /^https?:\/\/(www\.|m\.)?(facebook\.com|fb\.com|fb\.me)\//i.test(url),
   },
+  custom: {
+    label: "Custom Link",
+    brandColor: "#a1a1aa",
+    hint: "e.g. https://yourwebsite.com",
+    // Any URL is allowed here — there's no fixed domain to check against.
+    // This is exactly why clicking one shows the "leaving this site" warning.
+    validate: () => true,
+  },
 };
 
 // Checks that a submitted URL actually belongs to the platform someone
 // selected — stops people from picking the YouTube logo and pasting an
-// unrelated (or someone else's) link behind it.
+// unrelated (or someone else's) link behind it. Custom links skip the
+// domain check (there isn't one) but still need a real http(s) URL.
 export function validatePlatformUrl(platform: Platform, url: string): string | null {
   const trimmed = url.trim();
   if (!trimmed) return "Paste a link first.";

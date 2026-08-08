@@ -13,15 +13,17 @@ export type ProfileLink = {
 };
 
 // Row shape for the profile_links table — the structured, platform-aware
-// replacement for the freeform ProfileLink jsonb above. Not rendered on the
-// public page yet; the management UI is being built ahead of that.
+// replacement for the freeform ProfileLink jsonb above. Rendered live on the
+// public page under the description via LinkWidgets.
 export type ProfileLinkItem = {
   id: string;
   profile_id: string;
-  platform: "youtube" | "tiktok" | "instagram" | "facebook";
+  platform: "youtube" | "tiktok" | "instagram" | "facebook" | "custom";
   url: string;
+  label: string | null;
   is_custom_logo: boolean;
   custom_color: string | null;
+  icon_choice: "youtube" | "tiktok" | "instagram" | "facebook" | null;
   glow_enabled: boolean;
   glow_strength: number;
   glow_color: string;
