@@ -44,9 +44,13 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [descriptionFontSize, setDescriptionFontSize] = useState(profile?.description_font_size ?? 14);
   const [descriptionBold, setDescriptionBold] = useState(profile?.description_bold ?? false);
   const [descriptionItalic, setDescriptionItalic] = useState(profile?.description_italic ?? false);
+  const [descriptionColor, setDescriptionColor] = useState(profile?.description_color ?? "#a1a1aa");
   const [nameGlowEnabled, setNameGlowEnabled] = useState(profile?.name_glow_enabled ?? false);
   const [nameGlowStrength, setNameGlowStrength] = useState(profile?.name_glow_strength ?? 50);
   const [nameGlowColor, setNameGlowColor] = useState(profile?.name_glow_color ?? "#8b5cf6");
+  const [profileEffect, setProfileEffect] = useState<"none" | "spin" | "pulse" | "rainbow" | "sparkle">(
+    profile?.profile_effect ?? "none"
+  );
   const [cardColor, setCardColor] = useState(profile?.card_color ?? "#ffffff");
   const [cardOpacity, setCardOpacity] = useState(profile?.card_opacity ?? 100);
   const [cardBorderColor, setCardBorderColor] = useState(profile?.card_border_color ?? "#e5e7eb");
@@ -57,9 +61,10 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
     profile?.location_position ?? "card"
   );
   const [cursorAnimation, setCursorAnimation] = useState<
-    "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti"
+    "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti" | "emoji" | "trail"
   >(profile?.cursor_animation ?? "none");
   const [cursorColor, setCursorColor] = useState(profile?.cursor_color ?? "#8b5cf6");
+  const [cursorEmoji, setCursorEmoji] = useState(profile?.cursor_emoji ?? "✨");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [bgVideoUploading, setBgVideoUploading] = useState(false);
@@ -131,9 +136,11 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         description_font_size: descriptionFontSize,
         description_bold: descriptionBold,
         description_italic: descriptionItalic,
+        description_color: descriptionColor,
         name_glow_enabled: nameGlowEnabled,
         name_glow_strength: nameGlowStrength,
         name_glow_color: nameGlowColor,
+        profile_effect: profileEffect,
         card_color: cardColor,
         card_opacity: cardOpacity,
         card_border_color: cardBorderColor,
@@ -143,6 +150,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         location_position: locationPosition,
         cursor_animation: cursorAnimation,
         cursor_color: cursorColor,
+        cursor_emoji: cursorEmoji,
       })
       .eq("id", profile?.id);
 
@@ -366,18 +374,40 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
 
           <div className="border-t border-white/5 pt-5">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Description</p>
-            <Slider
-              label="Description Size"
-              value={descriptionFontSize}
-              onChange={setDescriptionFontSize}
-              min={10}
-              max={28}
-              unit="px"
-            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              <ColorField label="Description Color" value={descriptionColor} onChange={setDescriptionColor} />
+            </div>
+            <div className="mt-4">
+              <Slider
+                label="Description Size"
+                value={descriptionFontSize}
+                onChange={setDescriptionFontSize}
+                min={10}
+                max={28}
+                unit="px"
+              />
+            </div>
             <div className="mt-3 grid grid-cols-2 gap-3">
               <ToggleRow label="Bold" checked={descriptionBold} onChange={setDescriptionBold} />
               <ToggleRow label="Italic" checked={descriptionItalic} onChange={setDescriptionItalic} />
             </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile Picture Effect</p>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Effect</label>
+            <select
+              value={profileEffect}
+              onChange={(e) => setProfileEffect(e.target.value as "none" | "spin" | "pulse" | "rainbow" | "sparkle")}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              <option value="none" className="bg-ink-950">None</option>
+              <option value="spin" className="bg-ink-950">Spinning Ring</option>
+              <option value="pulse" className="bg-ink-950">Pulse Ring</option>
+              <option value="rainbow" className="bg-ink-950">Rainbow Ring</option>
+              <option value="sparkle" className="bg-ink-950">Sparkle Ring</option>
+            </select>
+            <p className="mt-1.5 text-[11px] text-zinc-600">Animates around the edge of your profile picture.</p>
           </div>
 
           <div className="border-t border-white/5 pt-5">
@@ -437,7 +467,17 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               value={cursorAnimation}
               onChange={(e) =>
                 setCursorAnimation(
-                  e.target.value as "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti"
+                  e.target.value as
+                    | "none"
+                    | "sparkle"
+                    | "glow"
+                    | "rainbow"
+                    | "bubble"
+                    | "fire"
+                    | "snow"
+                    | "confetti"
+                    | "emoji"
+                    | "trail"
                 )
               }
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
@@ -450,13 +490,42 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               <option value="fire" className="bg-ink-950">Fire Trail</option>
               <option value="snow" className="bg-ink-950">Snow Trail</option>
               <option value="confetti" className="bg-ink-950">Confetti Trail</option>
+              <option value="emoji" className="bg-ink-950">Emoji Trail</option>
+              <option value="trail" className="bg-ink-950">Cursor Trail</option>
             </select>
             <p className="mt-1.5 text-[11px] text-zinc-600">
               A trail follows the cursor for anyone visiting your page — not just you.
             </p>
-            {["sparkle", "glow", "bubble"].includes(cursorAnimation) && (
+            {["sparkle", "glow", "bubble", "trail"].includes(cursorAnimation) && (
               <div className="mt-3 sm:w-64">
                 <ColorField label="Cursor Trail Color" value={cursorColor} onChange={setCursorColor} />
+              </div>
+            )}
+            {cursorAnimation === "emoji" && (
+              <div className="mt-3 sm:w-64">
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Trail Emoji</label>
+                <input
+                  value={cursorEmoji}
+                  onChange={(e) => setCursorEmoji(e.target.value.slice(0, 4))}
+                  maxLength={4}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-lg text-white outline-none focus:border-violet-500/50"
+                />
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {["✨", "🔥", "❤️", "😂", "💀", "👑", "⭐", "🎉", "💜", "⚡"].map((e) => (
+                    <button
+                      key={e}
+                      type="button"
+                      onClick={() => setCursorEmoji(e)}
+                      className={`flex h-8 w-8 items-center justify-center rounded-md border text-base transition ${
+                        cursorEmoji === e
+                          ? "border-violet-500/60 bg-violet-500/10"
+                          : "border-white/10 bg-white/[0.02] hover:border-white/25"
+                      }`}
+                    >
+                      {e}
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>

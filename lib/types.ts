@@ -36,7 +36,17 @@ export type Profile = {
   bg_color: string;
   bg_color_2: string;
   background_video_url: string;
-  cursor_animation: "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti";
+  cursor_animation:
+    | "none"
+    | "sparkle"
+    | "glow"
+    | "rainbow"
+    | "bubble"
+    | "fire"
+    | "snow"
+    | "confetti"
+    | "emoji"
+    | "trail";
   cursor_color: string;
   name_color: string;
   name_animation: "none" | "typewriter" | "scramble" | "wave";
@@ -46,9 +56,12 @@ export type Profile = {
   description_font_size: number;
   description_bold: boolean;
   description_italic: boolean;
+  description_color: string;
   name_glow_enabled: boolean;
   name_glow_strength: number;
   name_glow_color: string;
+  cursor_emoji: string;
+  profile_effect: "none" | "spin" | "pulse" | "rainbow" | "sparkle";
   card_color: string;
   card_opacity: number;
   card_border_color: string;

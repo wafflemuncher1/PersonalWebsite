@@ -8,6 +8,7 @@ import { AnimatedName } from "@/components/profile/AnimatedName";
 import { GsapNameAnimation } from "@/components/profile/GsapNameAnimation";
 import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
+import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { Profile } from "@/lib/types";
 
@@ -82,13 +83,14 @@ export default async function PublicProfilePage({
     fontWeight: p.name_bold ? 700 : 400,
     fontStyle: p.name_italic ? "italic" : "normal",
     textShadow: p.name_glow_enabled
-      ? `0 0 ${glowStrength * 10}px ${p.name_glow_color}, 0 0 ${glowStrength * 26}px ${p.name_glow_color}`
+      ? `0 0 ${glowStrength * 50}px ${p.name_glow_color}, 0 0 ${glowStrength * 130}px ${p.name_glow_color}`
       : undefined,
   };
   const descriptionStyle: React.CSSProperties = {
     fontSize: `${p.description_font_size}px`,
     fontWeight: p.description_bold ? 700 : 400,
     fontStyle: p.description_italic ? "italic" : "normal",
+    color: p.description_color,
   };
 
   return (
@@ -104,7 +106,9 @@ export default async function PublicProfilePage({
         />
       )}
 
-      {p.cursor_animation !== "none" && <CursorTrail effect={p.cursor_animation} color={p.cursor_color} />}
+      {p.cursor_animation !== "none" && (
+        <CursorTrail effect={p.cursor_animation} color={p.cursor_color} emoji={p.cursor_emoji} />
+      )}
 
       <InteractiveCard
         className={cn(
@@ -118,20 +122,22 @@ export default async function PublicProfilePage({
             : "none",
         }}
       >
-        <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
-          {p.avatar_url ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={p.avatar_url}
-              alt={name}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-600 to-violet-500 text-2xl font-semibold text-white">
-              {initial}
-            </div>
-          )}
-        </div>
+        <ProfileEffectRing effect={p.profile_effect} size={112} color={p.cursor_color}>
+          <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
+            {p.avatar_url ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={p.avatar_url}
+                alt={name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-600 to-violet-500 text-2xl font-semibold text-white">
+                {initial}
+              </div>
+            )}
+          </div>
+        </ProfileEffectRing>
 
         <div className={isSide ? "" : "mt-4"}>
           <NameHover username={p.username}>
@@ -145,7 +151,7 @@ export default async function PublicProfilePage({
           </NameHover>
           {p.bio && (
             <p
-              className={cn("mt-1.5 max-w-sm text-zinc-500", isSide ? "" : "mx-auto")}
+              className={cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto")}
               style={descriptionStyle}
             >
               {p.bio}

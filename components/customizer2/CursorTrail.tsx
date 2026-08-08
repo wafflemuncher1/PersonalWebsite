@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { MousePointer2 } from "lucide-react";
 
 // This stays hand-rolled rather than moving to tsparticles' external "trail"
 // interaction: that plugin isn't part of the slim bundle (it ships as a
@@ -13,6 +14,8 @@ import { AnimatePresence, motion } from "framer-motion";
 type Point = { x: number; y: number; id: number; hue: number; seed: number };
 
 type Visual = {
+  kind?: "dot" | "emoji" | "icon";
+  content?: string;
   background: string;
   size: number;
   radius: number;
@@ -22,8 +25,27 @@ type Visual = {
   animate: { opacity: number; scale: number; y: number; rotate?: number };
 };
 
-function getVisual(effect: string, p: Point, color: string): Visual {
+function getVisual(effect: string, p: Point, color: string, emoji: string): Visual {
   switch (effect) {
+    case "emoji":
+      return {
+        kind: "emoji",
+        content: emoji || "✨",
+        background: "transparent",
+        size: 20,
+        radius: 0,
+        initial: { opacity: 0.95, scale: 1, y: 0, rotate: p.seed * 30 - 15 },
+        animate: { opacity: 0, scale: 1.3, y: -14, rotate: p.seed * 30 - 15 },
+      };
+    case "trail":
+      return {
+        kind: "icon",
+        background: color,
+        size: 16,
+        radius: 0,
+        initial: { opacity: 0.85, scale: 1, y: 0 },
+        animate: { opacity: 0, scale: 0.8, y: 6 },
+      };
     case "glow":
       return {
         background: color,
@@ -100,10 +122,12 @@ function getVisual(effect: string, p: Point, color: string): Visual {
 export function CursorTrail({
   effect,
   color,
+  emoji = "✨",
   containerRef,
 }: {
   effect: string;
   color: string;
+  emoji?: string;
   containerRef?: React.RefObject<HTMLElement>;
 }) {
   const [points, setPoints] = useState<Point[]>([]);
@@ -146,7 +170,40 @@ export function CursorTrail({
     <div className={wrapperClass}>
       <AnimatePresence>
         {points.map((p) => {
-          const v = getVisual(effect, p, color);
+          const v = getVisual(effect, p, color, emoji);
+
+          if (v.kind === "emoji") {
+            return (
+              <motion.span
+                key={p.id}
+                className="absolute select-none"
+                style={{ left: p.x, top: p.y, fontSize: v.size, lineHeight: 1 }}
+                initial={v.initial}
+                animate={v.animate}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              >
+                {v.content}
+              </motion.span>
+            );
+          }
+
+          if (v.kind === "icon") {
+            return (
+              <motion.span
+                key={p.id}
+                className="absolute"
+                style={{ left: p.x, top: p.y }}
+                initial={v.initial}
+                animate={v.animate}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.7, ease: "easeOut" }}
+              >
+                <MousePointer2 size={v.size} color={v.background} fill={v.background} fillOpacity={0.25} />
+              </motion.span>
+            );
+          }
+
           return (
             <motion.span
               key={p.id}
