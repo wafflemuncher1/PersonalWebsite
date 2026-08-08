@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
-import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { firstProfaneField } from "@/lib/profanity";
 import type { Profile } from "@/lib/types";
 
@@ -19,6 +19,12 @@ function validateImage(file: File): string | null {
 function validateVideo(file: File): string | null {
   if (!file.type.startsWith("video/")) return "Must be a video (MP4 recommended).";
   if (file.size > 30 * 1024 * 1024) return "Must be under 30MB.";
+  return null;
+}
+
+function validateAudio(file: File): string | null {
+  if (!file.type.startsWith("audio/")) return "Must be an audio file (MP3, WAV, OGG, etc).";
+  if (file.size > 15 * 1024 * 1024) return "Must be under 15MB.";
   return null;
 }
 
@@ -66,20 +72,36 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   >(profile?.cursor_animation ?? "none");
   const [cursorColor, setCursorColor] = useState(profile?.cursor_color ?? "#8b5cf6");
   const [cursorEmoji, setCursorEmoji] = useState(profile?.cursor_emoji ?? "✨");
+  const [audioUrl, setAudioUrl] = useState(profile?.audio_url ?? "");
+  const [audioTitle, setAudioTitle] = useState(profile?.audio_title ?? "");
+  const [audioCoverUrl, setAudioCoverUrl] = useState(profile?.audio_cover_url ?? "");
+  const [audioNameColor, setAudioNameColor] = useState(profile?.audio_name_color ?? "#ffffff");
+  const [audioNameFontSize, setAudioNameFontSize] = useState(profile?.audio_name_font_size ?? 14);
+  const [audioNameBold, setAudioNameBold] = useState(profile?.audio_name_bold ?? false);
+  const [audioGlowEnabled, setAudioGlowEnabled] = useState(profile?.audio_glow_enabled ?? false);
+  const [audioGlowStrength, setAudioGlowStrength] = useState(profile?.audio_glow_strength ?? 50);
+  const [audioGlowColor, setAudioGlowColor] = useState(profile?.audio_glow_color ?? "#8b5cf6");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [bgVideoUploading, setBgVideoUploading] = useState(false);
+  const [audioUploading, setAudioUploading] = useState(false);
+  const [audioCoverUploading, setAudioCoverUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [error, setError] = useState("");
 
   async function uploadTo(
     file: File,
-    kind: "avatar" | "background" | "background-video",
+    kind: "avatar" | "background" | "background-video" | "audio-track" | "audio-cover",
     setUploading: (v: boolean) => void,
     setUrl: (v: string) => void
   ) {
     if (!profile) return;
-    const problem = kind === "background-video" ? validateVideo(file) : validateImage(file);
+    const problem =
+      kind === "background-video"
+        ? validateVideo(file)
+        : kind === "audio-track"
+          ? validateAudio(file)
+          : validateImage(file);
     if (problem) {
       setStatus("error");
       setError(problem);
@@ -87,7 +109,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
     }
     setError("");
     setUploading(true);
-    const ext = file.name.split(".").pop() || (kind === "background-video" ? "mp4" : "jpg");
+    const ext =
+      file.name.split(".").pop() ||
+      (kind === "background-video" ? "mp4" : kind === "audio-track" ? "mp3" : "jpg");
     const path = `${profile.id}/${kind}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("avatars")
@@ -153,6 +177,15 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         cursor_animation: cursorAnimation,
         cursor_color: cursorColor,
         cursor_emoji: cursorEmoji,
+        audio_url: audioUrl.trim(),
+        audio_title: audioTitle.trim(),
+        audio_cover_url: audioCoverUrl.trim(),
+        audio_name_color: audioNameColor,
+        audio_name_font_size: audioNameFontSize,
+        audio_name_bold: audioNameBold,
+        audio_glow_enabled: audioGlowEnabled,
+        audio_glow_strength: audioGlowStrength,
+        audio_glow_color: audioGlowColor,
       })
       .eq("id", profile?.id);
 
@@ -543,6 +576,92 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Audio</p>
+            <AudioDropzone
+              hasFile={!!audioUrl}
+              uploading={audioUploading}
+              hint="MP3, WAV, or OGG — up to 15MB. Visitors get a mute button to control it."
+              onUpload={(file) => uploadTo(file, "audio-track", setAudioUploading, setAudioUrl)}
+            />
+            {audioUrl && (
+              <div className="mt-3 flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                <audio controls src={audioUrl} className="h-9 flex-1" />
+                <button
+                  type="button"
+                  onClick={() => setAudioUrl("")}
+                  className="shrink-0 rounded-md bg-red-500/80 px-2 py-1 text-[10px] text-white transition hover:bg-red-500"
+                >
+                  Remove
+                </button>
+              </div>
+            )}
+
+            {audioUrl && (
+              <div className="mt-4 space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="w-32">
+                    <AssetTile
+                      label="Cover Art"
+                      hint="optional"
+                      previewUrl={audioCoverUrl}
+                      uploading={audioCoverUploading}
+                      onUpload={(e) => {
+                        const file = e.target.files?.[0];
+                        e.target.value = "";
+                        if (file) uploadTo(file, "audio-cover", setAudioCoverUploading, setAudioCoverUrl);
+                      }}
+                      onRemove={() => setAudioCoverUrl("")}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-medium text-zinc-400">Track Name</label>
+                    <Input
+                      value={audioTitle}
+                      onChange={(e) => setAudioTitle(e.target.value)}
+                      placeholder="e.g. my favorite song"
+                      maxLength={60}
+                    />
+                    <div className="mt-3">
+                      <ColorField label="Track Name Color" value={audioNameColor} onChange={setAudioNameColor} />
+                    </div>
+                  </div>
+                </div>
+
+                <Slider
+                  label="Track Name Size"
+                  value={audioNameFontSize}
+                  onChange={setAudioNameFontSize}
+                  min={10}
+                  max={28}
+                  unit="px"
+                />
+
+                <ToggleRow label="Bold" checked={audioNameBold} onChange={setAudioNameBold} />
+
+                <ToggleRow
+                  label="Track Name Glow"
+                  sub="A soft glow around the track name."
+                  checked={audioGlowEnabled}
+                  onChange={setAudioGlowEnabled}
+                />
+                {audioGlowEnabled && (
+                  <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                    <Slider
+                      label="Glow Strength"
+                      value={audioGlowStrength}
+                      onChange={setAudioGlowStrength}
+                      min={0}
+                      max={100}
+                      unit="%"
+                    />
+                    <ColorField label="Glow Color" value={audioGlowColor} onChange={setAudioGlowColor} />
+                  </div>
+                )}
               </div>
             )}
           </div>

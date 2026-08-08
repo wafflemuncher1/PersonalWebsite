@@ -69,11 +69,6 @@ function LoginForm() {
               This account has been banned.
             </p>
           )}
-          {banError === "deleted" && (
-            <p className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-3.5 py-2.5 text-sm text-red-300">
-              This account has been deleted.
-            </p>
-          )}
 
           <GoogleButton label="Sign in with Google" />
 

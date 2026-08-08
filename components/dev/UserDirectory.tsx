@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Ban, ExternalLink, RotateCcw, Search, Trash2, UserCheck } from "lucide-react";
+import { Ban, ExternalLink, Search, Trash2, UserCheck } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
@@ -14,20 +14,47 @@ type AdminUserRow = {
   display_name: string;
   avatar_url: string | null;
   plan: string;
+  is_dev: boolean;
   view_count: number;
   created_at: string;
   is_banned: boolean;
   banned_at: string | null;
-  is_deleted: boolean;
-  deleted_at: string | null;
   email: string | null;
   last_sign_in_at: string | null;
 };
 
-type StatusFilter = "all" | "active" | "banned" | "deleted";
-type Action = "ban" | "unban" | "delete" | "restore";
+type StatusFilter = "all" | "active" | "banned";
+type Role = "normal" | "pro" | "dev";
+type Action = "ban" | "unban" | "delete" | "set_role";
+type Confirm = { user: AdminUserRow; action: Action; role?: Role };
 
 const PER_PAGE = 25;
+const ROLES: { key: Role; label: string }[] = [
+  { key: "normal", label: "Normal" },
+  { key: "pro", label: "Pro" },
+  { key: "dev", label: "Dev" },
+];
+
+function roleOf(u: AdminUserRow): Role {
+  if (u.is_dev) return "dev";
+  if (u.plan === "pro") return "pro";
+  return "normal";
+}
+
+// Reads the body as text first and only attempts JSON.parse if there's
+// something there — calling res.json() directly throws an opaque
+// "Unexpected end of JSON input" on an empty body (e.g. a function that
+// crashed before writing a response), which we'd otherwise surface
+// verbatim as the error message.
+async function parseJsonSafe(res: Response): Promise<any> {
+  const text = await res.text();
+  if (!text) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
 
 export function UserDirectory() {
   const [search, setSearch] = useState("");
@@ -42,7 +69,7 @@ export function UserDirectory() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const [confirm, setConfirm] = useState<{ user: AdminUserRow; action: Action } | null>(null);
+  const [confirm, setConfirm] = useState<Confirm | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionError, setActionError] = useState("");
 
@@ -69,8 +96,9 @@ export function UserDirectory() {
 
       try {
         const res = await fetch(`/api/admin/users?${params.toString()}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Could not load users.");
+        const data = await parseJsonSafe(res);
+        if (!res.ok) throw new Error(data?.error || `Could not load users (${res.status}).`);
+        if (!data) throw new Error("Server returned an empty response. Try again.");
         if (!cancelled) {
           setUsers(data.users);
           setTotal(data.total);
@@ -95,20 +123,33 @@ export function UserDirectory() {
       const res = await fetch(`/api/admin/users/${confirm.user.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: confirm.action }),
+        body: JSON.stringify(
+          confirm.action === "set_role" ? { action: confirm.action, role: confirm.role } : { action: confirm.action }
+        ),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Action failed.");
+      const data = await parseJsonSafe(res);
+      if (!res.ok) throw new Error(data?.error || `Action failed (${res.status}).`);
 
-      setUsers((prev) =>
-        prev.map((u) => {
-          if (u.id !== confirm.user.id) return u;
-          if (confirm.action === "ban") return { ...u, is_banned: true, banned_at: new Date().toISOString() };
-          if (confirm.action === "unban") return { ...u, is_banned: false, banned_at: null };
-          if (confirm.action === "delete") return { ...u, is_deleted: true, deleted_at: new Date().toISOString() };
-          return { ...u, is_deleted: false, deleted_at: null, is_banned: false, banned_at: null };
-        })
-      );
+      if (confirm.action === "delete") {
+        setUsers((prev) => prev.filter((u) => u.id !== confirm.user.id));
+        setTotal((t) => Math.max(0, t - 1));
+      } else {
+        setUsers((prev) =>
+          prev.map((u) => {
+            if (u.id !== confirm.user.id) return u;
+            if (confirm.action === "ban") return { ...u, is_banned: true, banned_at: new Date().toISOString() };
+            if (confirm.action === "unban") return { ...u, is_banned: false, banned_at: null };
+            if (confirm.action === "set_role" && confirm.role) {
+              return {
+                ...u,
+                plan: confirm.role === "normal" ? "free" : "pro",
+                is_dev: confirm.role === "dev",
+              };
+            }
+            return u;
+          })
+        );
+      }
       setConfirm(null);
     } catch (e) {
       setActionError(e instanceof Error ? e.message : "Action failed.");
@@ -141,7 +182,6 @@ export function UserDirectory() {
             <option value="all" className="bg-ink-950">All statuses</option>
             <option value="active" className="bg-ink-950">Active only</option>
             <option value="banned" className="bg-ink-950">Banned only</option>
-            <option value="deleted" className="bg-ink-950">Deleted only</option>
           </select>
 
           <div className="flex items-center gap-1.5 text-xs text-zinc-500">
@@ -187,7 +227,7 @@ export function UserDirectory() {
               <tr className="border-b border-white/5 text-[11px] uppercase tracking-wide text-zinc-500">
                 <th className="px-4 py-3 font-medium">User</th>
                 <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Plan</th>
+                <th className="px-4 py-3 font-medium">Role</th>
                 <th className="px-4 py-3 font-medium">Views</th>
                 <th className="px-4 py-3 font-medium">Joined</th>
                 <th className="px-4 py-3 font-medium">Last sign-in</th>
@@ -209,96 +249,102 @@ export function UserDirectory() {
                   </td>
                 </tr>
               ) : (
-                users.map((u) => (
-                  <tr key={u.id} className="border-b border-white/5 last:border-0">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-violet-600 to-violet-500 text-xs font-semibold text-white">
-                          {u.avatar_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={u.avatar_url} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            (u.display_name || u.username).charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-medium text-white">{u.display_name || u.username}</p>
-                          <p className="truncate text-xs text-zinc-500">@{u.username}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 font-mono text-xs text-zinc-400">{u.email ?? "—"}</td>
-                    <td className="px-4 py-3 text-xs text-zinc-400">{u.plan}</td>
-                    <td className="px-4 py-3 text-xs text-zinc-400">{u.view_count.toLocaleString()}</td>
-                    <td className="px-4 py-3 text-xs text-zinc-400">{formatDateTime(u.created_at)}</td>
-                    <td className="px-4 py-3 text-xs text-zinc-400">
-                      {u.last_sign_in_at ? formatDateTime(u.last_sign_in_at) : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      {u.is_deleted ? (
-                        <Badge color="zinc">Deleted</Badge>
-                      ) : u.is_banned ? (
-                        <Badge color="red">Banned</Badge>
-                      ) : (
-                        <Badge color="emerald">Active</Badge>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <a
-                          href={`/${u.username}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-md p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-white"
-                          aria-label="Visit site"
-                        >
-                          <ExternalLink className="h-3.5 w-3.5" />
-                        </a>
-
-                        {u.is_deleted ? (
-                          <button
-                            type="button"
-                            onClick={() => setConfirm({ user: u, action: "restore" })}
-                            className="rounded-md p-1.5 text-zinc-500 transition hover:bg-emerald-500/10 hover:text-emerald-300"
-                            aria-label="Restore user"
-                          >
-                            <RotateCcw className="h-3.5 w-3.5" />
-                          </button>
-                        ) : (
-                          <>
-                            {u.is_banned ? (
-                              <button
-                                type="button"
-                                onClick={() => setConfirm({ user: u, action: "unban" })}
-                                className="rounded-md p-1.5 text-zinc-500 transition hover:bg-emerald-500/10 hover:text-emerald-300"
-                                aria-label="Unban user"
-                              >
-                                <UserCheck className="h-3.5 w-3.5" />
-                              </button>
+                users.map((u) => {
+                  const currentRole = roleOf(u);
+                  return (
+                    <tr key={u.id} className="border-b border-white/5 last:border-0">
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-violet-600 to-violet-500 text-xs font-semibold text-white">
+                            {u.avatar_url ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={u.avatar_url} alt="" className="h-full w-full object-cover" />
                             ) : (
-                              <button
-                                type="button"
-                                onClick={() => setConfirm({ user: u, action: "ban" })}
-                                className="rounded-md p-1.5 text-zinc-500 transition hover:bg-amber-500/10 hover:text-amber-300"
-                                aria-label="Ban user"
-                              >
-                                <Ban className="h-3.5 w-3.5" />
-                              </button>
+                              (u.display_name || u.username).charAt(0).toUpperCase()
                             )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-white">{u.display_name || u.username}</p>
+                            <p className="truncate text-xs text-zinc-500">@{u.username}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 font-mono text-xs text-zinc-400">{u.email ?? "—"}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-1">
+                          {ROLES.map((r) => (
+                            <button
+                              key={r.key}
+                              type="button"
+                              disabled={r.key === currentRole}
+                              onClick={() => setConfirm({ user: u, action: "set_role", role: r.key })}
+                              className={`rounded-md px-1.5 py-1 text-[10px] font-medium transition ${
+                                r.key === currentRole
+                                  ? r.key === "dev"
+                                    ? "bg-amber-500/20 text-amber-300"
+                                    : r.key === "pro"
+                                      ? "bg-violet-500/20 text-violet-300"
+                                      : "bg-white/10 text-zinc-300"
+                                  : "text-zinc-600 hover:bg-white/5 hover:text-zinc-300"
+                              }`}
+                            >
+                              {r.label}
+                            </button>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-xs text-zinc-400">{u.view_count.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs text-zinc-400">{formatDateTime(u.created_at)}</td>
+                      <td className="px-4 py-3 text-xs text-zinc-400">
+                        {u.last_sign_in_at ? formatDateTime(u.last_sign_in_at) : "—"}
+                      </td>
+                      <td className="px-4 py-3">
+                        {u.is_banned ? <Badge color="red">Banned</Badge> : <Badge color="emerald">Active</Badge>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <a
+                            href={`/${u.username}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-md p-1.5 text-zinc-500 transition hover:bg-white/5 hover:text-white"
+                            aria-label="Visit site"
+                          >
+                            <ExternalLink className="h-3.5 w-3.5" />
+                          </a>
+
+                          {u.is_banned ? (
                             <button
                               type="button"
-                              onClick={() => setConfirm({ user: u, action: "delete" })}
-                              className="rounded-md p-1.5 text-zinc-500 transition hover:bg-red-500/10 hover:text-red-300"
-                              aria-label="Delete user"
+                              onClick={() => setConfirm({ user: u, action: "unban" })}
+                              className="rounded-md p-1.5 text-zinc-500 transition hover:bg-emerald-500/10 hover:text-emerald-300"
+                              aria-label="Unban user"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <UserCheck className="h-3.5 w-3.5" />
                             </button>
-                          </>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => setConfirm({ user: u, action: "ban" })}
+                              className="rounded-md p-1.5 text-zinc-500 transition hover:bg-amber-500/10 hover:text-amber-300"
+                              aria-label="Ban user"
+                            >
+                              <Ban className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => setConfirm({ user: u, action: "delete" })}
+                            className="rounded-md p-1.5 text-zinc-500 transition hover:bg-red-500/10 hover:text-red-300"
+                            aria-label="Delete user"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -340,8 +386,10 @@ export function UserDirectory() {
             : confirm?.action === "unban"
               ? "Unban this user?"
               : confirm?.action === "delete"
-                ? "Delete this user?"
-                : "Restore this user?"
+                ? "Permanently delete this user?"
+                : confirm?.role === "dev"
+                  ? "Grant developer access?"
+                  : `Change role to ${confirm?.role ?? ""}?`
         }
         description={
           confirm?.action === "ban" ? (
@@ -356,14 +404,20 @@ export function UserDirectory() {
             </>
           ) : confirm?.action === "delete" ? (
             <>
-              <strong className="text-zinc-300">@{confirm.user.username}</strong> will be completely disabled —
-              signed out, blocked from logging back in, and their public page taken down. Their data isn&apos;t
-              erased and this can be undone from the Deleted filter.
+              This permanently erases <strong className="text-zinc-300">@{confirm.user.username}</strong>&apos;s
+              account, profile, and everything attached to it — sign-in, public page, links, all of it. There is
+              no undo and no recovery.
+            </>
+          ) : confirm?.role === "dev" ? (
+            <>
+              <strong className="text-zinc-300">@{confirm?.user.username}</strong> will get full developer
+              access — every account&apos;s data, the ability to ban and delete users, and to grant this same
+              access to others. Only do this for someone you fully trust.
             </>
           ) : (
             <>
-              <strong className="text-zinc-300">@{confirm?.user.username}</strong> will be fully restored — able
-              to log in again with their public page back online.
+              <strong className="text-zinc-300">@{confirm?.user.username}</strong> will be moved to the{" "}
+              <strong className="text-zinc-300">{confirm?.role}</strong> role.
             </>
           )
         }
@@ -373,12 +427,15 @@ export function UserDirectory() {
             : confirm?.action === "unban"
               ? "Unban user"
               : confirm?.action === "delete"
-                ? "Delete user"
-                : "Restore user"
+                ? "Delete permanently"
+                : confirm?.role === "dev"
+                  ? "Grant dev access"
+                  : "Change role"
         }
-        danger={confirm?.action === "ban" || confirm?.action === "delete"}
+        danger={confirm?.action === "ban" || confirm?.action === "delete" || confirm?.role === "dev"}
         loading={actionLoading}
         error={actionError}
+        requireTyped={confirm?.action === "delete" ? confirm.user.username : undefined}
         onCancel={() => {
           setConfirm(null);
           setActionError("");

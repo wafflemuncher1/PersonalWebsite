@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function ConfirmDialog({
@@ -14,6 +14,7 @@ export function ConfirmDialog({
   onCancel,
   onConfirm,
   icon,
+  requireTyped,
 }: {
   open: boolean;
   title: string;
@@ -25,7 +26,19 @@ export function ConfirmDialog({
   onCancel: () => void;
   onConfirm: () => void;
   icon?: ReactNode;
+  // When set, the confirm button stays disabled until the user types this
+  // exact string into a field — an extra speed bump for irreversible
+  // actions like a true account delete.
+  requireTyped?: string;
 }) {
+  const [typed, setTyped] = useState("");
+
+  useEffect(() => {
+    if (!open) setTyped("");
+  }, [open]);
+
+  const typedBlocked = !!requireTyped && typed !== requireTyped;
+
   return (
     <AnimatePresence>
       {open && (
@@ -50,6 +63,21 @@ export function ConfirmDialog({
               <p className="text-sm font-semibold text-white">{title}</p>
             </div>
             <div className="mt-2.5 text-xs leading-relaxed text-zinc-400">{description}</div>
+
+            {requireTyped && (
+              <div className="mt-3">
+                <label className="mb-1 block text-[11px] text-zinc-500">
+                  Type <span className="font-mono text-zinc-300">{requireTyped}</span> to confirm
+                </label>
+                <input
+                  autoFocus
+                  value={typed}
+                  onChange={(e) => setTyped(e.target.value)}
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs text-white outline-none focus:border-red-500/60"
+                />
+              </div>
+            )}
+
             {error && <p className="mt-2.5 text-xs text-red-400">{error}</p>}
             <div className="mt-4 flex gap-2">
               <button
@@ -63,7 +91,7 @@ export function ConfirmDialog({
               <button
                 type="button"
                 onClick={onConfirm}
-                disabled={loading}
+                disabled={loading || typedBlocked}
                 className={`flex-1 rounded-lg py-2 text-xs font-semibold transition disabled:opacity-50 ${
                   danger ? "bg-red-500 text-white hover:bg-red-400" : "bg-violet-500 text-white hover:bg-violet-400"
                 }`}

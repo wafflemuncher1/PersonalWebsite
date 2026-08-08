@@ -10,6 +10,7 @@ import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
 import { LinkWidgets } from "@/components/profile/LinkWidgets";
+import { ProfileAudioPlayer } from "@/components/profile/ProfileAudioPlayer";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { Profile, ProfileLinkItem } from "@/lib/types";
 
@@ -40,7 +41,7 @@ export default async function PublicProfilePage({
     .eq("username", username)
     .maybeSingle();
 
-  if (!profile || (profile as Profile).is_banned || (profile as Profile).is_deleted) {
+  if (!profile || (profile as Profile).is_banned) {
     notFound();
   }
 
@@ -129,9 +130,10 @@ export default async function PublicProfilePage({
         <CursorTrail effect={p.cursor_animation} color={p.cursor_color} emoji={p.cursor_emoji} />
       )}
 
+      <div className="relative z-10 flex w-full max-w-[63rem] flex-col items-center gap-4">
       <InteractiveCard
         className={cn(
-          "relative z-10 w-full max-w-[63rem] rounded-2xl p-[66px] shadow-xl",
+          "relative w-full rounded-2xl p-[66px] shadow-xl",
           isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
         )}
         style={{
@@ -192,6 +194,21 @@ export default async function PublicProfilePage({
           </div>
         )}
       </InteractiveCard>
+
+      {p.audio_url && (
+        <ProfileAudioPlayer
+          src={p.audio_url}
+          title={p.audio_title}
+          coverUrl={p.audio_cover_url}
+          nameColor={p.audio_name_color}
+          nameFontSize={p.audio_name_font_size}
+          nameBold={p.audio_name_bold}
+          glowEnabled={p.audio_glow_enabled}
+          glowStrength={p.audio_glow_strength}
+          glowColor={p.audio_glow_color}
+        />
+      )}
+      </div>
 
       {showLocationCorner && (
         <div

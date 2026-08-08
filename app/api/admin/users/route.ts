@@ -33,8 +33,7 @@ export async function GET(request: Request) {
   }
 
   if (status === "banned") query = query.eq("is_banned", true);
-  else if (status === "deleted") query = query.eq("is_deleted", true);
-  else if (status === "active") query = query.eq("is_banned", false).eq("is_deleted", false);
+  else if (status === "active") query = query.eq("is_banned", false);
 
   if (from) query = query.gte("created_at", from);
   if (to) query = query.lte("created_at", to);
