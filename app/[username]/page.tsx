@@ -5,6 +5,7 @@ import { isReservedUsername } from "@/lib/reserved-usernames";
 import { Eye, MapPin } from "lucide-react";
 import { cn, hexToRgba } from "@/lib/utils";
 import { AnimatedName } from "@/components/profile/AnimatedName";
+import { GsapNameAnimation } from "@/components/profile/GsapNameAnimation";
 import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
@@ -74,13 +75,36 @@ export default async function PublicProfilePage({
   const showLocationCorner =
     p.show_location && p.location_position !== "card" && p.location;
 
+  const nameStyle: React.CSSProperties = {
+    color: p.name_color,
+    fontSize: `${p.name_font_size}px`,
+    fontWeight: p.name_bold ? 700 : 400,
+    fontStyle: p.name_italic ? "italic" : "normal",
+  };
+  const descriptionStyle: React.CSSProperties = {
+    fontSize: `${p.description_font_size}px`,
+    fontWeight: p.description_bold ? 700 : 400,
+    fontStyle: p.description_italic ? "italic" : "normal",
+  };
+
   return (
-    <main className="flex min-h-screen items-center justify-center px-6" style={mainStyle}>
+    <main className="relative flex min-h-screen items-center justify-center px-6" style={mainStyle}>
+      {p.bg_type === "video" && p.background_video_url && (
+        <video
+          className="fixed inset-0 z-0 h-full w-full object-cover"
+          src={p.background_video_url}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      )}
+
       {p.cursor_animation !== "none" && <CursorTrail effect={p.cursor_animation} color={p.cursor_color} />}
 
       <InteractiveCard
         className={cn(
-          "relative w-full max-w-2xl rounded-2xl p-11 shadow-xl",
+          "relative z-10 w-full max-w-2xl rounded-2xl p-11 shadow-xl",
           isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
         )}
         style={{
@@ -108,15 +132,20 @@ export default async function PublicProfilePage({
         <div className={isSide ? "" : "mt-4"}>
           <NameHover username={p.username}>
             {p.name_animation === "typewriter" ? (
-              <AnimatedName text={name} className="text-2xl font-semibold" style={{ color: p.name_color }} />
+              <AnimatedName text={name} style={nameStyle} />
+            ) : p.name_animation === "scramble" || p.name_animation === "wave" ? (
+              <GsapNameAnimation text={name} variant={p.name_animation} style={nameStyle} />
             ) : (
-              <h1 className="text-2xl font-semibold" style={{ color: p.name_color }}>
-                {name}
-              </h1>
+              <h1 style={nameStyle}>{name}</h1>
             )}
           </NameHover>
           {p.bio && (
-            <p className={cn("mt-1.5 max-w-sm text-sm text-zinc-500", isSide ? "" : "mx-auto")}>{p.bio}</p>
+            <p
+              className={cn("mt-1.5 max-w-sm text-zinc-500", isSide ? "" : "mx-auto")}
+              style={descriptionStyle}
+            >
+              {p.bio}
+            </p>
           )}
         </div>
 

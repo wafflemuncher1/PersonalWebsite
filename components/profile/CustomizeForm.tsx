@@ -16,19 +16,34 @@ function validateImage(file: File): string | null {
   return null;
 }
 
+function validateVideo(file: File): string | null {
+  if (!file.type.startsWith("video/")) return "Must be a video (MP4 recommended).";
+  if (file.size > 30 * 1024 * 1024) return "Must be under 30MB.";
+  return null;
+}
+
 export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const supabase = createClient();
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? "");
   const [backgroundUrl, setBackgroundUrl] = useState(profile?.background_url ?? "");
+  const [backgroundVideoUrl, setBackgroundVideoUrl] = useState(profile?.background_video_url ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [location, setLocation] = useState(profile?.location ?? "");
   const [showStats, setShowStats] = useState(profile?.show_stats ?? false);
   const [layout, setLayout] = useState<"top" | "side">(profile?.layout ?? "top");
-  const [bgType, setBgType] = useState<"solid" | "gradient" | "image">(profile?.bg_type ?? "solid");
+  const [bgType, setBgType] = useState<"solid" | "gradient" | "image" | "video">(profile?.bg_type ?? "solid");
   const [bgColor, setBgColor] = useState(profile?.bg_color ?? "#000000");
   const [bgColor2, setBgColor2] = useState(profile?.bg_color_2 ?? "#4c1d95");
   const [nameColor, setNameColor] = useState(profile?.name_color ?? "#111111");
-  const [nameAnimation, setNameAnimation] = useState<"none" | "typewriter">(profile?.name_animation ?? "none");
+  const [nameAnimation, setNameAnimation] = useState<"none" | "typewriter" | "scramble" | "wave">(
+    profile?.name_animation ?? "none"
+  );
+  const [nameFontSize, setNameFontSize] = useState(profile?.name_font_size ?? 24);
+  const [nameBold, setNameBold] = useState(profile?.name_bold ?? true);
+  const [nameItalic, setNameItalic] = useState(profile?.name_italic ?? false);
+  const [descriptionFontSize, setDescriptionFontSize] = useState(profile?.description_font_size ?? 14);
+  const [descriptionBold, setDescriptionBold] = useState(profile?.description_bold ?? false);
+  const [descriptionItalic, setDescriptionItalic] = useState(profile?.description_italic ?? false);
   const [cardColor, setCardColor] = useState(profile?.card_color ?? "#ffffff");
   const [cardOpacity, setCardOpacity] = useState(profile?.card_opacity ?? 100);
   const [cardBorderColor, setCardBorderColor] = useState(profile?.card_border_color ?? "#e5e7eb");
@@ -44,17 +59,18 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [cursorColor, setCursorColor] = useState(profile?.cursor_color ?? "#8b5cf6");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
+  const [bgVideoUploading, setBgVideoUploading] = useState(false);
   const [status, setStatus] = useState<"idle" | "saving" | "done" | "error">("idle");
   const [error, setError] = useState("");
 
   async function uploadTo(
     file: File,
-    kind: "avatar" | "background",
+    kind: "avatar" | "background" | "background-video",
     setUploading: (v: boolean) => void,
     setUrl: (v: string) => void
   ) {
     if (!profile) return;
-    const problem = validateImage(file);
+    const problem = kind === "background-video" ? validateVideo(file) : validateImage(file);
     if (problem) {
       setStatus("error");
       setError(problem);
@@ -62,7 +78,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
     }
     setError("");
     setUploading(true);
-    const ext = file.name.split(".").pop() || "jpg";
+    const ext = file.name.split(".").pop() || (kind === "background-video" ? "mp4" : "jpg");
     const path = `${profile.id}/${kind}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("avatars")
@@ -96,6 +112,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
       .update({
         avatar_url: avatarUrl.trim() || null,
         background_url: backgroundUrl.trim() || null,
+        background_video_url: backgroundVideoUrl.trim(),
         bio: cleanBio,
         location: cleanLocation,
         show_stats: showStats,
@@ -105,6 +122,12 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         bg_color_2: bgColor2,
         name_color: nameColor,
         name_animation: nameAnimation,
+        name_font_size: nameFontSize,
+        name_bold: nameBold,
+        name_italic: nameItalic,
+        description_font_size: descriptionFontSize,
+        description_bold: descriptionBold,
+        description_italic: descriptionItalic,
         card_color: cardColor,
         card_opacity: cardOpacity,
         card_border_color: cardBorderColor,
@@ -140,9 +163,10 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
 
       <div>
         <h2 className="mb-4 text-lg font-semibold text-white">Assets</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <AssetTile
             label="Background"
+            hint="Image or GIF"
             previewUrl={backgroundUrl}
             uploading={bgUploading}
             onUpload={(e) => {
@@ -151,6 +175,19 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               if (file) uploadTo(file, "background", setBgUploading, setBackgroundUrl);
             }}
             onRemove={() => setBackgroundUrl("")}
+          />
+          <AssetTile
+            label="Background Video"
+            hint="MP4, up to 30MB"
+            kind="video"
+            previewUrl={backgroundVideoUrl}
+            uploading={bgVideoUploading}
+            onUpload={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) uploadTo(file, "background-video", setBgVideoUploading, setBackgroundVideoUrl);
+            }}
+            onRemove={() => setBackgroundVideoUrl("")}
           />
           <AssetTile
             label="Profile Avatar"
@@ -242,20 +279,26 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Background Type</label>
             <select
               value={bgType}
-              onChange={(e) => setBgType(e.target.value as "solid" | "gradient" | "image")}
+              onChange={(e) => setBgType(e.target.value as "solid" | "gradient" | "image" | "video")}
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
             >
               <option value="solid" className="bg-ink-950">Solid Color</option>
               <option value="gradient" className="bg-ink-950">Gradient</option>
-              <option value="image" className="bg-ink-950">Image</option>
+              <option value="image" className="bg-ink-950">Image / GIF</option>
+              <option value="video" className="bg-ink-950">Video (MP4)</option>
             </select>
             {bgType === "image" && (
               <p className="mt-1.5 text-[11px] text-zinc-600">
-                Uses the Background image set in Assets above — upload one there if you haven&apos;t.
+                Uses the Background image set in Assets above — upload one there if you haven&apos;t. Animated GIFs work too.
+              </p>
+            )}
+            {bgType === "video" && (
+              <p className="mt-1.5 text-[11px] text-zinc-600">
+                Uses the Background Video set in Assets above — it&apos;ll autoplay, loop, and stay muted for visitors.
               </p>
             )}
           </div>
-          {bgType !== "image" && (
+          {bgType !== "image" && bgType !== "video" && (
             <div className="grid gap-3 sm:grid-cols-2">
               <ColorField label="Background Color" value={bgColor} onChange={setBgColor} />
               <ColorField
@@ -268,6 +311,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
           )}
 
           <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Display Name</p>
             <div className="grid gap-3 sm:grid-cols-2">
               <ColorField label="Display Name Color" value={nameColor} onChange={setNameColor} />
             </div>
@@ -275,12 +319,37 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               <label className="mb-1.5 block text-xs font-medium text-zinc-400">Name Animation</label>
               <select
                 value={nameAnimation}
-                onChange={(e) => setNameAnimation(e.target.value as "none" | "typewriter")}
+                onChange={(e) => setNameAnimation(e.target.value as "none" | "typewriter" | "scramble" | "wave")}
                 className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
               >
                 <option value="none" className="bg-ink-950">None</option>
                 <option value="typewriter" className="bg-ink-950">Typewriter</option>
+                <option value="scramble" className="bg-ink-950">Scramble (GSAP)</option>
+                <option value="wave" className="bg-ink-950">Wave</option>
               </select>
+            </div>
+            <div className="mt-4">
+              <Slider label="Name Size" value={nameFontSize} onChange={setNameFontSize} min={14} max={56} unit="px" />
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <ToggleRow label="Bold" checked={nameBold} onChange={setNameBold} />
+              <ToggleRow label="Italic" checked={nameItalic} onChange={setNameItalic} />
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Description</p>
+            <Slider
+              label="Description Size"
+              value={descriptionFontSize}
+              onChange={setDescriptionFontSize}
+              min={10}
+              max={28}
+              unit="px"
+            />
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <ToggleRow label="Bold" checked={descriptionBold} onChange={setDescriptionBold} />
+              <ToggleRow label="Italic" checked={descriptionItalic} onChange={setDescriptionItalic} />
             </div>
           </div>
 
@@ -372,12 +441,16 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
 
 function AssetTile({
   label,
+  hint,
+  kind = "image",
   previewUrl,
   uploading,
   onUpload,
   onRemove,
 }: {
   label: string;
+  hint?: string;
+  kind?: "image" | "video";
   previewUrl: string;
   uploading: boolean;
   onUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -387,12 +460,19 @@ function AssetTile({
 
   return (
     <div>
-      <p className="mb-2 text-sm text-zinc-300">{label}</p>
+      <p className="mb-2 text-sm text-zinc-300">
+        {label}
+        {hint && <span className="ml-1.5 text-xs text-zinc-600">({hint})</span>}
+      </p>
       <div className="relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
         <label className="flex h-full w-full cursor-pointer items-center justify-center transition hover:bg-white/[0.03]">
           {previewUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={previewUrl} alt={label} className="h-full w-full object-cover" />
+            kind === "video" ? (
+              <video src={previewUrl} className="h-full w-full object-cover" muted loop autoPlay playsInline />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={previewUrl} alt={label} className="h-full w-full object-cover" />
+            )
           ) : (
             <div className="flex flex-col items-center gap-2 text-zinc-600">
               <span className="text-2xl">+</span>
@@ -401,7 +481,7 @@ function AssetTile({
           )}
           <input
             type="file"
-            accept="image/*"
+            accept={kind === "video" ? "video/*" : "image/*"}
             className="hidden"
             onChange={onUpload}
             disabled={uploading}
