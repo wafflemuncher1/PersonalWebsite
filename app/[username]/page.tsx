@@ -9,8 +9,9 @@ import { GsapNameAnimation } from "@/components/profile/GsapNameAnimation";
 import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
+import { LinkWidgets } from "@/components/profile/LinkWidgets";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
-import type { Profile } from "@/lib/types";
+import type { Profile, ProfileLinkItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -56,6 +57,14 @@ export default async function PublicProfilePage({
   });
 
   const p = profile as Profile;
+
+  const { data: linkRows } = await supabase
+    .from("profile_links")
+    .select("*")
+    .eq("profile_id", p.id)
+    .order("sort_order", { ascending: true });
+  const links = (linkRows as ProfileLinkItem[]) ?? [];
+
   const initial = (p.display_name || p.username).trim().charAt(0).toUpperCase() || "?";
   const isSide = p.layout === "side";
   const name = p.display_name || p.username;
@@ -167,6 +176,7 @@ export default async function PublicProfilePage({
               {p.bio}
             </p>
           )}
+          <LinkWidgets links={links} size={p.link_widget_size} username={p.username} />
         </div>
 
         {showLocationOnCard && (

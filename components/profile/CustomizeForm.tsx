@@ -60,6 +60,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [locationPosition, setLocationPosition] = useState<"bottom-left" | "bottom-right" | "card">(
     profile?.location_position ?? "card"
   );
+  const [linkWidgetSize, setLinkWidgetSize] = useState(profile?.link_widget_size ?? 44);
   const [cursorAnimation, setCursorAnimation] = useState<
     "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti" | "emoji" | "trail"
   >(profile?.cursor_animation ?? "none");
@@ -148,6 +149,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         card_outline_width: outlineWidth,
         show_location: showLocationTag,
         location_position: locationPosition,
+        link_widget_size: linkWidgetSize,
         cursor_animation: cursorAnimation,
         cursor_color: cursorColor,
         cursor_emoji: cursorEmoji,
@@ -458,6 +460,21 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                 </select>
               </div>
             )}
+          </div>
+
+          <div className="border-t border-white/5 pt-5">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Links</p>
+            <Slider
+              label="Link Icon Size"
+              value={linkWidgetSize}
+              onChange={setLinkWidgetSize}
+              min={32}
+              max={80}
+              unit="px"
+            />
+            <p className="mt-1.5 text-[11px] text-zinc-600">
+              Controls how big your link icons show up on your public page, right under your description.
+            </p>
           </div>
 
           <div className="border-t border-white/5 pt-5">

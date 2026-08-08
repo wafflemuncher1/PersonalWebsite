@@ -87,6 +87,7 @@ export type Profile = {
   card_outline_width: number;
   show_location: boolean;
   location_position: "bottom-left" | "bottom-right" | "card";
+  link_widget_size: number;
   show_stats: boolean;
   plan: Plan;
   subscription_status: SubscriptionStatus;
