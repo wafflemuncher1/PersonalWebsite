@@ -11,6 +11,8 @@ import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls
 import { PLATFORMS, validatePlatformUrl, type Platform } from "@/lib/link-validation";
 import type { Profile, ProfileLinkItem } from "@/lib/types";
 
+const LINK_LIMIT = 8;
+
 const PLATFORM_ICONS: Record<Platform, IconType> = {
   youtube: FaYoutube,
   tiktok: FaTiktok,
@@ -41,6 +43,10 @@ export function LinksForm({
 
   async function handleCreate() {
     if (!profile || !newPlatform) return;
+    if (links.length >= LINK_LIMIT) {
+      setNewError(`You can only have up to ${LINK_LIMIT} links.`);
+      return;
+    }
     const problem = validatePlatformUrl(newPlatform, newUrl);
     if (problem) {
       setNewError(problem);
@@ -83,7 +89,7 @@ export function LinksForm({
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-3xl font-extrabold tracking-tight text-white">Links</h1>
       <p className="-mt-4 text-sm text-zinc-500">
-        Set these up now — they won&apos;t show on your public page until you&apos;re ready to add them there.
+        These show up on your public page right under your description. Up to {LINK_LIMIT} links.
       </p>
 
       <Card className="p-6">
@@ -106,7 +112,7 @@ export function LinksForm({
 
         {links.length === 0 && !picking && <p className="mb-4 text-sm text-zinc-600">No links yet.</p>}
 
-        {!picking && (
+        {!picking && links.length < LINK_LIMIT && (
           <button
             type="button"
             onClick={() => setPicking(true)}
@@ -114,6 +120,10 @@ export function LinksForm({
           >
             <Plus className="h-3.5 w-3.5" /> Create a link
           </button>
+        )}
+
+        {!picking && links.length >= LINK_LIMIT && (
+          <p className="mt-3 text-xs text-zinc-600">You&apos;ve reached the {LINK_LIMIT} link limit.</p>
         )}
 
         {picking && (

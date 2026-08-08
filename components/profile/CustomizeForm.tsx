@@ -60,7 +60,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [locationPosition, setLocationPosition] = useState<"bottom-left" | "bottom-right" | "card">(
     profile?.location_position ?? "card"
   );
-  const [linkWidgetSize, setLinkWidgetSize] = useState(profile?.link_widget_size ?? 44);
+  const [linkWidgetSize, setLinkWidgetSize] = useState(profile?.link_widget_size ?? 28);
   const [cursorAnimation, setCursorAnimation] = useState<
     "none" | "sparkle" | "glow" | "rainbow" | "bubble" | "fire" | "snow" | "confetti" | "emoji" | "trail"
   >(profile?.cursor_animation ?? "none");
@@ -468,8 +468,8 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               label="Link Icon Size"
               value={linkWidgetSize}
               onChange={setLinkWidgetSize}
-              min={32}
-              max={80}
+              min={16}
+              max={48}
               unit="px"
             />
             <p className="mt-1.5 text-[11px] text-zinc-600">

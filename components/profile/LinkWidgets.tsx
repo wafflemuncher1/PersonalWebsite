@@ -15,6 +15,9 @@ const PLATFORM_ICONS: Record<Platform, IconType> = {
   facebook: FaFacebook,
 };
 
+// Matches guns.lol's look: bare icon glyphs sitting directly on the card
+// with a soft glow, tightly spaced in a row — no background pill/box around
+// each one like a typical Linktree button.
 export function LinkWidgets({
   links,
   size,
@@ -27,7 +30,7 @@ export function LinkWidgets({
   if (!links.length) return null;
 
   return (
-    <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+    <div className="mt-4 flex items-center justify-center gap-5">
       {links.map((link) => (
         <LinkWidget key={link.id} link={link} size={size} username={username} />
       ))}
@@ -40,9 +43,13 @@ function LinkWidget({ link, size, username }: { link: ProfileLinkItem; size: num
   const Icon = PLATFORM_ICONS[link.platform];
   const label = PLATFORMS[link.platform].label;
   const color = link.is_custom_logo && link.custom_color ? link.custom_color : PLATFORMS[link.platform].brandColor;
-  const glowShadow = link.glow_enabled
-    ? `0 0 ${4 + (link.glow_strength / 100) * 16}px ${link.glow_color}, 0 0 ${10 + (link.glow_strength / 100) * 36}px ${link.glow_color}`
-    : undefined;
+
+  // Every icon gets a faint ambient glow like the reference shots, even
+  // without the per-link glow toggle on; enabling it layers a stronger,
+  // colored glow on top instead of replacing the ambient one.
+  const glowFilter = link.glow_enabled
+    ? `drop-shadow(0 0 ${3 + (link.glow_strength / 100) * 5}px ${link.glow_color}) drop-shadow(0 0 ${8 + (link.glow_strength / 100) * 18}px ${link.glow_color})`
+    : "drop-shadow(0 0 6px rgba(255,255,255,0.2))";
 
   return (
     <div
@@ -54,14 +61,19 @@ function LinkWidget({ link, size, username }: { link: ProfileLinkItem; size: num
         username={username}
         label={label}
         url={link.url}
-        className="flex items-center justify-center overflow-hidden rounded-full bg-white/5 transition hover:scale-105"
-        style={{ width: size, height: size, boxShadow: glowShadow }}
+        className="flex items-center justify-center transition hover:scale-110"
+        style={{ width: size, height: size }}
       >
         {link.is_custom_logo && link.custom_icon_url ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={link.custom_icon_url} alt={label} className="h-full w-full object-cover" />
+          <img
+            src={link.custom_icon_url}
+            alt={label}
+            className="h-full w-full rounded-full object-cover"
+            style={{ filter: glowFilter }}
+          />
         ) : (
-          <Icon size={size * 0.5} color={color} />
+          <Icon size={size} color={color} style={{ filter: glowFilter }} />
         )}
       </TrackedLink>
 
