@@ -12,6 +12,24 @@ export type ProfileLink = {
   icon?: string;
 };
 
+// Row shape for the profile_links table — the structured, platform-aware
+// replacement for the freeform ProfileLink jsonb above. Not rendered on the
+// public page yet; the management UI is being built ahead of that.
+export type ProfileLinkItem = {
+  id: string;
+  profile_id: string;
+  platform: "youtube" | "tiktok" | "instagram" | "facebook";
+  url: string;
+  is_custom_logo: boolean;
+  custom_color: string | null;
+  glow_enabled: boolean;
+  glow_strength: number;
+  glow_color: string;
+  custom_icon_url: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 // Saved shape for the Dashboard Builder: `layout` is the ordered list of
 // top-level widget keys on Dashboard 2; `accountStats` are stat widget keys
 // the user has nested inside the Account Statistics widget instead of

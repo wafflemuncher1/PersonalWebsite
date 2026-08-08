@@ -77,14 +77,24 @@ export default async function PublicProfilePage({
     p.show_location && p.location_position !== "card" && p.location;
 
   const glowStrength = p.name_glow_strength / 100;
+  // Multiple stacked shadows read as an actual neon bloom — a single
+  // 2-layer shadow (the old approach) stays washed-out looking even at max
+  // blur, since browsers don't intensify a single shadow's opacity with size.
+  const nameGlowShadow = p.name_glow_enabled
+    ? [
+        `0 0 ${4 + glowStrength * 16}px ${p.name_glow_color}`,
+        `0 0 ${10 + glowStrength * 40}px ${p.name_glow_color}`,
+        `0 0 ${20 + glowStrength * 80}px ${p.name_glow_color}`,
+        `0 0 ${40 + glowStrength * 160}px ${p.name_glow_color}`,
+        `0 0 ${60 + glowStrength * 220}px ${p.name_glow_color}`,
+      ].join(", ")
+    : undefined;
   const nameStyle: React.CSSProperties = {
     color: p.name_color,
     fontSize: `${p.name_font_size}px`,
     fontWeight: p.name_bold ? 700 : 400,
     fontStyle: p.name_italic ? "italic" : "normal",
-    textShadow: p.name_glow_enabled
-      ? `0 0 ${glowStrength * 50}px ${p.name_glow_color}, 0 0 ${glowStrength * 130}px ${p.name_glow_color}`
-      : undefined,
+    textShadow: nameGlowShadow,
   };
   const descriptionStyle: React.CSSProperties = {
     fontSize: `${p.description_font_size}px`,
@@ -122,8 +132,8 @@ export default async function PublicProfilePage({
             : "none",
         }}
       >
-        <ProfileEffectRing effect={p.profile_effect} size={112} color={p.cursor_color}>
-          <div className="h-28 w-28 shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
+        <ProfileEffectRing effect={p.profile_effect} size={168} color={p.cursor_color}>
+          <div className="h-[168px] w-[168px] shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
             {p.avatar_url ? (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img
@@ -132,7 +142,7 @@ export default async function PublicProfilePage({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-600 to-violet-500 text-2xl font-semibold text-white">
+              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-600 to-violet-500 text-4xl font-semibold text-white">
                 {initial}
               </div>
             )}
@@ -190,6 +200,15 @@ export default async function PublicProfilePage({
           </span>
         </div>
       )}
+
+      <a
+        href="/"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-4 left-1/2 z-30 -translate-x-1/2 rounded-full border border-white/10 bg-black/40 px-3.5 py-1.5 text-[11px] font-medium text-zinc-300 backdrop-blur transition hover:bg-black/60 hover:text-white"
+      >
+        made with <span className="font-semibold text-white">Nocturne</span>
+      </a>
     </main>
   );
 }
