@@ -77,6 +77,43 @@ export function ProfileAudioPlayer({
     };
   }, []);
 
+  // A timer can't get around the browser's autoplay-with-sound block —
+  // it's gated on user interaction, not elapsed time, so a delayed play()
+  // call fails exactly the same way an immediate one does. What actually
+  // gets sound going fast is reacting to the *first* interaction anywhere
+  // on the page — not just a click on the speaker button specifically —
+  // since browsers always allow audio to start once the visitor has done
+  // anything at all. Most people move a mouse, tap, or scroll within a
+  // second of landing, so in practice this feels close to instant.
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    function unmuteOnFirstInteraction() {
+      if (!audio) return;
+      if (audio.muted) {
+        audio.muted = false;
+        setMuted(false);
+      }
+      if (audio.paused) {
+        audio.play().then(() => setPlaying(true)).catch(() => {});
+      }
+    }
+
+    const opts = { once: true, passive: true } as const;
+    window.addEventListener("pointerdown", unmuteOnFirstInteraction, opts);
+    window.addEventListener("keydown", unmuteOnFirstInteraction, opts);
+    window.addEventListener("touchstart", unmuteOnFirstInteraction, opts);
+    window.addEventListener("scroll", unmuteOnFirstInteraction, opts);
+
+    return () => {
+      window.removeEventListener("pointerdown", unmuteOnFirstInteraction);
+      window.removeEventListener("keydown", unmuteOnFirstInteraction);
+      window.removeEventListener("touchstart", unmuteOnFirstInteraction);
+      window.removeEventListener("scroll", unmuteOnFirstInteraction);
+    };
+  }, []);
+
   function toggleMute() {
     const audio = audioRef.current;
     if (!audio) return;

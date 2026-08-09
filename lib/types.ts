@@ -163,6 +163,27 @@ export type Customizer2Settings = {
   };
 };
 
+// Badge catalog — never written to by users, only by us. `icon` is a key
+// into lib/badge-icons.ts, not a literal component.
+export type BadgeDef = {
+  key: string;
+  name: string;
+  description: string;
+  icon: string;
+  created_at: string;
+};
+
+// Which badges a profile has earned and which are currently equipped
+// (shown on the public page, capped at 5 by a DB trigger).
+export type ProfileBadge = {
+  id: string;
+  profile_id: string;
+  badge_key: string;
+  equipped: boolean;
+  sort_order: number;
+  earned_at: string;
+};
+
 export type Mood = "great" | "good" | "neutral" | "low" | "rough";
 
 export type JournalEntry = {

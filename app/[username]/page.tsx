@@ -11,8 +11,9 @@ import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
 import { LinkWidgets } from "@/components/profile/LinkWidgets";
 import { ProfileAudioPlayer } from "@/components/profile/ProfileAudioPlayer";
+import { ProfileBadges, type EquippedBadge } from "@/components/profile/ProfileBadges";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
-import type { Profile, ProfileLinkItem } from "@/lib/types";
+import type { BadgeDef, Profile, ProfileLinkItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,25 @@ export default async function PublicProfilePage({
     .order("sort_order", { ascending: true });
   const links = (linkRows as ProfileLinkItem[]) ?? [];
 
+  const { data: badgeRows } = await supabase
+    .from("profile_badges")
+    .select("badge_key, sort_order")
+    .eq("profile_id", p.id)
+    .eq("equipped", true)
+    .order("sort_order", { ascending: true })
+    .limit(5);
+
+  let equippedBadges: EquippedBadge[] = [];
+  if (badgeRows && badgeRows.length > 0) {
+    const keys = badgeRows.map((r) => r.badge_key);
+    const { data: defRows } = await supabase.from("badge_defs").select("key, name, icon").in("key", keys);
+    const defMap = new Map((defRows as Pick<BadgeDef, "key" | "name" | "icon">[] | null ?? []).map((d) => [d.key, d]));
+    equippedBadges = badgeRows
+      .map((r) => defMap.get(r.badge_key))
+      .filter((d): d is Pick<BadgeDef, "key" | "name" | "icon"> => !!d)
+      .map((d) => ({ key: d.key, name: d.name, icon: d.icon }));
+  }
+
   const initial = (p.display_name || p.username).trim().charAt(0).toUpperCase() || "?";
   const isSide = p.layout === "side";
   const name = p.display_name || p.username;
@@ -113,6 +133,18 @@ export default async function PublicProfilePage({
     fontStyle: p.description_italic ? "italic" : "normal",
     color: p.description_color,
   };
+
+  const nameElement = (
+    <NameHover username={p.username}>
+      {p.name_animation === "typewriter" ? (
+        <AnimatedName text={name} style={nameStyle} />
+      ) : p.name_animation === "scramble" || p.name_animation === "wave" ? (
+        <GsapNameAnimation text={name} variant={p.name_animation} style={nameStyle} />
+      ) : (
+        <h1 style={nameStyle}>{name}</h1>
+      )}
+    </NameHover>
+  );
 
   return (
     <main className="relative flex min-h-screen items-center justify-center px-6" style={mainStyle}>
@@ -162,15 +194,21 @@ export default async function PublicProfilePage({
         </ProfileEffectRing>
 
         <div className={isSide ? "" : "mt-4"}>
-          <NameHover username={p.username}>
-            {p.name_animation === "typewriter" ? (
-              <AnimatedName text={name} style={nameStyle} />
-            ) : p.name_animation === "scramble" || p.name_animation === "wave" ? (
-              <GsapNameAnimation text={name} variant={p.name_animation} style={nameStyle} />
-            ) : (
-              <h1 style={nameStyle}>{name}</h1>
-            )}
-          </NameHover>
+          {isSide ? (
+            <div className="flex flex-wrap items-center gap-2">
+              {nameElement}
+              <ProfileBadges badges={equippedBadges} />
+            </div>
+          ) : (
+            <>
+              {nameElement}
+              {equippedBadges.length > 0 && (
+                <div className="mt-1.5 flex justify-center">
+                  <ProfileBadges badges={equippedBadges} />
+                </div>
+              )}
+            </>
+          )}
           {p.bio && (
             <p
               className={cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto")}

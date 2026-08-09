@@ -1,26 +1,37 @@
-import { Card } from "@/components/ui/Card";
+import { createClient } from "@/lib/supabase/server";
+import { BadgesManager } from "@/components/badges/BadgesManager";
+import type { BadgeDef, ProfileBadge } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
-export default function BadgesPage() {
+export default async function BadgesPage() {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let defs: BadgeDef[] = [];
+  let earned: ProfileBadge[] = [];
+
+  if (user) {
+    const [{ data: defRows }, { data: earnedRows }] = await Promise.all([
+      supabase.from("badge_defs").select("*").order("created_at", { ascending: true }),
+      supabase.from("profile_badges").select("*").eq("profile_id", user.id),
+    ]);
+    defs = (defRows as BadgeDef[]) ?? [];
+    earned = (earnedRows as ProfileBadge[]) ?? [];
+  }
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">All Badges</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Badges</h1>
         <p className="mt-1 text-sm text-zinc-500">
-          Earn badges as you use Nocturne. New ones are on the way.
+          Badges are earned, not created. Equip up to 5 to show on your public page.
         </p>
       </div>
 
-      <Card className="p-10 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-dashed border-white/10 text-2xl text-zinc-600">
-          🏅
-        </div>
-        <p className="text-sm font-medium text-zinc-300">No badges yet</p>
-        <p className="mx-auto mt-1.5 max-w-xs text-xs text-zinc-500">
-          This is where your badges will show up once they&apos;re live. Check back soon.
-        </p>
-      </Card>
+      <BadgesManager defs={defs} earned={earned} />
     </div>
   );
 }
