@@ -10,7 +10,7 @@ import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
 import { LinkWidgets } from "@/components/profile/LinkWidgets";
-import { ProfileAudioPlayer } from "@/components/profile/ProfileAudioPlayer";
+import { ProfileEntryGate } from "@/components/profile/ProfileEntryGate";
 import { ProfileBadges, type EquippedBadge } from "@/components/profile/ProfileBadges";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { BadgeDef, Profile, ProfileLinkItem } from "@/lib/types";
@@ -158,6 +158,69 @@ export default async function PublicProfilePage({
     </NameHover>
   );
 
+  const cardElement = (
+    <InteractiveCard
+      className={cn(
+        "relative w-full rounded-2xl p-[66px] shadow-xl",
+        isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
+      )}
+      style={{
+        backgroundColor: hexToRgba(p.card_color, p.card_opacity),
+        border: p.card_outline_enabled ? `${p.card_outline_width}px solid ${p.card_border_color}` : "none",
+      }}
+    >
+      <ProfileEffectRing effect={p.profile_effect} size={168} color={p.cursor_color}>
+        <div className="h-[168px] w-[168px] shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
+          {p.avatar_url ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img src={p.avatar_url} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-600 to-violet-500 text-4xl font-semibold text-white">
+              {initial}
+            </div>
+          )}
+        </div>
+      </ProfileEffectRing>
+
+      <div className={isSide ? "" : "mt-4"}>
+        {isSide ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {nameElement}
+            <ProfileBadges badges={equippedBadges} />
+          </div>
+        ) : (
+          <>
+            {nameElement}
+            {equippedBadges.length > 0 && (
+              <div className="mt-1.5 flex justify-center">
+                <ProfileBadges badges={equippedBadges} />
+              </div>
+            )}
+          </>
+        )}
+        {p.bio && (
+          <p className={cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto")} style={descriptionStyle}>
+            {p.bio}
+          </p>
+        )}
+        <LinkWidgets links={links} size={p.link_widget_size} username={p.username} />
+      </div>
+
+      {showLocationOnCard && (
+        <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[11px] text-zinc-300 backdrop-blur">
+          <span className="flex items-center gap-1">
+            <Eye className="h-3 w-3" />
+            {p.view_count.toLocaleString()}
+          </span>
+          <span className="flex items-center gap-1">
+            <MapPin className="h-3 w-3" />
+            {p.location}
+          </span>
+        </div>
+      )}
+    </InteractiveCard>
+  );
+
   return (
     <main className="relative flex min-h-screen items-center justify-center px-6" style={mainStyle}>
       {p.bg_type === "video" && p.background_video_url && (
@@ -176,89 +239,29 @@ export default async function PublicProfilePage({
       )}
 
       <div className="relative z-10 flex w-full max-w-[63rem] flex-col items-center gap-4">
-      <InteractiveCard
-        className={cn(
-          "relative w-full rounded-2xl p-[66px] shadow-xl",
-          isSide ? "flex items-center gap-6" : "flex flex-col items-center text-center"
+        {p.audio_url ? (
+          <ProfileEntryGate
+            audioSrc={p.audio_url}
+            audioTitle={p.audio_title}
+            audioCoverUrl={p.audio_cover_url}
+            audioNameColor={p.audio_name_color}
+            audioNameFontSize={p.audio_name_font_size}
+            audioNameBold={p.audio_name_bold}
+            audioGlowEnabled={p.audio_glow_enabled}
+            audioGlowStrength={p.audio_glow_strength}
+            audioGlowColor={p.audio_glow_color}
+            introText={p.intro_text}
+            introTextColor={p.intro_text_color}
+            introFontSize={p.intro_text_font_size}
+            introGlowEnabled={p.intro_glow_enabled}
+            introGlowStrength={p.intro_glow_strength}
+            introGlowColor={p.intro_glow_color}
+          >
+            {cardElement}
+          </ProfileEntryGate>
+        ) : (
+          cardElement
         )}
-        style={{
-          backgroundColor: hexToRgba(p.card_color, p.card_opacity),
-          border: p.card_outline_enabled
-            ? `${p.card_outline_width}px solid ${p.card_border_color}`
-            : "none",
-        }}
-      >
-        <ProfileEffectRing effect={p.profile_effect} size={168} color={p.cursor_color}>
-          <div className="h-[168px] w-[168px] shrink-0 overflow-hidden rounded-full ring-2 ring-black/5">
-            {p.avatar_url ? (
-              /* eslint-disable-next-line @next/next/no-img-element */
-              <img
-                src={p.avatar_url}
-                alt={name}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-violet-600 to-violet-500 text-4xl font-semibold text-white">
-                {initial}
-              </div>
-            )}
-          </div>
-        </ProfileEffectRing>
-
-        <div className={isSide ? "" : "mt-4"}>
-          {isSide ? (
-            <div className="flex flex-wrap items-center gap-2">
-              {nameElement}
-              <ProfileBadges badges={equippedBadges} />
-            </div>
-          ) : (
-            <>
-              {nameElement}
-              {equippedBadges.length > 0 && (
-                <div className="mt-1.5 flex justify-center">
-                  <ProfileBadges badges={equippedBadges} />
-                </div>
-              )}
-            </>
-          )}
-          {p.bio && (
-            <p
-              className={cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto")}
-              style={descriptionStyle}
-            >
-              {p.bio}
-            </p>
-          )}
-          <LinkWidgets links={links} size={p.link_widget_size} username={p.username} />
-        </div>
-
-        {showLocationOnCard && (
-          <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-2.5 py-1 text-[11px] text-zinc-300 backdrop-blur">
-            <span className="flex items-center gap-1">
-              <Eye className="h-3 w-3" />
-              {p.view_count.toLocaleString()}
-            </span>
-            <span className="flex items-center gap-1">
-              <MapPin className="h-3 w-3" />
-              {p.location}
-            </span>
-          </div>
-        )}
-      </InteractiveCard>
-
-      {p.audio_url && (
-        <ProfileAudioPlayer
-          src={p.audio_url}
-          title={p.audio_title}
-          coverUrl={p.audio_cover_url}
-          nameColor={p.audio_name_color}
-          nameFontSize={p.audio_name_font_size}
-          nameBold={p.audio_name_bold}
-          glowEnabled={p.audio_glow_enabled}
-          glowStrength={p.audio_glow_strength}
-          glowColor={p.audio_glow_color}
-        />
-      )}
       </div>
 
       {showLocationCorner && (

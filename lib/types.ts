@@ -100,6 +100,12 @@ export type Profile = {
   audio_glow_enabled: boolean;
   audio_glow_strength: number;
   audio_glow_color: string;
+  intro_text: string;
+  intro_text_color: string;
+  intro_text_font_size: number;
+  intro_glow_enabled: boolean;
+  intro_glow_strength: number;
+  intro_glow_color: string;
   show_stats: boolean;
   username_changed_at: string | null;
   is_dev: boolean;

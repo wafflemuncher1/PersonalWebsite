@@ -81,6 +81,12 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [audioGlowEnabled, setAudioGlowEnabled] = useState(profile?.audio_glow_enabled ?? false);
   const [audioGlowStrength, setAudioGlowStrength] = useState(profile?.audio_glow_strength ?? 50);
   const [audioGlowColor, setAudioGlowColor] = useState(profile?.audio_glow_color ?? "#8b5cf6");
+  const [introText, setIntroText] = useState(profile?.intro_text ?? "Click to enter");
+  const [introTextColor, setIntroTextColor] = useState(profile?.intro_text_color ?? "#ffffff");
+  const [introFontSize, setIntroFontSize] = useState(profile?.intro_text_font_size ?? 20);
+  const [introGlowEnabled, setIntroGlowEnabled] = useState(profile?.intro_glow_enabled ?? false);
+  const [introGlowStrength, setIntroGlowStrength] = useState(profile?.intro_glow_strength ?? 50);
+  const [introGlowColor, setIntroGlowColor] = useState(profile?.intro_glow_color ?? "#8b5cf6");
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [bgUploading, setBgUploading] = useState(false);
   const [bgVideoUploading, setBgVideoUploading] = useState(false);
@@ -186,6 +192,12 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         audio_glow_enabled: audioGlowEnabled,
         audio_glow_strength: audioGlowStrength,
         audio_glow_color: audioGlowColor,
+        intro_text: introText.trim() || "Click to enter",
+        intro_text_color: introTextColor,
+        intro_text_font_size: introFontSize,
+        intro_glow_enabled: introGlowEnabled,
+        intro_glow_strength: introGlowStrength,
+        intro_glow_color: introGlowColor,
       })
       .eq("id", profile?.id);
 
@@ -662,6 +674,50 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                     <ColorField label="Glow Color" value={audioGlowColor} onChange={setAudioGlowColor} />
                   </div>
                 )}
+
+                <div className="border-t border-white/5 pt-4">
+                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Enter Screen</p>
+                  <p className="mb-3 text-[11px] text-zinc-600">
+                    Visitors see this over a blurred preview of your page — clicking it is what starts your
+                    audio, since browsers only allow sound to start from a real click.
+                  </p>
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Text</label>
+                  <Input
+                    value={introText}
+                    onChange={(e) => setIntroText(e.target.value)}
+                    placeholder="Click to enter"
+                    maxLength={60}
+                  />
+                  <div className="mt-3">
+                    <ColorField label="Text Color" value={introTextColor} onChange={setIntroTextColor} />
+                  </div>
+                  <div className="mt-4">
+                    <Slider
+                      label="Text Size"
+                      value={introFontSize}
+                      onChange={setIntroFontSize}
+                      min={12}
+                      max={40}
+                      unit="px"
+                    />
+                  </div>
+                  <div className="mt-3">
+                    <ToggleRow label="Glow" checked={introGlowEnabled} onChange={setIntroGlowEnabled} />
+                  </div>
+                  {introGlowEnabled && (
+                    <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                      <Slider
+                        label="Glow Strength"
+                        value={introGlowStrength}
+                        onChange={setIntroGlowStrength}
+                        min={0}
+                        max={100}
+                        unit="%"
+                      />
+                      <ColorField label="Glow Color" value={introGlowColor} onChange={setIntroGlowColor} />
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
