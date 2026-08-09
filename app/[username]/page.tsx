@@ -63,6 +63,7 @@ export default async function PublicProfilePage({
     .from("profile_links")
     .select("*")
     .eq("profile_id", p.id)
+    .eq("is_active", true)
     .order("sort_order", { ascending: true });
   const links = (linkRows as ProfileLinkItem[]) ?? [];
 

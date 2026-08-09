@@ -35,17 +35,30 @@ export function ProfileAudioPlayer({
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // Browsers block autoplay-with-sound, but muted autoplay is always
-  // allowed — start muted so the track is already rolling, then let the
-  // visitor unmute via the speaker button whenever they want sound.
+  // Try to autoplay with sound immediately. Browsers block that unless the
+  // visitor has already interacted with this site before, so if it's
+  // rejected we fall back to muted autoplay (always allowed) — the track
+  // is rolling either way, and the visitor can unmute from the speaker
+  // button. There's no way to force sound-on autoplay every single time;
+  // that's a browser-level restriction, not something the page controls.
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.muted = true;
+    audio.muted = false;
     audio
       .play()
-      .then(() => setPlaying(true))
-      .catch(() => setPlaying(false));
+      .then(() => {
+        setPlaying(true);
+        setMuted(false);
+      })
+      .catch(() => {
+        audio.muted = true;
+        setMuted(true);
+        audio
+          .play()
+          .then(() => setPlaying(true))
+          .catch(() => setPlaying(false));
+      });
   }, []);
 
   useEffect(() => {
@@ -126,9 +139,9 @@ export function ProfileAudioPlayer({
         type="button"
         onClick={toggleMute}
         aria-label={muted ? "Unmute audio" : "Mute audio"}
-        className="fixed left-4 top-4 z-40 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/40 text-zinc-200 backdrop-blur transition hover:bg-black/60"
+        className="fixed left-5 top-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/40 text-zinc-200 backdrop-blur transition hover:bg-black/60"
       >
-        {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
       </button>
 
       <div className="flex w-full max-w-xs items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-3.5 py-3 backdrop-blur">

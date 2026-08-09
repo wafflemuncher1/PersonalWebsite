@@ -28,6 +28,7 @@ export type ProfileLinkItem = {
   glow_strength: number;
   glow_color: string;
   custom_icon_url: string | null;
+  is_active: boolean;
   sort_order: number;
   created_at: string;
 };

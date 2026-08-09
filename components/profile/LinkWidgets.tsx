@@ -54,12 +54,11 @@ function LinkWidget({ link, size, username }: { link: ProfileLinkItem; size: num
   const borrowedIcon = isCustom && link.icon_choice ? PLATFORM_ICONS[link.icon_choice] : null;
   const Icon = borrowedIcon ?? (!isCustom ? PLATFORM_ICONS[link.platform as KnownPlatform] : null);
 
-  const color =
-    link.is_custom_logo && link.custom_color
-      ? link.custom_color
-      : isCustom
-        ? PLATFORMS.custom.brandColor
-        : PLATFORMS[link.platform].brandColor;
+  // custom_color is set on every link now (the editor always exposes a
+  // color picker, not just ones with a swapped-in custom icon), so it's
+  // the tint whenever present — falling back to the platform brand color
+  // only for older links saved before that field was always populated.
+  const color = link.custom_color || (isCustom ? PLATFORMS.custom.brandColor : PLATFORMS[link.platform].brandColor);
 
   // Every icon gets a faint ambient glow like the reference shots, even
   // without the per-link glow toggle on; enabling it layers a stronger,
