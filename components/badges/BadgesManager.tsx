@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
+import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { badgeIcon } from "@/lib/badge-icons";
 import type { BadgeDef, ProfileBadge } from "@/lib/types";
 
@@ -12,6 +15,7 @@ export function BadgesManager({ defs, earned: initialEarned }: { defs: BadgeDef[
   const supabase = createClient();
   const [earned, setEarned] = useState<ProfileBadge[]>(initialEarned);
   const [error, setError] = useState("");
+  const [editingKey, setEditingKey] = useState<string | null>(null);
 
   const equippedCount = earned.filter((e) => e.equipped).length;
   const earnedMap = new Map(earned.map((e) => [e.badge_key, e]));
@@ -36,6 +40,11 @@ export function BadgesManager({ defs, earned: initialEarned }: { defs: BadgeDef[
     setEarned((prev) => prev.map((e) => (e.id === row.id ? (data as ProfileBadge) : e)));
   }
 
+  function handleSaved(updated: ProfileBadge) {
+    setEarned((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+    setEditingKey(null);
+  }
+
   return (
     <div className="space-y-4">
       <p className="text-xs text-zinc-500">
@@ -48,41 +57,130 @@ export function BadgesManager({ defs, earned: initialEarned }: { defs: BadgeDef[
           const row = earnedMap.get(def.key);
           const isEarned = !!row;
           const Icon = badgeIcon(def.icon);
+          const isEditing = editingKey === def.key;
 
           return (
-            <Card
-              key={def.key}
-              className={`flex items-center gap-4 p-4 transition ${!isEarned ? "opacity-50" : ""}`}
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-violet-300">
-                <Icon className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-white">{def.name}</p>
-                <p className="mt-0.5 text-xs text-zinc-500">{def.description}</p>
-                {!isEarned && <p className="mt-1 text-[11px] text-zinc-600">Not yet earned</p>}
+            <Card key={def.key} className={`overflow-hidden transition ${!isEarned ? "opacity-50" : ""}`}>
+              <div className="flex items-center gap-4 p-4">
+                <div
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5"
+                  style={row?.glow_enabled ? { boxShadow: `0 0 ${4 + (row.glow_strength / 100) * 16}px ${row.glow_color}` } : undefined}
+                >
+                  <Icon className="h-5 w-5" color={row?.color || "#c4b5fd"} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-white">{def.name}</p>
+                  <p className="mt-0.5 text-xs text-zinc-500">{def.description}</p>
+                  {!isEarned && <p className="mt-1 text-[11px] text-zinc-600">Not yet earned</p>}
+                </div>
+
+                {row && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setEditingKey(isEditing ? null : def.key)}
+                      className="shrink-0 rounded-md p-1.5 text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+                      aria-label="Edit badge appearance"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={row.equipped}
+                      onClick={() => toggleEquip(row)}
+                      aria-label={row.equipped ? "Unequip badge" : "Equip badge"}
+                      className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
+                        row.equipped ? "bg-violet-500" : "bg-white/10"
+                      }`}
+                    >
+                      <span
+                        className="h-5 w-5 rounded-full bg-white shadow transition-transform"
+                        style={{ transform: row.equipped ? "translateX(20px)" : "translateX(0)" }}
+                      />
+                    </button>
+                  </>
+                )}
               </div>
 
-              {row && (
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={row.equipped}
-                  onClick={() => toggleEquip(row)}
-                  aria-label={row.equipped ? "Unequip badge" : "Equip badge"}
-                  className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
-                    row.equipped ? "bg-violet-500" : "bg-white/10"
-                  }`}
-                >
-                  <span
-                    className="h-5 w-5 rounded-full bg-white shadow transition-transform"
-                    style={{ transform: row.equipped ? "translateX(20px)" : "translateX(0)" }}
-                  />
-                </button>
+              {isEditing && row && (
+                <BadgeEditPanel row={row} onSaved={handleSaved} onCancel={() => setEditingKey(null)} />
               )}
             </Card>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function BadgeEditPanel({
+  row,
+  onSaved,
+  onCancel,
+}: {
+  row: ProfileBadge;
+  onSaved: (updated: ProfileBadge) => void;
+  onCancel: () => void;
+}) {
+  const supabase = createClient();
+  const [color, setColor] = useState(row.color || "#c4b5fd");
+  const [size, setSize] = useState(row.size);
+  const [glowEnabled, setGlowEnabled] = useState(row.glow_enabled);
+  const [glowStrength, setGlowStrength] = useState(row.glow_strength);
+  const [glowColor, setGlowColor] = useState(row.glow_color);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSave() {
+    setError("");
+    setSaving(true);
+    const { data, error: updateError } = await supabase
+      .from("profile_badges")
+      .update({
+        color,
+        size,
+        glow_enabled: glowEnabled,
+        glow_strength: glowStrength,
+        glow_color: glowColor,
+      })
+      .eq("id", row.id)
+      .select()
+      .single();
+    setSaving(false);
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+    onSaved(data as ProfileBadge);
+  }
+
+  return (
+    <div className="space-y-4 border-t border-white/5 p-4">
+      <ColorField label="Badge Color" value={color} onChange={setColor} />
+      <Slider label="Badge Size" value={size} onChange={setSize} min={16} max={40} unit="px" />
+
+      <ToggleRow label="Glow" checked={glowEnabled} onChange={setGlowEnabled} />
+      {glowEnabled && (
+        <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+          <Slider label="Glow Strength" value={glowStrength} onChange={setGlowStrength} min={0} max={100} unit="%" />
+          <ColorField label="Glow Color" value={glowColor} onChange={setGlowColor} />
+        </div>
+      )}
+
+      {error && <p className="text-xs text-red-400">{error}</p>}
+
+      <div className="flex gap-2">
+        <Button onClick={handleSave} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </Button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="rounded-lg border border-white/10 px-3 text-sm text-zinc-400 hover:bg-white/5"
+        >
+          Cancel
+        </button>
       </div>
     </div>
   );

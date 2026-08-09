@@ -181,6 +181,11 @@ export type ProfileBadge = {
   badge_key: string;
   equipped: boolean;
   sort_order: number;
+  color: string | null;
+  size: number;
+  glow_enabled: boolean;
+  glow_strength: number;
+  glow_color: string;
   earned_at: string;
 };
 

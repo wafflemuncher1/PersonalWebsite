@@ -70,7 +70,7 @@ export default async function PublicProfilePage({
 
   const { data: badgeRows } = await supabase
     .from("profile_badges")
-    .select("badge_key, sort_order")
+    .select("badge_key, sort_order, color, size, glow_enabled, glow_strength, glow_color")
     .eq("profile_id", p.id)
     .eq("equipped", true)
     .order("sort_order", { ascending: true })
@@ -82,9 +82,21 @@ export default async function PublicProfilePage({
     const { data: defRows } = await supabase.from("badge_defs").select("key, name, icon").in("key", keys);
     const defMap = new Map((defRows as Pick<BadgeDef, "key" | "name" | "icon">[] | null ?? []).map((d) => [d.key, d]));
     equippedBadges = badgeRows
-      .map((r) => defMap.get(r.badge_key))
-      .filter((d): d is Pick<BadgeDef, "key" | "name" | "icon"> => !!d)
-      .map((d) => ({ key: d.key, name: d.name, icon: d.icon }));
+      .map((r) => {
+        const def = defMap.get(r.badge_key);
+        if (!def) return null;
+        return {
+          key: def.key,
+          name: def.name,
+          icon: def.icon,
+          color: r.color,
+          size: r.size,
+          glow_enabled: r.glow_enabled,
+          glow_strength: r.glow_strength,
+          glow_color: r.glow_color,
+        };
+      })
+      .filter((b): b is EquippedBadge => !!b);
   }
 
   const initial = (p.display_name || p.username).trim().charAt(0).toUpperCase() || "?";
