@@ -150,13 +150,44 @@ export default async function PublicProfilePage({
     <NameHover username={p.username}>
       {p.name_animation === "typewriter" ? (
         <AnimatedName text={name} style={nameStyle} />
-      ) : p.name_animation === "scramble" || p.name_animation === "wave" ? (
+      ) : p.name_animation === "scramble" || p.name_animation === "wave" || p.name_animation === "bounce" ? (
         <GsapNameAnimation text={name} variant={p.name_animation} style={nameStyle} />
+      ) : p.name_animation === "shimmer" ? (
+        <h1
+          className="name-shimmer"
+          style={{
+            ...nameStyle,
+            color: "transparent",
+            backgroundImage: `linear-gradient(90deg, ${p.name_color}, #ffffff, ${p.name_color})`,
+            backgroundSize: "200% auto",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+          }}
+        >
+          {name}
+        </h1>
+      ) : p.name_animation === "glitch" ? (
+        <h1 className="name-glitch" style={nameStyle}>
+          {name}
+        </h1>
       ) : (
         <h1 style={nameStyle}>{name}</h1>
       )}
     </NameHover>
   );
+
+  const descriptionClassName = cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto");
+  const descriptionElement = p.bio ? (
+    p.description_animation === "typewriter" ? (
+      <AnimatedName as="p" text={p.bio} className={descriptionClassName} style={descriptionStyle} />
+    ) : p.description_animation === "scramble" ? (
+      <GsapNameAnimation as="p" variant="scramble" text={p.bio} className={descriptionClassName} style={descriptionStyle} />
+    ) : (
+      <p className={descriptionClassName} style={descriptionStyle}>
+        {p.bio}
+      </p>
+    )
+  ) : null;
 
   const cardElement = (
     <InteractiveCard
@@ -198,11 +229,7 @@ export default async function PublicProfilePage({
             )}
           </>
         )}
-        {p.bio && (
-          <p className={cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto")} style={descriptionStyle}>
-            {p.bio}
-          </p>
-        )}
+        {descriptionElement}
         <LinkWidgets links={links} size={p.link_widget_size} username={p.username} />
       </div>
 

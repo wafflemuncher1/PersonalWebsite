@@ -132,7 +132,7 @@ export function ProfileExperience({
       <div className="profile-pagination pointer-events-none fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-center gap-3 sm:flex" />
 
       {showScrollHint && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-6 z-20 flex justify-center">
+        <div className="pointer-events-none fixed inset-x-0 bottom-16 z-20 flex justify-center">
           <div className="animate-bounce rounded-full border border-white/10 bg-ink-950/80 px-3.5 py-1.5 text-[11px] font-medium text-zinc-400 backdrop-blur">
             ↓ scroll down for more
           </div>

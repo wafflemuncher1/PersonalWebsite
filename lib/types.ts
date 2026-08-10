@@ -70,7 +70,7 @@ export type Profile = {
     | "trail";
   cursor_color: string;
   name_color: string;
-  name_animation: "none" | "typewriter" | "scramble" | "wave";
+  name_animation: "none" | "typewriter" | "scramble" | "wave" | "bounce" | "shimmer" | "glitch";
   name_font_size: number;
   name_bold: boolean;
   name_italic: boolean;
@@ -78,6 +78,7 @@ export type Profile = {
   description_bold: boolean;
   description_italic: boolean;
   description_color: string;
+  description_animation: "none" | "typewriter" | "scramble";
   name_glow_enabled: boolean;
   name_glow_strength: number;
   name_glow_color: string;

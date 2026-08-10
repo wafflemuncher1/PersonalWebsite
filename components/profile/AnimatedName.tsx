@@ -10,10 +10,14 @@ export function AnimatedName({
   text,
   className,
   style,
+  as: Tag = "h1",
 }: {
   text: string;
   className?: string;
   style?: React.CSSProperties;
+  // Lets the same typewriter loop drive both the display name (h1) and the
+  // description (p) without duplicating this component.
+  as?: "h1" | "p";
 }) {
   const [display, setDisplay] = useState("");
 
@@ -51,9 +55,9 @@ export function AnimatedName({
   }, [text]);
 
   return (
-    <h1 className={className} style={style}>
+    <Tag className={className} style={style}>
       {display}
       <span className="animate-pulse">|</span>
-    </h1>
+    </Tag>
   );
 }

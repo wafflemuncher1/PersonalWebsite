@@ -77,9 +77,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [bgColor, setBgColor] = useState(profile?.bg_color ?? "#000000");
   const [bgColor2, setBgColor2] = useState(profile?.bg_color_2 ?? "#4c1d95");
   const [nameColor, setNameColor] = useState(profile?.name_color ?? "#111111");
-  const [nameAnimation, setNameAnimation] = useState<"none" | "typewriter" | "scramble" | "wave">(
-    profile?.name_animation ?? "none"
-  );
+  const [nameAnimation, setNameAnimation] = useState<
+    "none" | "typewriter" | "scramble" | "wave" | "bounce" | "shimmer" | "glitch"
+  >(profile?.name_animation ?? "none");
   const [nameFontSize, setNameFontSize] = useState(profile?.name_font_size ?? 24);
   const [nameBold, setNameBold] = useState(profile?.name_bold ?? true);
   const [nameItalic, setNameItalic] = useState(profile?.name_italic ?? false);
@@ -87,6 +87,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [descriptionBold, setDescriptionBold] = useState(profile?.description_bold ?? false);
   const [descriptionItalic, setDescriptionItalic] = useState(profile?.description_italic ?? false);
   const [descriptionColor, setDescriptionColor] = useState(profile?.description_color ?? "#a1a1aa");
+  const [descriptionAnimation, setDescriptionAnimation] = useState<"none" | "typewriter" | "scramble">(
+    profile?.description_animation ?? "none"
+  );
   const [nameGlowEnabled, setNameGlowEnabled] = useState(profile?.name_glow_enabled ?? false);
   const [nameGlowStrength, setNameGlowStrength] = useState(profile?.name_glow_strength ?? 50);
   const [nameGlowColor, setNameGlowColor] = useState(profile?.name_glow_color ?? "#8b5cf6");
@@ -206,6 +209,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         description_bold: descriptionBold,
         description_italic: descriptionItalic,
         description_color: descriptionColor,
+        description_animation: descriptionAnimation,
         name_glow_enabled: nameGlowEnabled,
         name_glow_strength: nameGlowStrength,
         name_glow_color: nameGlowColor,
@@ -370,6 +374,18 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <ToggleRow label="Bold" checked={descriptionBold} onChange={setDescriptionBold} />
             <ToggleRow label="Italic" checked={descriptionItalic} onChange={setDescriptionItalic} />
           </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Description Animation</label>
+            <select
+              value={descriptionAnimation}
+              onChange={(e) => setDescriptionAnimation(e.target.value as "none" | "typewriter" | "scramble")}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              <option value="none" className="bg-ink-950">None</option>
+              <option value="typewriter" className="bg-ink-950">Typewriter</option>
+              <option value="scramble" className="bg-ink-950">Scramble (GSAP)</option>
+            </select>
+          </div>
         </CollapsibleSection>
 
         <CollapsibleSection title="Display Name" description="Color, animation, size, and glow.">
@@ -378,13 +394,20 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Name Animation</label>
             <select
               value={nameAnimation}
-              onChange={(e) => setNameAnimation(e.target.value as "none" | "typewriter" | "scramble" | "wave")}
+              onChange={(e) =>
+                setNameAnimation(
+                  e.target.value as "none" | "typewriter" | "scramble" | "wave" | "bounce" | "shimmer" | "glitch"
+                )
+              }
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
             >
               <option value="none" className="bg-ink-950">None</option>
               <option value="typewriter" className="bg-ink-950">Typewriter</option>
               <option value="scramble" className="bg-ink-950">Scramble (GSAP)</option>
               <option value="wave" className="bg-ink-950">Wave</option>
+              <option value="bounce" className="bg-ink-950">Bounce</option>
+              <option value="shimmer" className="bg-ink-950">Shimmer</option>
+              <option value="glitch" className="bg-ink-950">Glitch</option>
             </select>
           </div>
           <Slider label="Name Size" value={nameFontSize} onChange={setNameFontSize} min={14} max={56} unit="px" />
