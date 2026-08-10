@@ -10,7 +10,7 @@ import { NameHover } from "@/components/profile/NameHover";
 import { InteractiveCard } from "@/components/profile/InteractiveCard";
 import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
 import { LinkWidgets } from "@/components/profile/LinkWidgets";
-import { ProfileEntryGate } from "@/components/profile/ProfileEntryGate";
+import { ProfileExperience } from "@/components/profile/ProfileExperience";
 import { ProfileBadges, type EquippedBadge } from "@/components/profile/ProfileBadges";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
 import type { BadgeDef, Profile, ProfileLinkItem } from "@/lib/types";
@@ -221,8 +221,13 @@ export default async function PublicProfilePage({
     </InteractiveCard>
   );
 
+  const aboutCardStyle: React.CSSProperties = {
+    backgroundColor: hexToRgba(p.card_color, p.card_opacity),
+    border: p.card_outline_enabled ? `${p.card_outline_width}px solid ${p.card_border_color}` : "none",
+  };
+
   return (
-    <main className="relative flex min-h-screen items-center justify-center px-6" style={mainStyle}>
+    <main className="relative h-screen overflow-hidden" style={mainStyle}>
       {p.bg_type === "video" && p.background_video_url && (
         <video
           className="fixed inset-0 z-0 h-full w-full object-cover"
@@ -238,31 +243,33 @@ export default async function PublicProfilePage({
         <CursorTrail effect={p.cursor_animation} color={p.cursor_color} emoji={p.cursor_emoji} />
       )}
 
-      <div className="relative z-10 flex w-full max-w-[63rem] flex-col items-center gap-4">
-        {p.audio_url ? (
-          <ProfileEntryGate
-            audioSrc={p.audio_url}
-            audioTitle={p.audio_title}
-            audioCoverUrl={p.audio_cover_url}
-            audioNameColor={p.audio_name_color}
-            audioNameFontSize={p.audio_name_font_size}
-            audioNameBold={p.audio_name_bold}
-            audioGlowEnabled={p.audio_glow_enabled}
-            audioGlowStrength={p.audio_glow_strength}
-            audioGlowColor={p.audio_glow_color}
-            introText={p.intro_text}
-            introTextColor={p.intro_text_color}
-            introFontSize={p.intro_text_font_size}
-            introGlowEnabled={p.intro_glow_enabled}
-            introGlowStrength={p.intro_glow_strength}
-            introGlowColor={p.intro_glow_color}
-          >
-            {cardElement}
-          </ProfileEntryGate>
-        ) : (
-          cardElement
-        )}
-      </div>
+      <ProfileExperience
+        audioGateProps={
+          p.audio_url
+            ? {
+                audioSrc: p.audio_url,
+                audioTitle: p.audio_title,
+                audioCoverUrl: p.audio_cover_url,
+                audioNameColor: p.audio_name_color,
+                audioNameFontSize: p.audio_name_font_size,
+                audioNameBold: p.audio_name_bold,
+                audioGlowEnabled: p.audio_glow_enabled,
+                audioGlowStrength: p.audio_glow_strength,
+                audioGlowColor: p.audio_glow_color,
+                introText: p.intro_text,
+                introTextColor: p.intro_text_color,
+                introFontSize: p.intro_text_font_size,
+                introGlowEnabled: p.intro_glow_enabled,
+                introGlowStrength: p.intro_glow_strength,
+                introGlowColor: p.intro_glow_color,
+              }
+            : null
+        }
+        cardElement={cardElement}
+        aboutMeText={p.about_me}
+        aboutCardStyle={aboutCardStyle}
+        aboutTextStyle={descriptionStyle}
+      />
 
       {showLocationCorner && (
         <div

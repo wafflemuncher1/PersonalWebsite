@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
 
@@ -25,6 +26,7 @@ export function ProfileEntryGate({
   introGlowEnabled,
   introGlowStrength,
   introGlowColor,
+  onEnter,
   children,
 }: {
   audioSrc: string;
@@ -42,6 +44,9 @@ export function ProfileEntryGate({
   introGlowEnabled: boolean;
   introGlowStrength: number;
   introGlowColor: string;
+  // Fired the moment the visitor clicks through — lets a parent (e.g. the
+  // snap-scroll wrapper) know it's now safe to allow scrolling/interaction.
+  onEnter?: () => void;
   children: ReactNode;
 }) {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -50,6 +55,14 @@ export function ProfileEntryGate({
   const [muted, setMuted] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  // Portals need a real DOM node to render into, which only exists on the
+  // client — guard with a mounted flag so SSR doesn't try to touch
+  // `document`.
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -69,6 +82,7 @@ export function ProfileEntryGate({
 
   function handleEnter() {
     setEntered(true);
+    onEnter?.();
     const audio = audioRef.current;
     if (!audio) return;
     audio.muted = false;
@@ -153,51 +167,65 @@ export function ProfileEntryGate({
 
   const pct = duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
 
+  // The gate overlay and the speaker button both need real `position: fixed`
+  // relative to the viewport. When this component ends up nested inside a
+  // Swiper slide, Swiper applies a CSS transform to an ancestor for the
+  // slide animation — and a `transform` on an ancestor turns any fixed
+  // descendant's containing block into that ancestor instead of the
+  // viewport. Portaling straight to <body> sidesteps that entirely.
+  const gateOverlay = (
+    <AnimatePresence>
+      {!entered && (
+        <motion.div
+          initial={{ opacity: 1 }}
+          exit={{ opacity: 0, filter: "blur(8px)" }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          role="button"
+          tabIndex={0}
+          onClick={handleEnter}
+          onKeyDown={handleEnterKeyDown}
+          className="fixed inset-0 z-[2000] flex cursor-pointer items-center justify-center bg-black/70 px-6 backdrop-blur-sm"
+        >
+          <motion.p
+            animate={{ opacity: [0.55, 1, 0.55] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+            style={introTextStyle}
+            className="select-none text-center"
+          >
+            {introText || "Click to enter"}
+          </motion.p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
+  const speakerButton = (
+    <button
+      type="button"
+      onClick={toggleMute}
+      aria-label={muted ? "Unmute audio" : "Mute audio"}
+      className="fixed left-5 top-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/40 text-zinc-200 backdrop-blur transition hover:bg-black/60"
+    >
+      {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+    </button>
+  );
+
   return (
     <>
       <audio ref={audioRef} src={audioSrc} loop preload="metadata" />
 
-      <AnimatePresence>
-        {!entered && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0, filter: "blur(8px)" }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            role="button"
-            tabIndex={0}
-            onClick={handleEnter}
-            onKeyDown={handleEnterKeyDown}
-            className="fixed inset-0 z-[2000] flex cursor-pointer items-center justify-center bg-black/70 px-6 backdrop-blur-sm"
-          >
-            <motion.p
-              animate={{ opacity: [0.55, 1, 0.55] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              style={introTextStyle}
-              className="select-none text-center"
-            >
-              {introText || "Click to enter"}
-            </motion.p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {mounted ? createPortal(gateOverlay, document.body) : gateOverlay}
 
       <div
         className="transition-[filter] duration-700 ease-out"
-        style={{ filter: entered ? "blur(0px)" : "blur(24px)", pointerEvents: entered ? "auto" : "none" }}
+        style={{ filter: entered ? "blur(0px)" : "blur(48px)", pointerEvents: entered ? "auto" : "none" }}
       >
         {children}
       </div>
 
       {entered && (
         <>
-          <button
-            type="button"
-            onClick={toggleMute}
-            aria-label={muted ? "Unmute audio" : "Mute audio"}
-            className="fixed left-5 top-5 z-40 flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-black/40 text-zinc-200 backdrop-blur transition hover:bg-black/60"
-          >
-            {muted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
-          </button>
+          {mounted ? createPortal(speakerButton, document.body) : speakerButton}
 
           <div className="flex w-full max-w-xs items-center gap-3 rounded-2xl border border-white/10 bg-black/40 px-3.5 py-3 backdrop-blur">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/10">

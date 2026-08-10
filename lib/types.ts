@@ -106,6 +106,7 @@ export type Profile = {
   intro_glow_enabled: boolean;
   intro_glow_strength: number;
   intro_glow_color: string;
+  about_me: string;
   show_stats: boolean;
   username_changed_at: string | null;
   is_dev: boolean;

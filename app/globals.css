@@ -103,6 +103,43 @@ body {
   box-shadow: 0 0 10px 2px rgba(139, 92, 246, 0.7);
 }
 
+/* Public profile — vertical snap-scroll between pages (card, About Me, …) */
+.profile-swiper {
+  height: 100%;
+}
+.profile-swiper .swiper-wrapper {
+  height: 100%;
+}
+.profile-swiper .swiper-slide {
+  height: 100%;
+  overflow: hidden;
+}
+.profile-pagination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.profile-pagination .swiper-pagination-bullet {
+  width: 9px;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.3);
+  opacity: 1;
+  margin: 0;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.profile-pagination .swiper-pagination-bullet:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.profile-pagination .swiper-pagination-bullet-active {
+  width: 11px;
+  height: 11px;
+  background: #a78bfa;
+  box-shadow: 0 0 10px 2px rgba(139, 92, 246, 0.7);
+}
+
 .noise::before {
   content: "";
   position: fixed;

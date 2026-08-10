@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -28,12 +28,48 @@ function validateAudio(file: File): string | null {
   return null;
 }
 
+// Sidebar-style expand/collapse — keeps the page from being one giant wall
+// of controls. Each logical group (Profile, Description, Audio, etc.) gets
+// its own section that starts closed.
+function CollapsibleSection({
+  title,
+  description,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  description?: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <Card className="overflow-hidden p-0">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition hover:bg-white/[0.02]"
+      >
+        <div>
+          <h2 className="text-sm font-semibold text-white">{title}</h2>
+          {description && <p className="mt-0.5 text-xs text-zinc-500">{description}</p>}
+        </div>
+        <span className={`shrink-0 text-zinc-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
+          ⌄
+        </span>
+      </button>
+      {open && <div className="space-y-5 border-t border-white/5 px-6 py-5">{children}</div>}
+    </Card>
+  );
+}
+
 export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const supabase = createClient();
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? "");
   const [backgroundUrl, setBackgroundUrl] = useState(profile?.background_url ?? "");
   const [backgroundVideoUrl, setBackgroundVideoUrl] = useState(profile?.background_video_url ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
+  const [aboutMe, setAboutMe] = useState(profile?.about_me ?? "");
   const [location, setLocation] = useState(profile?.location ?? "");
   const [showStats, setShowStats] = useState(profile?.show_stats ?? false);
   const [layout, setLayout] = useState<"top" | "side">(profile?.layout ?? "top");
@@ -137,8 +173,9 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
     setError("");
     const cleanBio = bio.trim();
     const cleanLocation = location.trim();
+    const cleanAboutMe = aboutMe.trim();
 
-    const badField = firstProfaneField({ bio: cleanBio, location: cleanLocation });
+    const badField = firstProfaneField({ bio: cleanBio, location: cleanLocation, "about me": cleanAboutMe });
     if (badField) {
       setStatus("error");
       setError(`Let's keep it clean — please revise the ${badField}.`);
@@ -153,6 +190,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         background_url: backgroundUrl.trim() || null,
         background_video_url: backgroundVideoUrl.trim(),
         bio: cleanBio,
+        about_me: cleanAboutMe,
         location: cleanLocation,
         show_stats: showStats,
         layout,
@@ -222,52 +260,50 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
 
       <ProfileCompletionCard profile={profile} />
 
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-white">Assets</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <AssetTile
-            label="Background"
-            hint="Image or GIF"
-            previewUrl={backgroundUrl}
-            uploading={bgUploading}
-            onUpload={(e) => {
-              const file = e.target.files?.[0];
-              e.target.value = "";
-              if (file) uploadTo(file, "background", setBgUploading, setBackgroundUrl);
-            }}
-            onRemove={() => setBackgroundUrl("")}
-          />
-          <AssetTile
-            label="Background Video"
-            hint="MP4, up to 30MB"
-            kind="video"
-            previewUrl={backgroundVideoUrl}
-            uploading={bgVideoUploading}
-            onUpload={(e) => {
-              const file = e.target.files?.[0];
-              e.target.value = "";
-              if (file) uploadTo(file, "background-video", setBgVideoUploading, setBackgroundVideoUrl);
-            }}
-            onRemove={() => setBackgroundVideoUrl("")}
-          />
-          <AssetTile
-            label="Profile Avatar"
-            previewUrl={avatarUrl}
-            uploading={avatarUploading}
-            onUpload={(e) => {
-              const file = e.target.files?.[0];
-              e.target.value = "";
-              if (file) uploadTo(file, "avatar", setAvatarUploading, setAvatarUrl);
-            }}
-            onRemove={() => setAvatarUrl("")}
-          />
-        </div>
-      </div>
+      <div className="space-y-3">
+        <CollapsibleSection title="Assets" description="Your avatar and backgrounds." defaultOpen>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <AssetTile
+              label="Background"
+              hint="Image or GIF"
+              previewUrl={backgroundUrl}
+              uploading={bgUploading}
+              onUpload={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) uploadTo(file, "background", setBgUploading, setBackgroundUrl);
+              }}
+              onRemove={() => setBackgroundUrl("")}
+            />
+            <AssetTile
+              label="Background Video"
+              hint="MP4, up to 30MB"
+              kind="video"
+              previewUrl={backgroundVideoUrl}
+              uploading={bgVideoUploading}
+              onUpload={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) uploadTo(file, "background-video", setBgVideoUploading, setBackgroundVideoUrl);
+              }}
+              onRemove={() => setBackgroundVideoUrl("")}
+            />
+            <AssetTile
+              label="Profile Avatar"
+              previewUrl={avatarUrl}
+              uploading={avatarUploading}
+              onUpload={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) uploadTo(file, "avatar", setAvatarUploading, setAvatarUrl);
+              }}
+              onRemove={() => setAvatarUrl("")}
+            />
+          </div>
+        </CollapsibleSection>
 
-      <Card className="p-6">
-        <h2 className="mb-4 text-lg font-semibold text-white">General</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="sm:col-span-2">
+        <CollapsibleSection title="Profile" description="Layout and public stats.">
+          <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Profile Layout</label>
             <div className="grid grid-cols-2 gap-3">
               <button
@@ -297,25 +333,6 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             </div>
           </div>
 
-          <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Description</label>
-            <Textarea
-              rows={3}
-              value={bio}
-              onChange={(e) => setBio(e.target.value)}
-              placeholder="A line or two about you."
-            />
-          </div>
-
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Location</label>
-            <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="City, country — optional"
-            />
-          </div>
-
           <label className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3.5">
             <div>
               <p className="text-sm text-zinc-200">Show public stats</p>
@@ -328,14 +345,106 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-violet-500"
             />
           </label>
-        </div>
+        </CollapsibleSection>
 
-      </Card>
+        <CollapsibleSection title="Description" description="The line under your name, and how it looks.">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Text</label>
+            <Textarea
+              rows={3}
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="A line or two about you."
+            />
+          </div>
+          <ColorField label="Description Color" value={descriptionColor} onChange={setDescriptionColor} />
+          <Slider
+            label="Description Size"
+            value={descriptionFontSize}
+            onChange={setDescriptionFontSize}
+            min={10}
+            max={28}
+            unit="px"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <ToggleRow label="Bold" checked={descriptionBold} onChange={setDescriptionBold} />
+            <ToggleRow label="Italic" checked={descriptionItalic} onChange={setDescriptionItalic} />
+          </div>
+        </CollapsibleSection>
 
-      <Card className="p-6">
-        <h2 className="mb-4 text-lg font-semibold text-white">Appearance</h2>
+        <CollapsibleSection title="Display Name" description="Color, animation, size, and glow.">
+          <ColorField label="Display Name Color" value={nameColor} onChange={setNameColor} />
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Name Animation</label>
+            <select
+              value={nameAnimation}
+              onChange={(e) => setNameAnimation(e.target.value as "none" | "typewriter" | "scramble" | "wave")}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              <option value="none" className="bg-ink-950">None</option>
+              <option value="typewriter" className="bg-ink-950">Typewriter</option>
+              <option value="scramble" className="bg-ink-950">Scramble (GSAP)</option>
+              <option value="wave" className="bg-ink-950">Wave</option>
+            </select>
+          </div>
+          <Slider label="Name Size" value={nameFontSize} onChange={setNameFontSize} min={14} max={56} unit="px" />
+          <div className="grid grid-cols-2 gap-3">
+            <ToggleRow label="Bold" checked={nameBold} onChange={setNameBold} />
+            <ToggleRow label="Italic" checked={nameItalic} onChange={setNameItalic} />
+          </div>
+          <ToggleRow
+            label="Name Glow"
+            sub="A soft glow around your display name."
+            checked={nameGlowEnabled}
+            onChange={setNameGlowEnabled}
+          />
+          {nameGlowEnabled && (
+            <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+              <Slider
+                label="Glow Strength"
+                value={nameGlowStrength}
+                onChange={setNameGlowStrength}
+                min={0}
+                max={100}
+                unit="%"
+              />
+              <ColorField label="Glow Color" value={nameGlowColor} onChange={setNameGlowColor} />
+            </div>
+          )}
+        </CollapsibleSection>
 
-        <div className="space-y-5">
+        <CollapsibleSection title="Location" description="What shows and where.">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Location</label>
+            <Input
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="City, country — optional"
+            />
+          </div>
+          <ToggleRow
+            label="Show Location on Profile"
+            sub="Display the location above on your public page."
+            checked={showLocationTag}
+            onChange={setShowLocationTag}
+          />
+          {showLocationTag && (
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-zinc-400">Location Position</label>
+              <select
+                value={locationPosition}
+                onChange={(e) => setLocationPosition(e.target.value as "bottom-left" | "bottom-right" | "card")}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              >
+                <option value="card" className="bg-ink-950">On Card</option>
+                <option value="bottom-left" className="bg-ink-950">Bottom Left</option>
+                <option value="bottom-right" className="bg-ink-950">Bottom Right</option>
+              </select>
+            </div>
+          )}
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Background" description="Solid color, gradient, image, or video.">
           <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Background Type</label>
             <select
@@ -370,160 +479,51 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               />
             </div>
           )}
+        </CollapsibleSection>
 
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Display Name</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <ColorField label="Display Name Color" value={nameColor} onChange={setNameColor} />
-            </div>
-            <div className="mt-3">
-              <label className="mb-1.5 block text-xs font-medium text-zinc-400">Name Animation</label>
-              <select
-                value={nameAnimation}
-                onChange={(e) => setNameAnimation(e.target.value as "none" | "typewriter" | "scramble" | "wave")}
-                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
-              >
-                <option value="none" className="bg-ink-950">None</option>
-                <option value="typewriter" className="bg-ink-950">Typewriter</option>
-                <option value="scramble" className="bg-ink-950">Scramble (GSAP)</option>
-                <option value="wave" className="bg-ink-950">Wave</option>
-              </select>
-            </div>
-            <div className="mt-4">
-              <Slider label="Name Size" value={nameFontSize} onChange={setNameFontSize} min={14} max={56} unit="px" />
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <ToggleRow label="Bold" checked={nameBold} onChange={setNameBold} />
-              <ToggleRow label="Italic" checked={nameItalic} onChange={setNameItalic} />
-            </div>
-            <div className="mt-3">
-              <ToggleRow
-                label="Name Glow"
-                sub="A soft glow around your display name."
-                checked={nameGlowEnabled}
-                onChange={setNameGlowEnabled}
-              />
-            </div>
-            {nameGlowEnabled && (
-              <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
-                <Slider
-                  label="Glow Strength"
-                  value={nameGlowStrength}
-                  onChange={setNameGlowStrength}
-                  min={0}
-                  max={100}
-                  unit="%"
-                />
-                <ColorField label="Glow Color" value={nameGlowColor} onChange={setNameGlowColor} />
-              </div>
-            )}
+        <CollapsibleSection title="Profile Picture Effect" description="Animates around the edge of your avatar.">
+          <select
+            value={profileEffect}
+            onChange={(e) => setProfileEffect(e.target.value as "none" | "spin" | "pulse" | "rainbow" | "sparkle")}
+            className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+          >
+            <option value="none" className="bg-ink-950">None</option>
+            <option value="spin" className="bg-ink-950">Spinning Ring</option>
+            <option value="pulse" className="bg-ink-950">Pulse Ring</option>
+            <option value="rainbow" className="bg-ink-950">Rainbow Ring</option>
+            <option value="sparkle" className="bg-ink-950">Sparkle Ring</option>
+          </select>
+        </CollapsibleSection>
+
+        <CollapsibleSection title="Profile Box" description="Color, transparency, and outline.">
+          <ColorField label="Box Color" value={cardColor} onChange={setCardColor} />
+          <div>
+            <Slider label="Box Transparency" value={cardOpacity} onChange={setCardOpacity} min={0} max={100} unit="%" />
+            <p className="mt-1.5 text-[11px] text-zinc-600">Only the box fill fades — your picture and name stay fully visible.</p>
           </div>
-
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Description</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <ColorField label="Description Color" value={descriptionColor} onChange={setDescriptionColor} />
+          <ToggleRow
+            label="Box Outline"
+            sub="Turn off for a completely borderless box."
+            checked={outlineEnabled}
+            onChange={setOutlineEnabled}
+          />
+          {outlineEnabled && (
+            <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+              <Slider label="Outline Thickness" value={outlineWidth} onChange={setOutlineWidth} min={1} max={8} unit="px" />
+              <ColorField label="Outline Color" value={cardBorderColor} onChange={setCardBorderColor} />
             </div>
-            <div className="mt-4">
-              <Slider
-                label="Description Size"
-                value={descriptionFontSize}
-                onChange={setDescriptionFontSize}
-                min={10}
-                max={28}
-                unit="px"
-              />
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-3">
-              <ToggleRow label="Bold" checked={descriptionBold} onChange={setDescriptionBold} />
-              <ToggleRow label="Italic" checked={descriptionItalic} onChange={setDescriptionItalic} />
-            </div>
-          </div>
+          )}
+        </CollapsibleSection>
 
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile Picture Effect</p>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Effect</label>
-            <select
-              value={profileEffect}
-              onChange={(e) => setProfileEffect(e.target.value as "none" | "spin" | "pulse" | "rainbow" | "sparkle")}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
-            >
-              <option value="none" className="bg-ink-950">None</option>
-              <option value="spin" className="bg-ink-950">Spinning Ring</option>
-              <option value="pulse" className="bg-ink-950">Pulse Ring</option>
-              <option value="rainbow" className="bg-ink-950">Rainbow Ring</option>
-              <option value="sparkle" className="bg-ink-950">Sparkle Ring</option>
-            </select>
-            <p className="mt-1.5 text-[11px] text-zinc-600">Animates around the edge of your profile picture.</p>
-          </div>
+        <CollapsibleSection title="Links" description="How big your link icons show up.">
+          <Slider label="Link Icon Size" value={linkWidgetSize} onChange={setLinkWidgetSize} min={16} max={48} unit="px" />
+          <p className="text-[11px] text-zinc-600">
+            Controls how big your link icons show up on your public page, right under your description.
+          </p>
+        </CollapsibleSection>
 
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Profile Box</p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <ColorField label="Box Color" value={cardColor} onChange={setCardColor} />
-            </div>
-            <div className="mt-4">
-              <Slider label="Box Transparency" value={cardOpacity} onChange={setCardOpacity} min={0} max={100} unit="%" />
-              <p className="mt-1.5 text-[11px] text-zinc-600">Only the box fill fades — your picture and name stay fully visible.</p>
-            </div>
-
-            <div className="mt-4">
-              <ToggleRow
-                label="Box Outline"
-                sub="Turn off for a completely borderless box."
-                checked={outlineEnabled}
-                onChange={setOutlineEnabled}
-              />
-            </div>
-            {outlineEnabled && (
-              <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
-                <Slider label="Outline Thickness" value={outlineWidth} onChange={setOutlineWidth} min={1} max={8} unit="px" />
-                <ColorField label="Outline Color" value={cardBorderColor} onChange={setCardBorderColor} />
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Location</p>
-            <ToggleRow
-              label="Enable Location"
-              sub="Show the location from the General section above on your public profile."
-              checked={showLocationTag}
-              onChange={setShowLocationTag}
-            />
-            {showLocationTag && (
-              <div className="mt-3">
-                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Location Position</label>
-                <select
-                  value={locationPosition}
-                  onChange={(e) => setLocationPosition(e.target.value as "bottom-left" | "bottom-right" | "card")}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
-                >
-                  <option value="card" className="bg-ink-950">On Card</option>
-                  <option value="bottom-left" className="bg-ink-950">Bottom Left</option>
-                  <option value="bottom-right" className="bg-ink-950">Bottom Right</option>
-                </select>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Links</p>
-            <Slider
-              label="Link Icon Size"
-              value={linkWidgetSize}
-              onChange={setLinkWidgetSize}
-              min={16}
-              max={48}
-              unit="px"
-            />
-            <p className="mt-1.5 text-[11px] text-zinc-600">
-              Controls how big your link icons show up on your public page, right under your description.
-            </p>
-          </div>
-
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Cursor</p>
+        <CollapsibleSection title="Cursor" description="A trail that follows visitors' cursors.">
+          <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Cursor Animation</label>
             <select
               value={cursorAnimation}
@@ -558,179 +558,187 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <p className="mt-1.5 text-[11px] text-zinc-600">
               A trail follows the cursor for anyone visiting your page — not just you.
             </p>
-            {["sparkle", "glow", "bubble", "trail"].includes(cursorAnimation) && (
-              <div className="mt-3 sm:w-64">
-                <ColorField label="Cursor Trail Color" value={cursorColor} onChange={setCursorColor} />
-              </div>
-            )}
-            {cursorAnimation === "emoji" && (
-              <div className="mt-3 sm:w-64">
-                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Trail Emoji</label>
-                <input
-                  value={cursorEmoji}
-                  onChange={(e) => setCursorEmoji(e.target.value.slice(0, 4))}
-                  maxLength={4}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-lg text-white outline-none focus:border-violet-500/50"
-                />
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {["✨", "🔥", "❤️", "😂", "💀", "👑", "⭐", "🎉", "💜", "⚡"].map((e) => (
-                    <button
-                      key={e}
-                      type="button"
-                      onClick={() => setCursorEmoji(e)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-md border text-base transition ${
-                        cursorEmoji === e
-                          ? "border-violet-500/60 bg-violet-500/10"
-                          : "border-white/10 bg-white/[0.02] hover:border-white/25"
-                      }`}
-                    >
-                      {e}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
-
-          <div className="border-t border-white/5 pt-5">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">Audio</p>
-            <AudioDropzone
-              hasFile={!!audioUrl}
-              uploading={audioUploading}
-              hint="MP3, WAV, or OGG — up to 15MB. Visitors get a mute button to control it."
-              onUpload={(file) => uploadTo(file, "audio-track", setAudioUploading, setAudioUrl)}
-            />
-            {audioUrl && (
-              <div className="mt-3 flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3">
-                <audio controls src={audioUrl} className="h-9 flex-1" />
-                <button
-                  type="button"
-                  onClick={() => setAudioUrl("")}
-                  className="shrink-0 rounded-md bg-red-500/80 px-2 py-1 text-[10px] text-white transition hover:bg-red-500"
-                >
-                  Remove
-                </button>
+          {["sparkle", "glow", "bubble", "trail"].includes(cursorAnimation) && (
+            <div className="sm:w-64">
+              <ColorField label="Cursor Trail Color" value={cursorColor} onChange={setCursorColor} />
+            </div>
+          )}
+          {cursorAnimation === "emoji" && (
+            <div className="sm:w-64">
+              <label className="mb-1.5 block text-xs font-medium text-zinc-400">Trail Emoji</label>
+              <input
+                value={cursorEmoji}
+                onChange={(e) => setCursorEmoji(e.target.value.slice(0, 4))}
+                maxLength={4}
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-lg text-white outline-none focus:border-violet-500/50"
+              />
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {["✨", "🔥", "❤️", "😂", "💀", "👑", "⭐", "🎉", "💜", "⚡"].map((e) => (
+                  <button
+                    key={e}
+                    type="button"
+                    onClick={() => setCursorEmoji(e)}
+                    className={`flex h-8 w-8 items-center justify-center rounded-md border text-base transition ${
+                      cursorEmoji === e
+                        ? "border-violet-500/60 bg-violet-500/10"
+                        : "border-white/10 bg-white/[0.02] hover:border-white/25"
+                    }`}
+                  >
+                    {e}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
+          )}
+        </CollapsibleSection>
 
-            {audioUrl && (
-              <div className="mt-4 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="w-32">
-                    <AssetTile
-                      label="Cover Art"
-                      hint="optional"
-                      previewUrl={audioCoverUrl}
-                      uploading={audioCoverUploading}
-                      onUpload={(e) => {
-                        const file = e.target.files?.[0];
-                        e.target.value = "";
-                        if (file) uploadTo(file, "audio-cover", setAudioCoverUploading, setAudioCoverUrl);
-                      }}
-                      onRemove={() => setAudioCoverUrl("")}
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1.5 block text-xs font-medium text-zinc-400">Track Name</label>
-                    <Input
-                      value={audioTitle}
-                      onChange={(e) => setAudioTitle(e.target.value)}
-                      placeholder="e.g. my favorite song"
-                      maxLength={60}
-                    />
-                    <div className="mt-3">
-                      <ColorField label="Track Name Color" value={audioNameColor} onChange={setAudioNameColor} />
-                    </div>
+        <CollapsibleSection title="Audio & Enter Screen" description="A track that plays when someone opens your page.">
+          <AudioDropzone
+            hasFile={!!audioUrl}
+            uploading={audioUploading}
+            hint="MP3, WAV, or OGG — up to 15MB. Visitors get a mute button to control it."
+            onUpload={(file) => uploadTo(file, "audio-track", setAudioUploading, setAudioUrl)}
+          />
+          {audioUrl && (
+            <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-white/[0.02] p-3">
+              <audio controls src={audioUrl} className="h-9 flex-1" />
+              <button
+                type="button"
+                onClick={() => setAudioUrl("")}
+                className="shrink-0 rounded-md bg-red-500/80 px-2 py-1 text-[10px] text-white transition hover:bg-red-500"
+              >
+                Remove
+              </button>
+            </div>
+          )}
+
+          {audioUrl && (
+            <>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="w-32">
+                  <AssetTile
+                    label="Cover Art"
+                    hint="optional"
+                    previewUrl={audioCoverUrl}
+                    uploading={audioCoverUploading}
+                    onUpload={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) uploadTo(file, "audio-cover", setAudioCoverUploading, setAudioCoverUrl);
+                    }}
+                    onRemove={() => setAudioCoverUrl("")}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Track Name</label>
+                  <Input
+                    value={audioTitle}
+                    onChange={(e) => setAudioTitle(e.target.value)}
+                    placeholder="e.g. my favorite song"
+                    maxLength={60}
+                  />
+                  <div className="mt-3">
+                    <ColorField label="Track Name Color" value={audioNameColor} onChange={setAudioNameColor} />
                   </div>
                 </div>
+              </div>
 
-                <Slider
-                  label="Track Name Size"
-                  value={audioNameFontSize}
-                  onChange={setAudioNameFontSize}
-                  min={10}
-                  max={28}
-                  unit="px"
+              <Slider
+                label="Track Name Size"
+                value={audioNameFontSize}
+                onChange={setAudioNameFontSize}
+                min={10}
+                max={28}
+                unit="px"
+              />
+
+              <ToggleRow label="Bold" checked={audioNameBold} onChange={setAudioNameBold} />
+
+              <ToggleRow
+                label="Track Name Glow"
+                sub="A soft glow around the track name."
+                checked={audioGlowEnabled}
+                onChange={setAudioGlowEnabled}
+              />
+              {audioGlowEnabled && (
+                <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                  <Slider
+                    label="Glow Strength"
+                    value={audioGlowStrength}
+                    onChange={setAudioGlowStrength}
+                    min={0}
+                    max={100}
+                    unit="%"
+                  />
+                  <ColorField label="Glow Color" value={audioGlowColor} onChange={setAudioGlowColor} />
+                </div>
+              )}
+
+              <div className="border-t border-white/5 pt-4">
+                <p className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Enter Screen</p>
+                <p className="mb-3 text-[11px] text-zinc-600">
+                  Visitors see this over a blurred preview of your page — clicking it is what starts your
+                  audio, since browsers only allow sound to start from a real click.
+                </p>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Text</label>
+                <Input
+                  value={introText}
+                  onChange={(e) => setIntroText(e.target.value)}
+                  placeholder="Click to enter"
+                  maxLength={60}
                 />
-
-                <ToggleRow label="Bold" checked={audioNameBold} onChange={setAudioNameBold} />
-
-                <ToggleRow
-                  label="Track Name Glow"
-                  sub="A soft glow around the track name."
-                  checked={audioGlowEnabled}
-                  onChange={setAudioGlowEnabled}
-                />
-                {audioGlowEnabled && (
-                  <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                <div className="mt-3">
+                  <ColorField label="Text Color" value={introTextColor} onChange={setIntroTextColor} />
+                </div>
+                <div className="mt-4">
+                  <Slider
+                    label="Text Size"
+                    value={introFontSize}
+                    onChange={setIntroFontSize}
+                    min={12}
+                    max={40}
+                    unit="px"
+                  />
+                </div>
+                <div className="mt-3">
+                  <ToggleRow label="Glow" checked={introGlowEnabled} onChange={setIntroGlowEnabled} />
+                </div>
+                {introGlowEnabled && (
+                  <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
                     <Slider
                       label="Glow Strength"
-                      value={audioGlowStrength}
-                      onChange={setAudioGlowStrength}
+                      value={introGlowStrength}
+                      onChange={setIntroGlowStrength}
                       min={0}
                       max={100}
                       unit="%"
                     />
-                    <ColorField label="Glow Color" value={audioGlowColor} onChange={setAudioGlowColor} />
+                    <ColorField label="Glow Color" value={introGlowColor} onChange={setIntroGlowColor} />
                   </div>
                 )}
-
-                <div className="border-t border-white/5 pt-4">
-                  <p className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">Enter Screen</p>
-                  <p className="mb-3 text-[11px] text-zinc-600">
-                    Visitors see this over a blurred preview of your page — clicking it is what starts your
-                    audio, since browsers only allow sound to start from a real click.
-                  </p>
-                  <label className="mb-1.5 block text-xs font-medium text-zinc-400">Text</label>
-                  <Input
-                    value={introText}
-                    onChange={(e) => setIntroText(e.target.value)}
-                    placeholder="Click to enter"
-                    maxLength={60}
-                  />
-                  <div className="mt-3">
-                    <ColorField label="Text Color" value={introTextColor} onChange={setIntroTextColor} />
-                  </div>
-                  <div className="mt-4">
-                    <Slider
-                      label="Text Size"
-                      value={introFontSize}
-                      onChange={setIntroFontSize}
-                      min={12}
-                      max={40}
-                      unit="px"
-                    />
-                  </div>
-                  <div className="mt-3">
-                    <ToggleRow label="Glow" checked={introGlowEnabled} onChange={setIntroGlowEnabled} />
-                  </div>
-                  {introGlowEnabled && (
-                    <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
-                      <Slider
-                        label="Glow Strength"
-                        value={introGlowStrength}
-                        onChange={setIntroGlowStrength}
-                        min={0}
-                        max={100}
-                        unit="%"
-                      />
-                      <ColorField label="Glow Color" value={introGlowColor} onChange={setIntroGlowColor} />
-                    </div>
-                  )}
-                </div>
               </div>
-            )}
-          </div>
-        </div>
+            </>
+          )}
+        </CollapsibleSection>
 
-        <div className="mt-5 space-y-3">
-          {status === "error" && <p className="text-sm text-red-400">{error}</p>}
-          {status === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
-          <Button onClick={handleSave} disabled={status === "saving"}>
-            {status === "saving" ? "Saving…" : "Save changes"}
-          </Button>
-        </div>
-      </Card>
+        <CollapsibleSection title="About Me" description="A second page visitors can scroll down to see.">
+          <Textarea
+            rows={6}
+            value={aboutMe}
+            onChange={(e) => setAboutMe(e.target.value)}
+            placeholder="Write a longer bit about yourself here — this shows on its own page when someone scrolls down on your profile."
+          />
+        </CollapsibleSection>
+      </div>
+
+      <div className="space-y-3">
+        {status === "error" && <p className="text-sm text-red-400">{error}</p>}
+        {status === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
+        <Button onClick={handleSave} disabled={status === "saving"}>
+          {status === "saving" ? "Saving…" : "Save changes"}
+        </Button>
+      </div>
     </div>
   );
 }
