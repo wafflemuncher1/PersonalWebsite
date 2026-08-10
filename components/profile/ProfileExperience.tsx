@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Mousewheel, Pagination } from "swiper/modules";
+import type { Swiper as SwiperClass } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import { ProfileEntryGate } from "@/components/profile/ProfileEntryGate";
@@ -52,6 +53,28 @@ export function ProfileExperience({
   // interaction while it's up, this is just a belt-and-suspenders match.
   const [entered, setEntered] = useState(!audioGateProps);
   const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef<SwiperClass | null>(null);
+
+  // Swiper's Mousewheel module only binds its wheel listener based on
+  // whether `mousewheel` was truthy at *init* time. Profiles with an audio
+  // gate mount with `entered = false`, so if the wheel module is toggled
+  // purely via the declarative prop later, the listener never actually
+  // gets attached and scrolling stays dead forever even after the visitor
+  // clicks through. Keeping the module enabled at init and instead calling
+  // its own `enable()`/`disable()` API here — the officially supported way
+  // to toggle it post-mount — makes it reliably turn on the moment the
+  // gate is cleared.
+  useEffect(() => {
+    const s = swiperRef.current;
+    if (!s) return;
+    if (entered) {
+      s.mousewheel.enable();
+      s.allowTouchMove = true;
+    } else {
+      s.mousewheel.disable();
+      s.allowTouchMove = false;
+    }
+  }, [entered]);
 
   const slide1Content = audioGateProps ? (
     <ProfileEntryGate {...audioGateProps} onEnter={() => setEntered(true)}>
@@ -72,7 +95,7 @@ export function ProfileExperience({
       <Swiper
         modules={[Mousewheel, Pagination]}
         direction="vertical"
-        mousewheel={entered ? { forceToAxis: true, releaseOnEdges: true, sensitivity: 1 } : false}
+        mousewheel={{ forceToAxis: true, releaseOnEdges: true, sensitivity: 1 }}
         allowTouchMove={entered}
         // A true 0ms speed sounds "instant" but it breaks Swiper internally —
         // without a real CSS transition, the browser never fires
@@ -83,6 +106,10 @@ export function ProfileExperience({
         // scrolling) working correctly.
         speed={220}
         pagination={{ el: ".profile-pagination", clickable: true }}
+        onSwiper={(s) => {
+          swiperRef.current = s;
+          if (!entered) s.mousewheel.disable();
+        }}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
         className="profile-swiper"
       >
