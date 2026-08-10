@@ -26,10 +26,15 @@ type AudioGateProps = {
 };
 
 // Full-page vertical snap-scroll for the public profile: page 1 is the
-// existing profile card, page 2 (for now) is an About Me section, with dot
-// navigation on the right instead of a normal scrollbar. Reuses the exact
-// Swiper setup already proven in the dashboard's Profile Customizer 2
-// (vertical direction + Mousewheel/Pagination modules, pagination container
+// profile card pinned near the top of the viewport (not vertically
+// centered, so it never shifts position as content below it changes —
+// e.g. the audio player card appearing after the entry gate), page 2 (for
+// now) is an About Me section, with dot navigation on the right instead of
+// a normal scrollbar. `speed={0}` makes each wheel/swipe snap land
+// instantly rather than gliding — an explicit hard cut between sections
+// instead of a smooth animated scroll. Reuses the same Swiper setup
+// already proven in the dashboard's Profile Customizer 2 (vertical
+// direction + Mousewheel/Pagination modules, pagination container
 // rendered as a Swiper sibling so it isn't affected by the wrapper's slide
 // transform).
 export function ProfileExperience({
@@ -49,6 +54,7 @@ export function ProfileExperience({
   // gate (if there is one) — the gate's own overlay already blocks
   // interaction while it's up, this is just a belt-and-suspenders match.
   const [entered, setEntered] = useState(!audioGateProps);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const slide1Content = audioGateProps ? (
     <ProfileEntryGate {...audioGateProps} onEnter={() => setEntered(true)}>
@@ -58,6 +64,12 @@ export function ProfileExperience({
     cardElement
   );
 
+  // Only one extra page (About Me) exists today — this becomes a real
+  // count once more pages are added, and the hint below already reads off
+  // of it so nothing else needs to change when that happens.
+  const totalSlides = 2;
+  const showScrollHint = entered && activeIndex === 0 && totalSlides > 1;
+
   return (
     <div className="relative z-10 h-full w-full">
       <Swiper
@@ -65,20 +77,22 @@ export function ProfileExperience({
         direction="vertical"
         mousewheel={entered}
         allowTouchMove={entered}
+        speed={0}
         pagination={{ el: ".profile-pagination", clickable: true }}
+        onSlideChange={(s) => setActiveIndex(s.activeIndex)}
         className="profile-swiper"
       >
         <SwiperSlide>
-          <div className="flex h-full w-full items-center justify-center px-6">
+          <div className="flex h-full w-full justify-center px-6 pt-20 sm:pt-24">
             <div className="flex w-full max-w-[63rem] flex-col items-center gap-4">{slide1Content}</div>
           </div>
         </SwiperSlide>
 
         <SwiperSlide>
-          <div className="flex h-full w-full items-center justify-center px-6">
-            <div className="w-full max-w-2xl rounded-2xl p-10 text-center shadow-xl" style={aboutCardStyle}>
-              <h2 className="text-2xl font-bold text-white">About Me</h2>
-              <p className="mt-4 whitespace-pre-wrap" style={aboutTextStyle}>
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6">
+            <h2 className="text-3xl font-extrabold text-white">About me</h2>
+            <div className="w-full max-w-2xl rounded-2xl p-6 shadow-xl" style={aboutCardStyle}>
+              <p className="whitespace-pre-wrap" style={aboutTextStyle}>
                 {aboutMeText || "This person hasn't written anything yet."}
               </p>
             </div>
@@ -87,6 +101,14 @@ export function ProfileExperience({
       </Swiper>
 
       <div className="profile-pagination pointer-events-none fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-center gap-3 sm:flex" />
+
+      {showScrollHint && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-6 z-20 flex justify-center">
+          <div className="animate-bounce rounded-full border border-white/10 bg-ink-950/80 px-3.5 py-1.5 text-[11px] font-medium text-zinc-400 backdrop-blur">
+            ↓ scroll down for more
+          </div>
+        </div>
+      )}
     </div>
   );
 }
