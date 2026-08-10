@@ -8,6 +8,7 @@ import { Input, Textarea } from "@/components/ui/Input";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { firstProfaneField } from "@/lib/profanity";
+import { FONT_OPTIONS, type FontKey } from "@/lib/fonts";
 import type { Profile } from "@/lib/types";
 
 function validateImage(file: File): string | null {
@@ -83,12 +84,16 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [nameFontSize, setNameFontSize] = useState(profile?.name_font_size ?? 24);
   const [nameBold, setNameBold] = useState(profile?.name_bold ?? true);
   const [nameItalic, setNameItalic] = useState(profile?.name_italic ?? false);
+  const [nameFont, setNameFont] = useState<FontKey>((profile?.name_font as FontKey) ?? "default");
   const [descriptionFontSize, setDescriptionFontSize] = useState(profile?.description_font_size ?? 14);
   const [descriptionBold, setDescriptionBold] = useState(profile?.description_bold ?? false);
   const [descriptionItalic, setDescriptionItalic] = useState(profile?.description_italic ?? false);
   const [descriptionColor, setDescriptionColor] = useState(profile?.description_color ?? "#a1a1aa");
   const [descriptionAnimation, setDescriptionAnimation] = useState<"none" | "typewriter" | "scramble">(
     profile?.description_animation ?? "none"
+  );
+  const [descriptionFont, setDescriptionFont] = useState<FontKey>(
+    (profile?.description_font as FontKey) ?? "default"
   );
   const [nameGlowEnabled, setNameGlowEnabled] = useState(profile?.name_glow_enabled ?? false);
   const [nameGlowStrength, setNameGlowStrength] = useState(profile?.name_glow_strength ?? 50);
@@ -117,6 +122,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [audioNameColor, setAudioNameColor] = useState(profile?.audio_name_color ?? "#ffffff");
   const [audioNameFontSize, setAudioNameFontSize] = useState(profile?.audio_name_font_size ?? 14);
   const [audioNameBold, setAudioNameBold] = useState(profile?.audio_name_bold ?? false);
+  const [audioNameFont, setAudioNameFont] = useState<FontKey>((profile?.audio_name_font as FontKey) ?? "default");
   const [audioGlowEnabled, setAudioGlowEnabled] = useState(profile?.audio_glow_enabled ?? false);
   const [audioGlowStrength, setAudioGlowStrength] = useState(profile?.audio_glow_strength ?? 50);
   const [audioGlowColor, setAudioGlowColor] = useState(profile?.audio_glow_color ?? "#8b5cf6");
@@ -205,11 +211,13 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         name_font_size: nameFontSize,
         name_bold: nameBold,
         name_italic: nameItalic,
+        name_font: nameFont,
         description_font_size: descriptionFontSize,
         description_bold: descriptionBold,
         description_italic: descriptionItalic,
         description_color: descriptionColor,
         description_animation: descriptionAnimation,
+        description_font: descriptionFont,
         name_glow_enabled: nameGlowEnabled,
         name_glow_strength: nameGlowStrength,
         name_glow_color: nameGlowColor,
@@ -231,6 +239,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         audio_name_color: audioNameColor,
         audio_name_font_size: audioNameFontSize,
         audio_name_bold: audioNameBold,
+        audio_name_font: audioNameFont,
         audio_glow_enabled: audioGlowEnabled,
         audio_glow_strength: audioGlowStrength,
         audio_glow_color: audioGlowColor,
@@ -361,6 +370,20 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               placeholder="A line or two about you."
             />
           </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Font</label>
+            <select
+              value={descriptionFont}
+              onChange={(e) => setDescriptionFont(e.target.value as FontKey)}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              {FONT_OPTIONS.map((f) => (
+                <option key={f.key} value={f.key} className="bg-ink-950">
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <ColorField label="Description Color" value={descriptionColor} onChange={setDescriptionColor} />
           <Slider
             label="Description Size"
@@ -388,7 +411,21 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
           </div>
         </CollapsibleSection>
 
-        <CollapsibleSection title="Display Name" description="Color, animation, size, and glow.">
+        <CollapsibleSection title="Display Name" description="Font, color, animation, size, and glow.">
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Font</label>
+            <select
+              value={nameFont}
+              onChange={(e) => setNameFont(e.target.value as FontKey)}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              {FONT_OPTIONS.map((f) => (
+                <option key={f.key} value={f.key} className="bg-ink-950">
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </div>
           <ColorField label="Display Name Color" value={nameColor} onChange={setNameColor} />
           <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Name Animation</label>
@@ -665,6 +702,21 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                     <ColorField label="Track Name Color" value={audioNameColor} onChange={setAudioNameColor} />
                   </div>
                 </div>
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-zinc-400">Track Name Font</label>
+                <select
+                  value={audioNameFont}
+                  onChange={(e) => setAudioNameFont(e.target.value as FontKey)}
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+                >
+                  {FONT_OPTIONS.map((f) => (
+                    <option key={f.key} value={f.key} className="bg-ink-950">
+                      {f.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <Slider

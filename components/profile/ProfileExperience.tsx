@@ -15,6 +15,7 @@ type AudioGateProps = {
   audioNameColor: string;
   audioNameFontSize: number;
   audioNameBold: boolean;
+  audioNameFont: string;
   audioGlowEnabled: boolean;
   audioGlowStrength: number;
   audioGlowColor: string;

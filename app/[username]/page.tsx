@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { isReservedUsername } from "@/lib/reserved-usernames";
 import { Eye, MapPin } from "lucide-react";
 import { cn, hexToRgba } from "@/lib/utils";
+import { fontClassName } from "@/lib/fonts";
 import { AnimatedName } from "@/components/profile/AnimatedName";
 import { GsapNameAnimation } from "@/components/profile/GsapNameAnimation";
 import { NameHover } from "@/components/profile/NameHover";
@@ -146,15 +147,16 @@ export default async function PublicProfilePage({
     color: p.description_color,
   };
 
+  const nameFontClass = fontClassName(p.name_font);
   const nameElement = (
     <NameHover username={p.username}>
       {p.name_animation === "typewriter" ? (
-        <AnimatedName text={name} style={nameStyle} />
+        <AnimatedName text={name} className={nameFontClass} style={nameStyle} />
       ) : p.name_animation === "scramble" || p.name_animation === "wave" || p.name_animation === "bounce" ? (
-        <GsapNameAnimation text={name} variant={p.name_animation} style={nameStyle} />
+        <GsapNameAnimation text={name} variant={p.name_animation} className={nameFontClass} style={nameStyle} />
       ) : p.name_animation === "shimmer" ? (
         <h1
-          className="name-shimmer"
+          className={cn("name-shimmer", nameFontClass)}
           style={{
             ...nameStyle,
             color: "transparent",
@@ -167,16 +169,19 @@ export default async function PublicProfilePage({
           {name}
         </h1>
       ) : p.name_animation === "glitch" ? (
-        <h1 className="name-glitch" style={nameStyle}>
+        <h1 className={cn("name-glitch", nameFontClass)} style={nameStyle}>
           {name}
         </h1>
       ) : (
-        <h1 style={nameStyle}>{name}</h1>
+        <h1 className={nameFontClass} style={nameStyle}>
+          {name}
+        </h1>
       )}
     </NameHover>
   );
 
-  const descriptionClassName = cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto");
+  const descriptionFontClass = fontClassName(p.description_font);
+  const descriptionClassName = cn("mt-1.5 max-w-sm", isSide ? "" : "mx-auto", descriptionFontClass);
   const descriptionElement = p.bio ? (
     p.description_animation === "typewriter" ? (
       <AnimatedName as="p" text={p.bio} className={descriptionClassName} style={descriptionStyle} />
@@ -275,6 +280,7 @@ export default async function PublicProfilePage({
                 audioNameColor: p.audio_name_color,
                 audioNameFontSize: p.audio_name_font_size,
                 audioNameBold: p.audio_name_bold,
+                audioNameFont: p.audio_name_font,
                 audioGlowEnabled: p.audio_glow_enabled,
                 audioGlowStrength: p.audio_glow_strength,
                 audioGlowColor: p.audio_glow_color,

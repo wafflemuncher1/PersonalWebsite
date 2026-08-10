@@ -74,11 +74,13 @@ export type Profile = {
   name_font_size: number;
   name_bold: boolean;
   name_italic: boolean;
+  name_font: string;
   description_font_size: number;
   description_bold: boolean;
   description_italic: boolean;
   description_color: string;
   description_animation: "none" | "typewriter" | "scramble";
+  description_font: string;
   name_glow_enabled: boolean;
   name_glow_strength: number;
   name_glow_color: string;
@@ -98,6 +100,7 @@ export type Profile = {
   audio_name_color: string;
   audio_name_font_size: number;
   audio_name_bold: boolean;
+  audio_name_font: string;
   audio_glow_enabled: boolean;
   audio_glow_strength: number;
   audio_glow_color: string;

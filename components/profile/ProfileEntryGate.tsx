@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Pause, Play, Volume2, VolumeX } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { fontClassName } from "@/lib/fonts";
 
 // Wraps the profile card in a blurred, non-interactive overlay with a
 // "click to enter" screen on top. The click is a real user gesture, so
@@ -17,6 +19,7 @@ export function ProfileEntryGate({
   audioNameColor,
   audioNameFontSize,
   audioNameBold,
+  audioNameFont,
   audioGlowEnabled,
   audioGlowStrength,
   audioGlowColor,
@@ -35,6 +38,7 @@ export function ProfileEntryGate({
   audioNameColor: string;
   audioNameFontSize: number;
   audioNameBold: boolean;
+  audioNameFont: string;
   audioGlowEnabled: boolean;
   audioGlowStrength: number;
   audioGlowColor: string;
@@ -238,7 +242,7 @@ export function ProfileEntryGate({
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate" style={audioNameStyle}>
+              <p className={cn("truncate", fontClassName(audioNameFont))} style={audioNameStyle}>
                 {audioTitle || "Untitled Track"}
               </p>
               <div className="mt-1.5 flex items-center gap-2">
