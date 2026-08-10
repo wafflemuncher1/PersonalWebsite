@@ -29,25 +29,22 @@ type AudioGateProps = {
 // profile card pinned near the top of the viewport (not vertically
 // centered, so it never shifts position as content below it changes —
 // e.g. the audio player card appearing after the entry gate), page 2 (for
-// now) is an About Me section, with dot navigation on the right instead of
-// a normal scrollbar. `speed={0}` makes each wheel/swipe snap land
-// instantly rather than gliding — an explicit hard cut between sections
-// instead of a smooth animated scroll. Reuses the same Swiper setup
-// already proven in the dashboard's Profile Customizer 2 (vertical
-// direction + Mousewheel/Pagination modules, pagination container
-// rendered as a Swiper sibling so it isn't affected by the wrapper's slide
-// transform).
+// now) is a plain-text About Me section, with dot navigation on the right
+// instead of a normal scrollbar. A short, low `speed` keeps each wheel/swipe
+// feeling like a snappy hard cut to the next page (see the note on the
+// Swiper element for why it isn't 0). Reuses the same Swiper setup already
+// proven in the dashboard's Profile Customizer 2 (vertical direction +
+// Mousewheel/Pagination modules, pagination container rendered as a Swiper
+// sibling so it isn't affected by the wrapper's slide transform).
 export function ProfileExperience({
   audioGateProps,
   cardElement,
   aboutMeText,
-  aboutCardStyle,
   aboutTextStyle,
 }: {
   audioGateProps: AudioGateProps | null;
   cardElement: ReactNode;
   aboutMeText: string;
-  aboutCardStyle: React.CSSProperties;
   aboutTextStyle: React.CSSProperties;
 }) {
   // Scrolling stays off until the visitor has clicked through the audio
@@ -75,9 +72,16 @@ export function ProfileExperience({
       <Swiper
         modules={[Mousewheel, Pagination]}
         direction="vertical"
-        mousewheel={entered}
+        mousewheel={entered ? { forceToAxis: true, releaseOnEdges: true, sensitivity: 1 } : false}
         allowTouchMove={entered}
-        speed={0}
+        // A true 0ms speed sounds "instant" but it breaks Swiper internally —
+        // without a real CSS transition, the browser never fires
+        // `transitionend`, so Swiper's animating-lock never clears and every
+        // wheel/swipe after the first one gets silently ignored. A short,
+        // snappy duration keeps the "shoot to the next page" feel while
+        // keeping the transition lifecycle (and therefore repeated
+        // scrolling) working correctly.
+        speed={220}
         pagination={{ el: ".profile-pagination", clickable: true }}
         onSlideChange={(s) => setActiveIndex(s.activeIndex)}
         className="profile-swiper"
@@ -89,13 +93,11 @@ export function ProfileExperience({
         </SwiperSlide>
 
         <SwiperSlide>
-          <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6">
+          <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
             <h2 className="text-3xl font-extrabold text-white">About me</h2>
-            <div className="w-full max-w-2xl rounded-2xl p-6 shadow-xl" style={aboutCardStyle}>
-              <p className="whitespace-pre-wrap" style={aboutTextStyle}>
-                {aboutMeText || "This person hasn't written anything yet."}
-              </p>
-            </div>
+            <p className="max-w-2xl whitespace-pre-wrap" style={aboutTextStyle}>
+              {aboutMeText || "This person hasn't written anything yet."}
+            </p>
           </div>
         </SwiperSlide>
       </Swiper>

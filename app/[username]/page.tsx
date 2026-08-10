@@ -221,11 +221,6 @@ export default async function PublicProfilePage({
     </InteractiveCard>
   );
 
-  const aboutCardStyle: React.CSSProperties = {
-    backgroundColor: hexToRgba(p.card_color, p.card_opacity),
-    border: p.card_outline_enabled ? `${p.card_outline_width}px solid ${p.card_border_color}` : "none",
-  };
-
   return (
     <main className="relative h-screen overflow-hidden" style={mainStyle}>
       {p.bg_type === "video" && p.background_video_url && (
@@ -267,7 +262,6 @@ export default async function PublicProfilePage({
         }
         cardElement={cardElement}
         aboutMeText={p.about_me}
-        aboutCardStyle={aboutCardStyle}
         aboutTextStyle={descriptionStyle}
       />
 
