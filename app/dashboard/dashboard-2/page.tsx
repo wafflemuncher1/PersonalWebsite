@@ -1,55 +1,70 @@
-import Link from "next/link";
 import { getDashboardData } from "@/lib/dashboard-data";
-import { SPAN_CLASS, WIDGET_BY_KEY, isWidgetKey, normalizeDashboard2Layout } from "@/lib/dashboard-widgets";
-import { WIDGET_COMPONENTS } from "@/components/dashboard/widgets/registry";
+import { Card } from "@/components/ui/Card";
+import { StatTile } from "@/components/dashboard/StatTile";
+import { Achievements } from "@/components/dashboard/Achievements";
 
 export const dynamic = "force-dynamic";
 
+// A clean sandbox for trying out new dashboard ideas — separate from
+// Overview so nothing here risks breaking the page every user actually
+// depends on. Replaced the old drag-and-drop Dashboard Builder system,
+// which added a lot of moving parts (a widget registry, a saved layout
+// column, a whole builder UI) for something that's really just meant to be
+// a scratchpad. Starts pre-wired to real account data via
+// getDashboardData — the same fetcher Overview uses — so there's always
+// something real to look at while trying things out.
 export default async function Dashboard2Page() {
   const data = await getDashboardData();
-  const dash = normalizeDashboard2Layout(data.profile?.dashboard2_layout);
-  const layout = dash.layout;
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">Dashboard 2</h1>
-        <Link
-          href="/dashboard/dashboard-builder"
-          className="flex items-center gap-2 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3.5 py-2 text-xs font-semibold text-violet-300 transition hover:bg-violet-500/20"
-        >
-          🎛 Edit layout
-        </Link>
+        <p className="mt-1 text-sm text-zinc-500">
+          A sandbox for trying out new dashboard ideas before they go anywhere permanent.
+        </p>
       </div>
 
-      {layout.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 p-16 text-center">
-          <span className="mb-3 text-3xl">🧩</span>
-          <p className="text-sm font-medium text-zinc-300">This dashboard is empty</p>
-          <p className="mt-1 max-w-xs text-xs text-zinc-500">
-            Please drag and drop dashboard components to build your dashboard.
-          </p>
-          <Link
-            href="/dashboard/dashboard-builder"
-            className="mt-4 rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2 text-xs font-semibold text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400"
-          >
-            Open Dashboard Builder
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {layout.filter(isWidgetKey).map((key) => {
-            const Widget = WIDGET_COMPONENTS[key];
-            const def = WIDGET_BY_KEY[key];
-            if (!Widget || !def) return null;
-            return (
-              <div key={key} className={SPAN_CLASS[def.span]}>
-                <Widget data={data} accountStats={key === "account_statistics" ? dash.accountStats : undefined} />
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <StatTile
+          icon="🔥"
+          title="Best Streak"
+          value={`${data.bestCurrent} days`}
+          sub={`Longest ever: ${data.bestLongest} days`}
+          href="/dashboard/streaks"
+        />
+        <StatTile
+          icon="🎯"
+          title="Active Goals"
+          value={data.activeGoals.length}
+          sub={`${data.completedGoalsCount} completed`}
+          href="/dashboard/goals"
+        />
+        <StatTile
+          icon="📓"
+          title="Journal Entries"
+          value={data.journalCount}
+          sub={data.recentJournal[0] ? "Last entry recently" : "No entries yet"}
+          href="/dashboard/journal"
+        />
+        <StatTile
+          icon="⚡"
+          title="Momentum"
+          value={`${data.momentum}%`}
+          sub={data.momentumVibe}
+          href="/dashboard"
+        />
+      </div>
+
+      <Achievements achievements={data.achievements} />
+
+      <Card className="border-dashed p-10 text-center">
+        <p className="text-sm font-medium text-zinc-300">More coming as you test things</p>
+        <p className="mx-auto mt-1 max-w-sm text-xs text-zinc-500">
+          This page is intentionally plain — the tiles above show it&apos;s wired up to real data,
+          and everything else is open space to try new widgets or layouts.
+        </p>
+      </Card>
     </div>
   );
 }
