@@ -147,6 +147,32 @@ export default async function PublicProfilePage({
     color: p.description_color,
   };
 
+  const aboutGlowStrength = p.about_glow_strength / 100;
+  const aboutGlowShadow = p.about_glow_enabled
+    ? [
+        `0 0 ${4 + aboutGlowStrength * 16}px ${p.about_glow_color}`,
+        `0 0 ${10 + aboutGlowStrength * 40}px ${p.about_glow_color}`,
+        `0 0 ${20 + aboutGlowStrength * 80}px ${p.about_glow_color}`,
+      ].join(", ")
+    : undefined;
+  const aboutTextStyle: React.CSSProperties = {
+    color: p.about_text_color,
+    fontSize: `${p.about_text_font_size}px`,
+    fontWeight: p.about_text_bold ? 700 : 400,
+    textShadow: aboutGlowShadow,
+  };
+  const aboutFontClass = fontClassName(p.about_text_font);
+  const aboutBoxStyle: React.CSSProperties = {
+    backgroundColor: hexToRgba(p.about_box_color, p.about_box_opacity),
+    border: p.about_box_outline_enabled ? `${p.about_box_outline_width}px solid ${p.about_box_border_color}` : "none",
+  };
+  const secondaryBoxStyle: React.CSSProperties = {
+    backgroundColor: hexToRgba(p.secondary_box_color, p.secondary_box_opacity),
+    border: p.secondary_box_outline_enabled
+      ? `${p.secondary_box_outline_width}px solid ${p.secondary_box_border_color}`
+      : "none",
+  };
+
   const nameFontClass = fontClassName(p.name_font);
   const nameElement = (
     <NameHover username={p.username}>
@@ -295,7 +321,10 @@ export default async function PublicProfilePage({
         }
         cardElement={cardElement}
         aboutMeText={p.about_me}
-        aboutTextStyle={descriptionStyle}
+        aboutTextStyle={aboutTextStyle}
+        aboutFontClass={aboutFontClass}
+        aboutBoxStyle={aboutBoxStyle}
+        secondaryBoxStyle={secondaryBoxStyle}
       />
 
       {showLocationCorner && (

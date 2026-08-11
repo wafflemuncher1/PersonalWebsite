@@ -9,6 +9,7 @@ import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionC
 import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { firstProfaneField } from "@/lib/profanity";
 import { FONT_OPTIONS, type FontKey } from "@/lib/fonts";
+import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/types";
 
 function validateImage(file: File): string | null {
@@ -71,6 +72,29 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [backgroundVideoUrl, setBackgroundVideoUrl] = useState(profile?.background_video_url ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
   const [aboutMe, setAboutMe] = useState(profile?.about_me ?? "");
+  const [aboutTextColor, setAboutTextColor] = useState(profile?.about_text_color ?? "#e4e4e7");
+  const [aboutTextFontSize, setAboutTextFontSize] = useState(profile?.about_text_font_size ?? 16);
+  const [aboutTextBold, setAboutTextBold] = useState(profile?.about_text_bold ?? false);
+  const [aboutTextFont, setAboutTextFont] = useState<FontKey>((profile?.about_text_font as FontKey) ?? "default");
+  const [aboutGlowEnabled, setAboutGlowEnabled] = useState(profile?.about_glow_enabled ?? false);
+  const [aboutGlowStrength, setAboutGlowStrength] = useState(profile?.about_glow_strength ?? 50);
+  const [aboutGlowColor, setAboutGlowColor] = useState(profile?.about_glow_color ?? "#8b5cf6");
+  const [aboutBoxColor, setAboutBoxColor] = useState(profile?.about_box_color ?? "#ffffff");
+  const [aboutBoxOpacity, setAboutBoxOpacity] = useState(profile?.about_box_opacity ?? 100);
+  const [aboutBoxOutlineEnabled, setAboutBoxOutlineEnabled] = useState(profile?.about_box_outline_enabled ?? true);
+  const [aboutBoxOutlineWidth, setAboutBoxOutlineWidth] = useState(profile?.about_box_outline_width ?? 1);
+  const [aboutBoxBorderColor, setAboutBoxBorderColor] = useState(profile?.about_box_border_color ?? "#e5e7eb");
+  const [secondaryBoxColor, setSecondaryBoxColor] = useState(profile?.secondary_box_color ?? "#ffffff");
+  const [secondaryBoxOpacity, setSecondaryBoxOpacity] = useState(profile?.secondary_box_opacity ?? 100);
+  const [secondaryBoxOutlineEnabled, setSecondaryBoxOutlineEnabled] = useState(
+    profile?.secondary_box_outline_enabled ?? true
+  );
+  const [secondaryBoxOutlineWidth, setSecondaryBoxOutlineWidth] = useState(
+    profile?.secondary_box_outline_width ?? 1
+  );
+  const [secondaryBoxBorderColor, setSecondaryBoxBorderColor] = useState(
+    profile?.secondary_box_border_color ?? "#e5e7eb"
+  );
   const [location, setLocation] = useState(profile?.location ?? "");
   const [showStats, setShowStats] = useState(profile?.show_stats ?? false);
   const [layout, setLayout] = useState<"top" | "side">(profile?.layout ?? "top");
@@ -200,6 +224,23 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         background_video_url: backgroundVideoUrl.trim(),
         bio: cleanBio,
         about_me: cleanAboutMe,
+        about_text_color: aboutTextColor,
+        about_text_font_size: aboutTextFontSize,
+        about_text_bold: aboutTextBold,
+        about_text_font: aboutTextFont,
+        about_glow_enabled: aboutGlowEnabled,
+        about_glow_strength: aboutGlowStrength,
+        about_glow_color: aboutGlowColor,
+        about_box_color: aboutBoxColor,
+        about_box_opacity: aboutBoxOpacity,
+        about_box_outline_enabled: aboutBoxOutlineEnabled,
+        about_box_outline_width: aboutBoxOutlineWidth,
+        about_box_border_color: aboutBoxBorderColor,
+        secondary_box_color: secondaryBoxColor,
+        secondary_box_opacity: secondaryBoxOpacity,
+        secondary_box_outline_enabled: secondaryBoxOutlineEnabled,
+        secondary_box_outline_width: secondaryBoxOutlineWidth,
+        secondary_box_border_color: secondaryBoxBorderColor,
         location: cleanLocation,
         show_stats: showStats,
         layout,
@@ -378,7 +419,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
             >
               {FONT_OPTIONS.map((f) => (
-                <option key={f.key} value={f.key} className="bg-ink-950">
+                <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
                   {f.label}
                 </option>
               ))}
@@ -420,7 +461,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
             >
               {FONT_OPTIONS.map((f) => (
-                <option key={f.key} value={f.key} className="bg-ink-950">
+                <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
                   {f.label}
                 </option>
               ))}
@@ -712,7 +753,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                   className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
                 >
                   {FONT_OPTIONS.map((f) => (
-                    <option key={f.key} value={f.key} className="bg-ink-950">
+                    <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
                       {f.label}
                     </option>
                   ))}
@@ -798,12 +839,135 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         </CollapsibleSection>
 
         <CollapsibleSection title="About Me" description="A second page visitors can scroll down to see.">
-          <Textarea
-            rows={6}
-            value={aboutMe}
-            onChange={(e) => setAboutMe(e.target.value)}
-            placeholder="Write a longer bit about yourself here — this shows on its own page when someone scrolls down on your profile."
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Text</label>
+            <Textarea
+              rows={6}
+              value={aboutMe}
+              onChange={(e) => setAboutMe(e.target.value)}
+              placeholder="Write a longer bit about yourself here — this shows on its own page when someone scrolls down on your profile."
+            />
+          </div>
+
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Font</label>
+            <select
+              value={aboutTextFont}
+              onChange={(e) => setAboutTextFont(e.target.value as FontKey)}
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            >
+              {FONT_OPTIONS.map((f) => (
+                <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <ColorField label="Text Color" value={aboutTextColor} onChange={setAboutTextColor} />
+          <Slider
+            label="Text Size"
+            value={aboutTextFontSize}
+            onChange={setAboutTextFontSize}
+            min={12}
+            max={28}
+            unit="px"
           />
+          <ToggleRow label="Bold" checked={aboutTextBold} onChange={setAboutTextBold} />
+
+          <ToggleRow
+            label="Text Glow"
+            sub="A soft glow around the About Me text."
+            checked={aboutGlowEnabled}
+            onChange={setAboutGlowEnabled}
+          />
+          {aboutGlowEnabled && (
+            <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+              <Slider
+                label="Glow Strength"
+                value={aboutGlowStrength}
+                onChange={setAboutGlowStrength}
+                min={0}
+                max={100}
+                unit="%"
+              />
+              <ColorField label="Glow Color" value={aboutGlowColor} onChange={setAboutGlowColor} />
+            </div>
+          )}
+
+          <div className="border-t border-white/5 pt-4">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">About Me Box</p>
+            <ColorField label="Box Color" value={aboutBoxColor} onChange={setAboutBoxColor} />
+            <div className="mt-4">
+              <Slider
+                label="Box Transparency"
+                value={aboutBoxOpacity}
+                onChange={setAboutBoxOpacity}
+                min={0}
+                max={100}
+                unit="%"
+              />
+            </div>
+            <div className="mt-4">
+              <ToggleRow
+                label="Box Outline"
+                sub="Turn off for a completely borderless box."
+                checked={aboutBoxOutlineEnabled}
+                onChange={setAboutBoxOutlineEnabled}
+              />
+            </div>
+            {aboutBoxOutlineEnabled && (
+              <div className="mt-3 space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+                <Slider
+                  label="Outline Thickness"
+                  value={aboutBoxOutlineWidth}
+                  onChange={setAboutBoxOutlineWidth}
+                  min={1}
+                  max={8}
+                  unit="px"
+                />
+                <ColorField label="Outline Color" value={aboutBoxBorderColor} onChange={setAboutBoxBorderColor} />
+              </div>
+            )}
+          </div>
+        </CollapsibleSection>
+
+        <CollapsibleSection
+          title="More Info Boxes"
+          description="Two extra boxes on the About Me page — reserved for now, styling only."
+        >
+          <p className="text-[11px] text-zinc-600">
+            These two boxes show up under About Me on your profile. They&apos;re empty for now — content for
+            them is coming later — but you can style how they&apos;ll look ahead of time.
+          </p>
+          <ColorField label="Box Color" value={secondaryBoxColor} onChange={setSecondaryBoxColor} />
+          <Slider
+            label="Box Transparency"
+            value={secondaryBoxOpacity}
+            onChange={setSecondaryBoxOpacity}
+            min={0}
+            max={100}
+            unit="%"
+          />
+          <ToggleRow
+            label="Box Outline"
+            sub="Turn off for a completely borderless box."
+            checked={secondaryBoxOutlineEnabled}
+            onChange={setSecondaryBoxOutlineEnabled}
+          />
+          {secondaryBoxOutlineEnabled && (
+            <div className="space-y-4 rounded-lg border border-white/5 bg-white/[0.015] p-3.5">
+              <Slider
+                label="Outline Thickness"
+                value={secondaryBoxOutlineWidth}
+                onChange={setSecondaryBoxOutlineWidth}
+                min={1}
+                max={8}
+                unit="px"
+              />
+              <ColorField label="Outline Color" value={secondaryBoxBorderColor} onChange={setSecondaryBoxBorderColor} />
+            </div>
+          )}
         </CollapsibleSection>
       </div>
 

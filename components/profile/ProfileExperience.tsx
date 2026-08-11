@@ -7,6 +7,7 @@ import type { Swiper as SwiperClass } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import { ProfileEntryGate } from "@/components/profile/ProfileEntryGate";
+import { cn } from "@/lib/utils";
 
 type AudioGateProps = {
   audioSrc: string;
@@ -43,11 +44,17 @@ export function ProfileExperience({
   cardElement,
   aboutMeText,
   aboutTextStyle,
+  aboutFontClass,
+  aboutBoxStyle,
+  secondaryBoxStyle,
 }: {
   audioGateProps: AudioGateProps | null;
   cardElement: ReactNode;
   aboutMeText: string;
   aboutTextStyle: React.CSSProperties;
+  aboutFontClass: string;
+  aboutBoxStyle: React.CSSProperties;
+  secondaryBoxStyle: React.CSSProperties;
 }) {
   // Scrolling stays off until the visitor has clicked through the audio
   // gate (if there is one) — the gate's own overlay already blocks
@@ -121,11 +128,21 @@ export function ProfileExperience({
         </SwiperSlide>
 
         <SwiperSlide>
-          <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-6 text-center">
-            <h2 className="text-3xl font-extrabold text-white">About me</h2>
-            <p className="max-w-2xl whitespace-pre-wrap" style={aboutTextStyle}>
-              {aboutMeText || "This person hasn't written anything yet."}
-            </p>
+          <div className="flex h-full w-full items-center justify-center px-6">
+            <div className="w-full max-w-2xl">
+              <h2 className="text-3xl font-extrabold text-white">About me</h2>
+              <div className={cn("mt-4 rounded-2xl p-5", aboutFontClass)} style={aboutBoxStyle}>
+                <p className="whitespace-pre-wrap" style={aboutTextStyle}>
+                  {aboutMeText || "This person hasn't written anything yet."}
+                </p>
+              </div>
+              {/* Reserved for future widgets (e.g. now-playing, timezone) — styled
+                  now via the customizer's "More Info Boxes" section, empty for now. */}
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div className="h-24 rounded-2xl" style={secondaryBoxStyle} />
+                <div className="h-24 rounded-2xl" style={secondaryBoxStyle} />
+              </div>
+            </div>
           </div>
         </SwiperSlide>
       </Swiper>
