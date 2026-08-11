@@ -33,6 +33,21 @@ export type ProfileLinkItem = {
   created_at: string;
 };
 
+// Row shape for the profile_shop_items table — user-listed items shown on
+// the public profile's Shop page (image square + name/description box,
+// clicking through to link_url). Mirrors the profile_links pattern.
+export type ShopItem = {
+  id: string;
+  profile_id: string;
+  image_url: string;
+  name: string;
+  description: string;
+  link_url: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+};
+
 export type Profile = {
   id: string;
   username: string;
@@ -119,6 +134,15 @@ export type Profile = {
   secondary_box_outline_enabled: boolean;
   secondary_box_outline_width: number;
   secondary_box_border_color: string;
+  shop_title: string;
+  shop_box_color: string;
+  shop_box_opacity: number;
+  shop_box_outline_enabled: boolean;
+  shop_box_outline_width: number;
+  shop_box_border_color: string;
+  shop_name_color: string;
+  shop_desc_color: string;
+  shop_text_font: string;
   show_stats: boolean;
   username_changed_at: string | null;
   is_dev: boolean;

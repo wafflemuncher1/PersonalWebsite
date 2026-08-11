@@ -14,7 +14,7 @@ import { LinkWidgets } from "@/components/profile/LinkWidgets";
 import { ProfileExperience } from "@/components/profile/ProfileExperience";
 import { ProfileBadges, type EquippedBadge } from "@/components/profile/ProfileBadges";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
-import type { BadgeDef, Profile, ProfileLinkItem } from "@/lib/types";
+import type { BadgeDef, Profile, ProfileLinkItem, ShopItem } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -68,6 +68,14 @@ export default async function PublicProfilePage({
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   const links = (linkRows as ProfileLinkItem[]) ?? [];
+
+  const { data: shopRows } = await supabase
+    .from("profile_shop_items")
+    .select("*")
+    .eq("profile_id", p.id)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true });
+  const shopItems = (shopRows as ShopItem[]) ?? [];
 
   const { data: badgeRows } = await supabase
     .from("profile_badges")
@@ -172,6 +180,14 @@ export default async function PublicProfilePage({
       ? `${p.secondary_box_outline_width}px solid ${p.secondary_box_border_color}`
       : "none",
   };
+
+  const shopFontClass = fontClassName(p.shop_text_font);
+  const shopBoxStyle: React.CSSProperties = {
+    backgroundColor: hexToRgba(p.shop_box_color, p.shop_box_opacity),
+    border: p.shop_box_outline_enabled ? `${p.shop_box_outline_width}px solid ${p.shop_box_border_color}` : "none",
+  };
+  const shopNameStyle: React.CSSProperties = { color: p.shop_name_color };
+  const shopDescStyle: React.CSSProperties = { color: p.shop_desc_color };
 
   const nameFontClass = fontClassName(p.name_font);
   const nameElement = (
@@ -325,6 +341,13 @@ export default async function PublicProfilePage({
         aboutFontClass={aboutFontClass}
         aboutBoxStyle={aboutBoxStyle}
         secondaryBoxStyle={secondaryBoxStyle}
+        shopItems={shopItems}
+        shopTitle={p.shop_title}
+        shopFontClass={shopFontClass}
+        shopBoxStyle={shopBoxStyle}
+        shopNameStyle={shopNameStyle}
+        shopDescStyle={shopDescStyle}
+        username={p.username}
       />
 
       {showLocationCorner && (

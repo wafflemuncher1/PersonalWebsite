@@ -7,7 +7,10 @@ import type { Swiper as SwiperClass } from "swiper";
 import "swiper/css";
 import "swiper/css/pagination";
 import { ProfileEntryGate } from "@/components/profile/ProfileEntryGate";
+import { ExternalLinkGate } from "@/components/profile/ExternalLinkGate";
+import { trackLinkClick } from "@/lib/track-click";
 import { cn } from "@/lib/utils";
+import type { ShopItem } from "@/lib/types";
 
 type AudioGateProps = {
   audioSrc: string;
@@ -47,6 +50,13 @@ export function ProfileExperience({
   aboutFontClass,
   aboutBoxStyle,
   secondaryBoxStyle,
+  shopItems,
+  shopTitle,
+  shopFontClass,
+  shopBoxStyle,
+  shopNameStyle,
+  shopDescStyle,
+  username,
 }: {
   audioGateProps: AudioGateProps | null;
   cardElement: ReactNode;
@@ -55,6 +65,13 @@ export function ProfileExperience({
   aboutFontClass: string;
   aboutBoxStyle: React.CSSProperties;
   secondaryBoxStyle: React.CSSProperties;
+  shopItems: ShopItem[];
+  shopTitle: string;
+  shopFontClass: string;
+  shopBoxStyle: React.CSSProperties;
+  shopNameStyle: React.CSSProperties;
+  shopDescStyle: React.CSSProperties;
+  username: string;
 }) {
   // Scrolling stays off until the visitor has clicked through the audio
   // gate (if there is one) — the gate's own overlay already blocks
@@ -92,10 +109,9 @@ export function ProfileExperience({
     cardElement
   );
 
-  // Only one extra page (About Me) exists today — this becomes a real
-  // count once more pages are added, and the hint below already reads off
-  // of it so nothing else needs to change when that happens.
-  const totalSlides = 2;
+  // Three pages: profile card, About Me, Shop. The hint below reads off of
+  // this so it'll stay correct if more pages get added later.
+  const totalSlides = 3;
   const showScrollHint = entered && activeIndex === 0 && totalSlides > 1;
 
   return (
@@ -145,6 +161,31 @@ export function ProfileExperience({
             </div>
           </div>
         </SwiperSlide>
+
+        <SwiperSlide>
+          <div className="flex h-full w-full items-center justify-center px-6">
+            <div className="w-full max-w-2xl">
+              <h2 className={cn("text-3xl font-extrabold text-white", shopFontClass)}>{shopTitle}</h2>
+              {shopItems.length === 0 ? (
+                <p className="mt-4 text-sm text-zinc-500">Nothing here yet.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {shopItems.map((item) => (
+                    <ShopItemRow
+                      key={item.id}
+                      item={item}
+                      fontClass={shopFontClass}
+                      boxStyle={shopBoxStyle}
+                      nameStyle={shopNameStyle}
+                      descStyle={shopDescStyle}
+                      username={username}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </SwiperSlide>
       </Swiper>
 
       <div className="profile-pagination pointer-events-none fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 flex-col items-center gap-3 sm:flex" />
@@ -157,5 +198,53 @@ export function ProfileExperience({
         </div>
       )}
     </div>
+  );
+}
+
+// One shop row: an image square on the left, then a box with the item's
+// name + description — clicking anywhere on the box opens the link.
+// Routed through the same "leaving this site" warning used for unverified
+// custom links, since shop links are just as unverified.
+function ShopItemRow({
+  item,
+  fontClass,
+  boxStyle,
+  nameStyle,
+  descStyle,
+  username,
+}: {
+  item: ShopItem;
+  fontClass: string;
+  boxStyle: React.CSSProperties;
+  nameStyle: React.CSSProperties;
+  descStyle: React.CSSProperties;
+  username: string;
+}) {
+  return (
+    <ExternalLinkGate
+      url={item.link_url}
+      onConfirm={() => {
+        trackLinkClick(username, item.name || "Shop item", item.link_url);
+        window.open(item.link_url, "_blank", "noopener,noreferrer");
+      }}
+      className="flex w-full items-stretch gap-3 text-left transition hover:scale-[1.01]"
+    >
+      <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-white/5">
+        {item.image_url ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={item.image_url} alt="" className="h-full w-full object-cover" />
+        ) : null}
+      </div>
+      <div className={cn("flex flex-1 flex-col justify-center rounded-2xl p-4", fontClass)} style={boxStyle}>
+        <p className="truncate text-sm font-semibold" style={nameStyle}>
+          {item.name || "Untitled item"}
+        </p>
+        {item.description && (
+          <p className="mt-0.5 line-clamp-2 text-xs" style={descStyle}>
+            {item.description}
+          </p>
+        )}
+      </div>
+    </ExternalLinkGate>
   );
 }

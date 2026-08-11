@@ -407,9 +407,11 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <Textarea
               rows={3}
               value={bio}
-              onChange={(e) => setBio(e.target.value)}
+              onChange={(e) => setBio(e.target.value.slice(0, 150))}
               placeholder="A line or two about you."
+              maxLength={150}
             />
+            <p className="mt-1 text-right text-[11px] text-zinc-600">{bio.length}/150</p>
           </div>
           <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Font</label>
@@ -521,6 +523,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="City, country — optional"
+              maxLength={50}
             />
           </div>
           <ToggleRow
@@ -844,9 +847,11 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <Textarea
               rows={6}
               value={aboutMe}
-              onChange={(e) => setAboutMe(e.target.value)}
+              onChange={(e) => setAboutMe(e.target.value.slice(0, 1000))}
               placeholder="Write a longer bit about yourself here — this shows on its own page when someone scrolls down on your profile."
+              maxLength={1000}
             />
+            <p className="mt-1 text-right text-[11px] text-zinc-600">{aboutMe.length}/1000</p>
           </div>
 
           <div>
