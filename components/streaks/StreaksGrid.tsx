@@ -2,16 +2,33 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Flame, Globe, Trophy, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Heatmap } from "@/components/streaks/Heatmap";
-import { computeStreakStats, todayKey, cn } from "@/lib/utils";
+import { computeStreakStats, todayKey, buildWeeks, toDateKey, cn } from "@/lib/utils";
 import type { Streak, StreakLog } from "@/lib/types";
 
 const EMOJIS = ["🔥", "💪", "📚", "🧘", "🏃", "💧", "🎯", "🎸", "🧑‍💻", "🌱", "😴", "🥗"];
 const COLORS = ["amber", "violet", "emerald", "blue", "pink"];
+
+const COLOR_DOT: Record<string, string> = {
+  amber: "bg-amber-500",
+  violet: "bg-violet-500",
+  emerald: "bg-emerald-500",
+  blue: "bg-blue-500",
+  pink: "bg-pink-500",
+};
+
+const COLOR_ACTIVE: Record<string, string> = {
+  amber: "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]",
+  violet: "bg-violet-500 shadow-[0_0_6px_rgba(139,92,246,0.6)]",
+  emerald: "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]",
+  blue: "bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.6)]",
+  pink: "bg-pink-500 shadow-[0_0_6px_rgba(236,72,153,0.6)]",
+};
 
 export function StreaksGrid({
   initialStreaks,
@@ -40,6 +57,28 @@ export function StreaksGrid({
 
   const visible = streaks.filter((s) => (showArchived ? s.archived : !s.archived));
   const today = todayKey();
+
+  // At-a-glance stats across all active streaks: combined current momentum,
+  // best streak ever, and how this week's check-ins are tracking against
+  // everyone's weekly goal.
+  const overview = useMemo(() => {
+    const active = streaks.filter((s) => !s.archived);
+    let combinedCurrent = 0;
+    let longestEver = 0;
+    const thisWeek = buildWeeks(1)[0].map(toDateKey);
+    let weekDone = 0;
+    let weekGoal = 0;
+    for (const s of active) {
+      const dateSet = logsByStreak.get(s.id) ?? new Set<string>();
+      const stats = computeStreakStats(dateSet);
+      combinedCurrent += stats.current;
+      longestEver = Math.max(longestEver, stats.longest);
+      weekDone += thisWeek.filter((d) => dateSet.has(d)).length;
+      weekGoal += s.goal_per_week;
+    }
+    const weekRate = weekGoal > 0 ? Math.min(100, Math.round((weekDone / weekGoal) * 100)) : 0;
+    return { activeCount: active.length, combinedCurrent, longestEver, weekRate };
+  }, [streaks, logsByStreak]);
 
   async function toggleToday(s: Streak, e: React.MouseEvent) {
     e.preventDefault();
@@ -92,9 +131,38 @@ export function StreaksGrid({
     await supabase.from("streaks").update({ archived: !s.archived }).eq("id", s.id);
   }
 
+  async function toggleOnProfile(s: Streak, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setStreaks((prev) => prev.map((x) => (x.id === s.id ? { ...x, show_on_profile: !x.show_on_profile } : x)));
+    await supabase.from("streaks").update({ show_on_profile: !s.show_on_profile }).eq("id", s.id);
+  }
+
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Streaks</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Streaks</h1>
+          <p className="mt-1 text-sm text-zinc-500">Build momentum on the habits that matter to you.</p>
+        </div>
+      </div>
+
+      {streaks.some((s) => !s.archived) && (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile icon={<Flame className="h-4 w-4 text-amber-400" />} label="Active streaks" value={overview.activeCount} />
+          <StatTile
+            icon={<TrendingUp className="h-4 w-4 text-violet-400" />}
+            label="Combined momentum"
+            value={`${overview.combinedCurrent}d`}
+          />
+          <StatTile icon={<Trophy className="h-4 w-4 text-emerald-400" />} label="Best ever" value={`${overview.longestEver}d`} />
+          <StatTile
+            icon={<Globe className="h-4 w-4 text-blue-400" />}
+            label="This week"
+            value={`${overview.weekRate}%`}
+          />
+        </div>
+      )}
 
       <div className="mb-6 flex items-center justify-between">
         <div className="flex gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] p-1">
@@ -141,13 +209,21 @@ export function StreaksGrid({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") router.push(`/dashboard/streaks/${s.id}`);
                 }}
-                className="glass glass-hover flex cursor-pointer flex-col rounded-xl p-4"
+                className="glass glass-hover relative flex cursor-pointer flex-col overflow-hidden rounded-xl p-4"
               >
-                <div className="mb-3 flex items-center justify-between">
+                <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_DOT[s.color] ?? COLOR_DOT.amber)} />
+                <div className="mb-3 flex items-center justify-between pl-1.5">
                   <div className="flex items-center gap-2.5">
                     <span className="text-2xl">{s.emoji}</span>
                     <div>
-                      <p className="text-sm font-medium text-zinc-100">{s.name}</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium text-zinc-100">{s.name}</p>
+                        {s.show_on_profile && (
+                          <span title="Shown on public profile">
+                            <Globe className="h-3 w-3 text-violet-400" />
+                          </span>
+                        )}
+                      </div>
                       <p className="font-mono text-[11px] text-zinc-500">
                         {stats.current} current · {stats.longest} best
                       </p>
@@ -167,15 +243,31 @@ export function StreaksGrid({
                     </button>
                   )}
                 </div>
-                <Heatmap loggedDates={dateSet} weeksCount={16} size="sm" />
-                <div className="mt-3 flex items-center justify-between">
+                <Heatmap
+                  loggedDates={dateSet}
+                  weeksCount={16}
+                  size="sm"
+                  activeColorClass={COLOR_ACTIVE[s.color] ?? COLOR_ACTIVE.amber}
+                />
+                <div className="mt-3 flex items-center justify-between pl-1.5">
                   <span className="font-mono text-[10px] text-zinc-600">{stats.total} total days</span>
-                  <button
-                    onClick={(e) => toggleArchive(s, e)}
-                    className="font-mono text-[10px] text-zinc-600 hover:text-zinc-300"
-                  >
-                    {s.archived ? "unarchive" : "archive"}
-                  </button>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={(e) => toggleOnProfile(s, e)}
+                      className={cn(
+                        "font-mono text-[10px] transition",
+                        s.show_on_profile ? "text-violet-400 hover:text-violet-300" : "text-zinc-600 hover:text-zinc-300"
+                      )}
+                    >
+                      {s.show_on_profile ? "on profile" : "show on profile"}
+                    </button>
+                    <button
+                      onClick={(e) => toggleArchive(s, e)}
+                      className="font-mono text-[10px] text-zinc-600 hover:text-zinc-300"
+                    >
+                      {s.archived ? "unarchive" : "archive"}
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -217,18 +309,25 @@ export function StreaksGrid({
                   onClick={() => setForm((f) => ({ ...f, color: c }))}
                   className={cn(
                     "h-6 w-6 rounded-full transition",
-                    {
-                      amber: "bg-amber-500",
-                      violet: "bg-violet-500",
-                      emerald: "bg-emerald-500",
-                      blue: "bg-blue-500",
-                      pink: "bg-pink-500",
-                    }[c],
+                    COLOR_DOT[c],
                     form.color === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-60"
                   )}
                 />
               ))}
             </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+              Weekly goal — {form.goal_per_week}x / week
+            </label>
+            <input
+              type="range"
+              min={1}
+              max={7}
+              value={form.goal_per_week}
+              onChange={(e) => setForm((f) => ({ ...f, goal_per_week: Number(e.target.value) }))}
+              className="w-full accent-amber-500"
+            />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setModalOpen(false)}>
@@ -240,6 +339,15 @@ export function StreaksGrid({
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+  return (
+    <div className="glass rounded-xl p-3.5">
+      <div className="mb-1.5 flex items-center gap-1.5">{icon}<span className="text-[11px] text-zinc-500">{label}</span></div>
+      <p className="text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

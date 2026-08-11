@@ -3,11 +3,13 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Globe } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { ToggleRow } from "@/components/customizer2/controls";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { computeStreakStats, toDateKey, addDays, cn } from "@/lib/utils";
 import type { Streak, StreakLog } from "@/lib/types";
@@ -19,7 +21,13 @@ export function StreakDetail({ streak, initialLogs }: { streak: Streak; initialL
   const [logs, setLogs] = useState<StreakLog[]>(initialLogs);
   const [meta, setMeta] = useState(streak);
   const [editOpen, setEditOpen] = useState(false);
-  const [form, setForm] = useState({ name: meta.name, emoji: meta.emoji, color: meta.color });
+  const [form, setForm] = useState({
+    name: meta.name,
+    emoji: meta.emoji,
+    color: meta.color,
+    goal_per_week: meta.goal_per_week,
+    show_on_profile: meta.show_on_profile,
+  });
   const [saving, setSaving] = useState(false);
   const router = useRouter();
   const supabase = createClient();
@@ -57,7 +65,13 @@ export function StreakDetail({ streak, initialLogs }: { streak: Streak; initialL
 
   async function saveMeta() {
     setSaving(true);
-    const patch = { name: form.name || meta.name, emoji: form.emoji, color: form.color };
+    const patch = {
+      name: form.name || meta.name,
+      emoji: form.emoji,
+      color: form.color,
+      goal_per_week: form.goal_per_week,
+      show_on_profile: form.show_on_profile,
+    };
     const { data, error } = await supabase
       .from("streaks")
       .update(patch)
@@ -89,7 +103,14 @@ export function StreakDetail({ streak, initialLogs }: { streak: Streak; initialL
         <div className="flex items-center gap-3">
           <span className="text-4xl">{meta.emoji}</span>
           <div>
-            <h2 className="text-xl font-semibold text-white">{meta.name}</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-semibold text-white">{meta.name}</h2>
+              {meta.show_on_profile && (
+                <span className="flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                  <Globe className="h-2.5 w-2.5" /> on profile
+                </span>
+              )}
+            </div>
             <p className="font-mono text-xs text-zinc-500">
               started {new Date(meta.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
             </p>
@@ -175,6 +196,25 @@ export function StreakDetail({ streak, initialLogs }: { streak: Streak; initialL
               />
             ))}
           </div>
+          <div>
+            <label className="mb-1.5 block text-xs font-medium text-zinc-400">
+              Weekly goal — {form.goal_per_week}x / week
+            </label>
+            <input
+              type="range"
+              min={1}
+              max={7}
+              value={form.goal_per_week}
+              onChange={(e) => setForm((f) => ({ ...f, goal_per_week: Number(e.target.value) }))}
+              className="w-full accent-amber-500"
+            />
+          </div>
+          <ToggleRow
+            label="Show on Public Profile"
+            sub="Feature this streak's heatmap on your profile's Streak page."
+            checked={form.show_on_profile}
+            onChange={(v) => setForm((f) => ({ ...f, show_on_profile: v }))}
+          />
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setEditOpen(false)}>
               Cancel

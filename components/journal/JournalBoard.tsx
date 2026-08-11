@@ -1,11 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { BookOpen, Flame, Globe, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
-import { cn, relativeTime, formatDateTime } from "@/lib/utils";
-import type { JournalEntry, Mood } from "@/lib/types";
+import { ToggleRow } from "@/components/customizer2/controls";
+import { Heatmap } from "@/components/streaks/Heatmap";
+import { computeStreakStats, cn, relativeTime, formatDateTime } from "@/lib/utils";
+import type { JournalEntry, Mood, Profile } from "@/lib/types";
 
 const MOODS: { id: Mood; emoji: string; label: string; dot: string }[] = [
   { id: "great", emoji: "🤩", label: "Great", dot: "bg-emerald-500" },
@@ -17,15 +20,55 @@ const MOODS: { id: Mood; emoji: string; label: string; dot: string }[] = [
 
 const moodMeta = (id: Mood) => MOODS.find((m) => m.id === id) ?? MOODS[2];
 
-export function JournalBoard({ initialEntries }: { initialEntries: JournalEntry[] }) {
+export function JournalBoard({
+  initialEntries,
+  profile,
+}: {
+  initialEntries: JournalEntry[];
+  profile: Profile | null;
+}) {
   const [entries, setEntries] = useState<JournalEntry[]>(initialEntries);
   const [mood, setMood] = useState<Mood>("good");
   const [text, setText] = useState("");
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [heatmapEnabled, setHeatmapEnabled] = useState(profile?.journal_heatmap_enabled ?? false);
+  const [toggleSaving, setToggleSaving] = useState(false);
   const supabase = createClient();
 
-  const trend = useMemo(() => entries.slice(0, 21).reverse(), [entries]);
+  // One representative entry per calendar day (the most recent, since
+  // entries arrive newest-first) — powers both the activity streak math and
+  // the mood-colored heatmap below.
+  const entryByDay = useMemo(() => {
+    const map = new Map<string, JournalEntry>();
+    for (const e of entries) {
+      const key = e.created_at.slice(0, 10);
+      if (!map.has(key)) map.set(key, e);
+    }
+    return map;
+  }, [entries]);
+
+  const loggedDates = useMemo(() => new Set(entryByDay.keys()), [entryByDay]);
+  const journalStats = useMemo(() => computeStreakStats(loggedDates), [loggedDates]);
+
+  const topMood = useMemo(() => {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 30);
+    const counts = new Map<Mood, number>();
+    for (const e of entries) {
+      if (new Date(e.created_at) < cutoff) continue;
+      counts.set(e.mood, (counts.get(e.mood) ?? 0) + 1);
+    }
+    let best: Mood | null = null;
+    let bestCount = 0;
+    for (const [m, c] of counts) {
+      if (c > bestCount) {
+        best = m;
+        bestCount = c;
+      }
+    }
+    return best;
+  }, [entries]);
 
   function startEdit(entry: JournalEntry) {
     setEditingId(entry.id);
@@ -79,23 +122,75 @@ export function JournalBoard({ initialEntries }: { initialEntries: JournalEntry[
     await supabase.from("journal_entries").delete().eq("id", id);
   }
 
+  async function toggleHeatmapVisibility(next: boolean) {
+    if (!profile) return;
+    setHeatmapEnabled(next);
+    setToggleSaving(true);
+    await supabase.from("profiles").update({ journal_heatmap_enabled: next }).eq("id", profile.id);
+    setToggleSaving(false);
+  }
+
   return (
     <div className="mx-auto max-w-2xl">
-      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Journal</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Journal</h1>
+        <p className="mt-1 text-sm text-zinc-500">A private log of how you're doing, day to day.</p>
+      </div>
 
-      {/* Mood trend strip */}
-      {trend.length > 1 && (
-        <div className="mb-6 flex items-center gap-1.5 overflow-x-auto rounded-xl border border-white/5 bg-white/[0.02] p-3">
-          <span className="mr-1 shrink-0 font-mono text-[10px] uppercase tracking-wide text-zinc-600">
-            trend
-          </span>
-          {trend.map((e) => (
-            <span
-              key={e.id}
-              title={`${moodMeta(e.mood).label} · ${formatDateTime(e.created_at)}`}
-              className={cn("h-2.5 w-2.5 shrink-0 rounded-full", moodMeta(e.mood).dot)}
+      {entries.length > 0 && (
+        <div className="mb-6 grid grid-cols-3 gap-3">
+          <StatTile icon={<Flame className="h-4 w-4 text-amber-400" />} label="Day streak" value={`${journalStats.current}d`} />
+          <StatTile icon={<BookOpen className="h-4 w-4 text-violet-400" />} label="Total entries" value={entries.length} />
+          <StatTile
+            icon={<Sparkles className="h-4 w-4 text-emerald-400" />}
+            label="Top mood (30d)"
+            value={topMood ? `${moodMeta(topMood).emoji} ${moodMeta(topMood).label}` : "—"}
+          />
+        </div>
+      )}
+
+      {/* Mood & Activity heatmap */}
+      {entries.length > 0 && (
+        <div className="mb-6 rounded-2xl border border-white/5 bg-white/[0.02] p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-white">Mood history</h2>
+            <div className="flex items-center gap-2.5 font-mono text-[9px] text-zinc-600">
+              {MOODS.map((m) => (
+                <span key={m.id} className="flex items-center gap-1">
+                  <span className={cn("h-2 w-2 rounded-[2px]", m.dot)} />
+                  {m.label}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <Heatmap
+              loggedDates={loggedDates}
+              weeksCount={20}
+              size="sm"
+              showMonths
+              colorForDate={(key) => {
+                const e = entryByDay.get(key);
+                return e ? moodMeta(e.mood).dot : null;
+              }}
             />
-          ))}
+          </div>
+          {profile && (
+            <div className="mt-4 border-t border-white/5 pt-4">
+              <ToggleRow
+                label="Show Journal Activity on Public Profile"
+                sub="Just the activity pattern (which days you journaled) — never your entries or moods."
+                checked={heatmapEnabled}
+                onChange={toggleHeatmapVisibility}
+              />
+              {toggleSaving && <p className="mt-1 text-[10px] text-zinc-600">Saving…</p>}
+              {heatmapEnabled && (
+                <p className="mt-2 flex items-center gap-1 text-[10px] text-violet-400">
+                  <Globe className="h-2.5 w-2.5" /> Visible on your profile's Journal page
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -166,6 +261,15 @@ export function JournalBoard({ initialEntries }: { initialEntries: JournalEntry[
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+  return (
+    <div className="glass rounded-xl p-3.5">
+      <div className="mb-1.5 flex items-center gap-1.5">{icon}<span className="text-[11px] text-zinc-500">{label}</span></div>
+      <p className="text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

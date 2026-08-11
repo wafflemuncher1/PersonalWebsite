@@ -38,6 +38,7 @@ export function ShopForm({
 
   // Style fields — saved independently from the item list via their own
   // button, same pattern as the About Me box controls in CustomizeForm.
+  const [shopEnabled, setShopEnabled] = useState(profile?.shop_enabled ?? true);
   const [shopTitle, setShopTitle] = useState(profile?.shop_title ?? "Shop");
   const [boxColor, setBoxColor] = useState(profile?.shop_box_color ?? "#ffffff");
   const [boxOpacity, setBoxOpacity] = useState(profile?.shop_box_opacity ?? 100);
@@ -115,6 +116,7 @@ export function ShopForm({
     const { error } = await supabase
       .from("profiles")
       .update({
+        shop_enabled: shopEnabled,
         shop_title: shopTitle.trim() || "Shop",
         shop_box_color: boxColor,
         shop_box_opacity: boxOpacity,
@@ -151,6 +153,12 @@ export function ShopForm({
 
       <Card className="space-y-4 p-6">
         <h2 className="text-sm font-medium text-white">Style</h2>
+        <ToggleRow
+          label="Show Shop on Public Profile"
+          sub="Turn this off to remove the Shop page from your public profile entirely."
+          checked={shopEnabled}
+          onChange={setShopEnabled}
+        />
         <div>
           <label className="mb-1.5 block text-xs font-medium text-zinc-400">Page Title</label>
           <Input

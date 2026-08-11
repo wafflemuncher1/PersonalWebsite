@@ -14,7 +14,7 @@ import { LinkWidgets } from "@/components/profile/LinkWidgets";
 import { ProfileExperience } from "@/components/profile/ProfileExperience";
 import { ProfileBadges, type EquippedBadge } from "@/components/profile/ProfileBadges";
 import { CursorTrail } from "@/components/customizer2/CursorTrail";
-import type { BadgeDef, Profile, ProfileLinkItem, ShopItem } from "@/lib/types";
+import type { BadgeDef, Profile, ProfileLinkItem, ShopItem, Streak } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -76,6 +76,27 @@ export default async function PublicProfilePage({
     .eq("is_active", true)
     .order("sort_order", { ascending: true });
   const shopItems = (shopRows as ShopItem[]) ?? [];
+
+  const { data: featuredStreakRows } = await supabase
+    .from("streaks")
+    .select("*")
+    .eq("user_id", p.id)
+    .eq("show_on_profile", true)
+    .eq("archived", false)
+    .order("created_at", { ascending: true });
+  const featuredStreakMeta = (featuredStreakRows as Streak[]) ?? [];
+  const featuredStreaks = await Promise.all(
+    featuredStreakMeta.map(async (s) => {
+      const { data: dates } = await supabase.rpc("get_public_streak_log_dates", { p_streak_id: s.id });
+      return { streak: s, dates: (dates as string[]) ?? [] };
+    })
+  );
+
+  let journalDates: string[] = [];
+  if (p.journal_heatmap_enabled) {
+    const { data } = await supabase.rpc("get_public_journal_dates", { p_username: username });
+    journalDates = (data as string[]) ?? [];
+  }
 
   const { data: badgeRows } = await supabase
     .from("profile_badges")
@@ -336,17 +357,22 @@ export default async function PublicProfilePage({
             : null
         }
         cardElement={cardElement}
+        aboutMeEnabled={p.about_me_enabled}
         aboutMeText={p.about_me}
         aboutTextStyle={aboutTextStyle}
         aboutFontClass={aboutFontClass}
         aboutBoxStyle={aboutBoxStyle}
         secondaryBoxStyle={secondaryBoxStyle}
+        shopEnabled={p.shop_enabled}
         shopItems={shopItems}
         shopTitle={p.shop_title}
         shopFontClass={shopFontClass}
         shopBoxStyle={shopBoxStyle}
         shopNameStyle={shopNameStyle}
         shopDescStyle={shopDescStyle}
+        featuredStreaks={featuredStreaks}
+        journalHeatmapEnabled={p.journal_heatmap_enabled}
+        journalDates={journalDates}
         username={p.username}
       />
 

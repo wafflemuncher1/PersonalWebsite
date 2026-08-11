@@ -143,6 +143,9 @@ export type Profile = {
   shop_name_color: string;
   shop_desc_color: string;
   shop_text_font: string;
+  about_me_enabled: boolean;
+  shop_enabled: boolean;
+  journal_heatmap_enabled: boolean;
   show_stats: boolean;
   username_changed_at: string | null;
   is_dev: boolean;
@@ -288,6 +291,8 @@ export type GoalCategory = {
 export type GoalStatus = "active" | "completed" | "archived";
 export type GoalPriority = "low" | "medium" | "high";
 
+export type GoalRecurrence = "weekly" | null;
+
 export type Goal = {
   id: string;
   user_id: string;
@@ -298,6 +303,9 @@ export type Goal = {
   priority: GoalPriority;
   progress: number;
   target_date: string | null;
+  is_recurring: boolean;
+  recurrence: GoalRecurrence;
+  period_start: string;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -311,6 +319,7 @@ export type Streak = {
   color: string;
   goal_per_week: number;
   archived: boolean;
+  show_on_profile: boolean;
   created_at: string;
 };
 

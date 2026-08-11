@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Repeat, Target, TrendingUp, Trophy } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Badge } from "@/components/ui/Badge";
-import { cn, formatDate } from "@/lib/utils";
+import { ToggleRow } from "@/components/customizer2/controls";
+import { cn, formatDate, toDateKey } from "@/lib/utils";
 import type { Goal, GoalCategory, GoalPriority, GoalStatus } from "@/lib/types";
 
 const CATEGORY_COLORS = ["violet", "amber", "emerald", "blue", "pink", "zinc"];
@@ -24,6 +26,18 @@ const FILTERS: { key: GoalStatus | "all"; label: string }[] = [
   { key: "completed", label: "Completed" },
   { key: "archived", label: "Archived" },
 ];
+
+// Monday of the week containing `d`, as a YYYY-MM-DD key — the anchor for
+// lazily resetting recurring weekly goals (no cron needed: we just compare
+// against "today's" Monday whenever the board loads).
+function mondayOf(d: Date): string {
+  const date = new Date(d);
+  date.setHours(0, 0, 0, 0);
+  const day = date.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  date.setDate(date.getDate() + diff);
+  return toDateKey(date);
+}
 
 export function GoalsBoard({
   initialCategories,
@@ -45,6 +59,7 @@ export function GoalsBoard({
     priority: "medium" as GoalPriority,
     progress: 0,
     target_date: "",
+    is_recurring: false,
   });
 
   const [catModalOpen, setCatModalOpen] = useState(false);
@@ -52,6 +67,37 @@ export function GoalsBoard({
   const [saving, setSaving] = useState(false);
 
   const supabase = createClient();
+  const didReset = useRef(false);
+
+  // Lazily "roll over" recurring weekly goals: if a goal's tracked period is
+  // behind the current week, reset its progress/status and bump the period
+  // forward. Runs once on mount instead of needing a cron/edge function.
+  useEffect(() => {
+    if (didReset.current) return;
+    didReset.current = true;
+    const currentMonday = mondayOf(new Date());
+    const stale = goals.filter((g) => g.is_recurring && g.period_start < currentMonday);
+    if (stale.length === 0) return;
+    (async () => {
+      const updates = await Promise.all(
+        stale.map((g) =>
+          supabase
+            .from("goals")
+            .update({ progress: 0, status: "active", completed_at: null, period_start: currentMonday })
+            .eq("id", g.id)
+            .select()
+            .single()
+        )
+      );
+      setGoals((prev) =>
+        prev.map((g) => {
+          const updated = updates.find((u) => u.data && (u.data as Goal).id === g.id);
+          return updated?.data ? (updated.data as Goal) : g;
+        })
+      );
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const filteredGoals = useMemo(
     () => (filter === "all" ? goals : goals.filter((g) => g.status === filter)),
@@ -68,6 +114,23 @@ export function GoalsBoard({
     return map;
   }, [filteredGoals]);
 
+  const overview = useMemo(() => {
+    const active = goals.filter((g) => g.status === "active");
+    const now = new Date();
+    const completedThisMonth = goals.filter(
+      (g) =>
+        g.status === "completed" &&
+        g.completed_at &&
+        new Date(g.completed_at).getMonth() === now.getMonth() &&
+        new Date(g.completed_at).getFullYear() === now.getFullYear()
+    ).length;
+    const avgProgress = active.length
+      ? Math.round(active.reduce((sum, g) => sum + g.progress, 0) / active.length)
+      : 0;
+    const recurringCount = goals.filter((g) => g.is_recurring && g.status !== "archived").length;
+    return { activeCount: active.length, completedThisMonth, avgProgress, recurringCount };
+  }, [goals]);
+
   function openNewGoal(categoryId?: string) {
     setEditingGoal(null);
     setGoalForm({
@@ -77,6 +140,7 @@ export function GoalsBoard({
       priority: "medium",
       progress: 0,
       target_date: "",
+      is_recurring: false,
     });
     setGoalModalOpen(true);
   }
@@ -90,6 +154,7 @@ export function GoalsBoard({
       priority: g.priority,
       progress: g.progress,
       target_date: g.target_date ?? "",
+      is_recurring: g.is_recurring,
     });
     setGoalModalOpen(true);
   }
@@ -103,6 +168,9 @@ export function GoalsBoard({
       priority: goalForm.priority,
       progress: goalForm.progress,
       target_date: goalForm.target_date || null,
+      is_recurring: goalForm.is_recurring,
+      recurrence: goalForm.is_recurring ? "weekly" : null,
+      ...(goalForm.is_recurring && !editingGoal ? { period_start: mondayOf(new Date()) } : {}),
     };
 
     if (editingGoal) {
@@ -173,7 +241,27 @@ export function GoalsBoard({
 
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Goals</h1>
+      <div className="mb-6">
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Goals</h1>
+        <p className="mt-1 text-sm text-zinc-500">Track what you're working toward — one-off or every week.</p>
+      </div>
+
+      {goals.length > 0 && (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile icon={<Target className="h-4 w-4 text-violet-400" />} label="Active" value={overview.activeCount} />
+          <StatTile
+            icon={<TrendingUp className="h-4 w-4 text-blue-400" />}
+            label="Avg. progress"
+            value={`${overview.avgProgress}%`}
+          />
+          <StatTile
+            icon={<Trophy className="h-4 w-4 text-emerald-400" />}
+            label="Completed this month"
+            value={overview.completedThisMonth}
+          />
+          <StatTile icon={<Repeat className="h-4 w-4 text-amber-400" />} label="Weekly goals" value={overview.recurringCount} />
+        </div>
+      )}
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] p-1">
@@ -289,14 +377,22 @@ export function GoalsBoard({
               className="w-full accent-violet-500"
             />
           </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Target date</label>
-            <Input
-              type="date"
-              value={goalForm.target_date}
-              onChange={(e) => setGoalForm((f) => ({ ...f, target_date: e.target.value }))}
-            />
-          </div>
+          {!goalForm.is_recurring && (
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-zinc-400">Target date</label>
+              <Input
+                type="date"
+                value={goalForm.target_date}
+                onChange={(e) => setGoalForm((f) => ({ ...f, target_date: e.target.value }))}
+              />
+            </div>
+          )}
+          <ToggleRow
+            label="Repeat Weekly"
+            sub="Progress and completion automatically reset every Monday."
+            checked={goalForm.is_recurring}
+            onChange={(v) => setGoalForm((f) => ({ ...f, is_recurring: v }))}
+          />
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setGoalModalOpen(false)}>
               Cancel
@@ -346,6 +442,15 @@ export function GoalsBoard({
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+  return (
+    <div className="glass rounded-xl p-3.5">
+      <div className="mb-1.5 flex items-center gap-1.5">{icon}<span className="text-[11px] text-zinc-500">{label}</span></div>
+      <p className="text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }
@@ -405,6 +510,11 @@ function GoalGroup({
                     {g.title}
                   </p>
                   <Badge color={PRIORITY_COLOR[g.priority]}>{g.priority}</Badge>
+                  {g.is_recurring && (
+                    <span className="flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] text-amber-300">
+                      <Repeat className="h-2.5 w-2.5" /> weekly
+                    </span>
+                  )}
                   {g.status === "archived" && <Badge color="zinc">archived</Badge>}
                 </div>
                 {g.description && (
@@ -413,8 +523,12 @@ function GoalGroup({
                 <div className="mt-3 flex items-center gap-3">
                   <ProgressBar value={g.progress} className="max-w-[180px]" />
                   <span className="font-mono text-[10px] text-zinc-600">{g.progress}%</span>
-                  {g.target_date && (
-                    <span className="font-mono text-[10px] text-zinc-600">due {formatDate(g.target_date)}</span>
+                  {g.is_recurring ? (
+                    <span className="font-mono text-[10px] text-zinc-600">resets Monday</span>
+                  ) : (
+                    g.target_date && (
+                      <span className="font-mono text-[10px] text-zinc-600">due {formatDate(g.target_date)}</span>
+                    )
                   )}
                 </div>
               </div>

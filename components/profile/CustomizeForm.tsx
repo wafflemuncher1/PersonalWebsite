@@ -71,6 +71,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
   const [backgroundUrl, setBackgroundUrl] = useState(profile?.background_url ?? "");
   const [backgroundVideoUrl, setBackgroundVideoUrl] = useState(profile?.background_video_url ?? "");
   const [bio, setBio] = useState(profile?.bio ?? "");
+  const [aboutMeEnabled, setAboutMeEnabled] = useState(profile?.about_me_enabled ?? true);
   const [aboutMe, setAboutMe] = useState(profile?.about_me ?? "");
   const [aboutTextColor, setAboutTextColor] = useState(profile?.about_text_color ?? "#e4e4e7");
   const [aboutTextFontSize, setAboutTextFontSize] = useState(profile?.about_text_font_size ?? 16);
@@ -224,6 +225,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         background_video_url: backgroundVideoUrl.trim(),
         bio: cleanBio,
         about_me: cleanAboutMe,
+        about_me_enabled: aboutMeEnabled,
         about_text_color: aboutTextColor,
         about_text_font_size: aboutTextFontSize,
         about_text_bold: aboutTextBold,
@@ -842,6 +844,12 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         </CollapsibleSection>
 
         <CollapsibleSection title="About Me" description="A second page visitors can scroll down to see.">
+          <ToggleRow
+            label="Show About Me Page"
+            sub="Turn this off to remove the About Me page from your public profile entirely."
+            checked={aboutMeEnabled}
+            onChange={setAboutMeEnabled}
+          />
           <div>
             <label className="mb-1.5 block text-xs font-medium text-zinc-400">Text</label>
             <Textarea

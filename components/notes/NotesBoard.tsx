@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { Pin, StickyNote } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
@@ -26,9 +27,19 @@ const COLOR_DOT: Record<string, string> = {
   zinc: "bg-zinc-500",
 };
 
+const COLOR_BAR: Record<string, string> = {
+  violet: "bg-violet-500/70",
+  amber: "bg-amber-500/70",
+  emerald: "bg-emerald-500/70",
+  blue: "bg-blue-500/70",
+  pink: "bg-pink-500/70",
+  zinc: "bg-white/20",
+};
+
 export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
   const [notes, setNotes] = useState<Note[]>(initialNotes);
   const [query, setQuery] = useState("");
+  const [colorFilter, setColorFilter] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Note | null>(null);
   const [form, setForm] = useState({ title: "", content: "", color: "violet" });
@@ -36,12 +47,22 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
   const supabase = createClient();
 
   const filtered = useMemo(() => {
-    if (!query.trim()) return notes;
-    const q = query.toLowerCase();
-    return notes.filter(
-      (n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
-    );
-  }, [notes, query]);
+    let result = notes;
+    if (colorFilter) result = result.filter((n) => n.color === colorFilter);
+    if (query.trim()) {
+      const q = query.toLowerCase();
+      result = result.filter(
+        (n) => n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [notes, query, colorFilter]);
+
+  const pinnedCount = useMemo(() => notes.filter((n) => n.pinned).length, [notes]);
+  const colorsInUse = useMemo(() => {
+    const set = new Set(notes.map((n) => n.color));
+    return Object.keys(COLOR_DOT).filter((c) => set.has(c));
+  }, [notes]);
 
   function openNew() {
     setEditing(null);
@@ -101,15 +122,67 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
 
   return (
     <div>
-      <h1 className="mb-6 text-3xl font-extrabold tracking-tight text-white">Notes</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Notes</h1>
+          <p className="mt-1 text-sm text-zinc-500">Quick thoughts, saved and searchable.</p>
+        </div>
+      </div>
+
+      {notes.length > 0 && (
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="glass rounded-xl p-3.5">
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <StickyNote className="h-4 w-4 text-violet-400" />
+              <span className="text-[11px] text-zinc-500">Total notes</span>
+            </div>
+            <p className="text-lg font-semibold text-white">{notes.length}</p>
+          </div>
+          <div className="glass rounded-xl p-3.5">
+            <div className="mb-1.5 flex items-center gap-1.5">
+              <Pin className="h-4 w-4 text-amber-400" />
+              <span className="text-[11px] text-zinc-500">Pinned</span>
+            </div>
+            <p className="text-lg font-semibold text-white">{pinnedCount}</p>
+          </div>
+        </div>
+      )}
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Input
-          placeholder="Search notes…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="sm:max-w-xs"
-        />
+        <div className="flex flex-1 flex-wrap items-center gap-3">
+          <Input
+            placeholder="Search notes…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="sm:max-w-xs"
+          />
+          {colorsInUse.length > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setColorFilter(null)}
+                className={cn(
+                  "rounded-full border px-2.5 py-1 text-[11px] transition",
+                  !colorFilter ? "border-white/25 text-white" : "border-white/10 text-zinc-500 hover:text-zinc-300"
+                )}
+              >
+                All
+              </button>
+              {colorsInUse.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setColorFilter(colorFilter === c ? null : c)}
+                  className={cn(
+                    "flex h-6 w-6 items-center justify-center rounded-full transition",
+                    colorFilter === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-70 hover:opacity-100"
+                  )}
+                  aria-label={`Filter ${c} notes`}
+                >
+                  <span className={cn("h-3 w-3 rounded-full", COLOR_DOT[c])} />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <Button onClick={openNew}>+ New note</Button>
       </div>
 
@@ -123,21 +196,19 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
             <div
               key={n.id}
               className={cn(
-                "glass break-inside-avoid rounded-xl border p-4 transition",
+                "glass relative break-inside-avoid overflow-hidden rounded-xl border p-4 pl-5 transition",
                 COLORS[n.color] ?? COLORS.zinc
               )}
             >
+              <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_BAR[n.color] ?? COLOR_BAR.zinc)} />
               <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <span className={cn("h-1.5 w-1.5 rounded-full", COLOR_DOT[n.color] ?? COLOR_DOT.zinc)} />
-                  <h3 className="font-medium text-zinc-100">{n.title || "Untitled"}</h3>
-                </div>
+                <h3 className="font-medium text-zinc-100">{n.title || "Untitled"}</h3>
                 <button
                   onClick={() => togglePin(n)}
-                  className={cn("text-sm transition", n.pinned ? "text-amber-400" : "text-zinc-700 hover:text-zinc-400")}
+                  className={cn("shrink-0 text-sm transition", n.pinned ? "text-amber-400" : "text-zinc-700 hover:text-zinc-400")}
                   title={n.pinned ? "Unpin" : "Pin"}
                 >
-                  ★
+                  <Pin className={cn("h-3.5 w-3.5", n.pinned && "fill-amber-400")} />
                 </button>
               </div>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">{n.content}</p>

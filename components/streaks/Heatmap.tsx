@@ -11,12 +11,20 @@ export function Heatmap({
   onDayClick,
   size = "sm",
   showMonths = false,
+  colorForDate,
+  activeColorClass = "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]",
 }: {
   loggedDates: Set<string>;
   weeksCount?: number;
   onDayClick?: (dateKey: string) => void;
   size?: "sm" | "md";
   showMonths?: boolean;
+  // Optional per-day color override (e.g. mood-colored cells instead of a
+  // plain binary logged/not-logged reading) — falls back to the default
+  // amber "done" cell when omitted, so every existing caller keeps working
+  // unchanged.
+  colorForDate?: (dateKey: string) => string | null;
+  activeColorClass?: string;
 }) {
   const weeks = buildWeeks(weeksCount);
   const today = todayKey();
@@ -45,6 +53,7 @@ export function Heatmap({
               const key = toDateKey(day);
               const isFuture = key > today;
               const logged = loggedDates.has(key);
+              const customColor = colorForDate?.(key);
               return (
                 <button
                   key={key}
@@ -57,9 +66,11 @@ export function Heatmap({
                     "rounded-[3px] transition",
                     isFuture
                       ? "bg-transparent"
-                      : logged
-                      ? "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]"
-                      : "bg-white/[0.06] hover:bg-white/[0.14]",
+                      : customColor
+                        ? customColor
+                        : logged
+                          ? activeColorClass
+                          : "bg-white/[0.06] hover:bg-white/[0.14]",
                     onDayClick && !isFuture ? "cursor-pointer" : "cursor-default"
                   )}
                 />
