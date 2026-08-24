@@ -9,6 +9,8 @@ import { Modal } from "@/components/ui/Modal";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Badge } from "@/components/ui/Badge";
 import { ToggleRow } from "@/components/customizer2/controls";
+import { StatTile } from "@/components/ui/StatTile";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn, formatDate, toDateKey } from "@/lib/utils";
 import type { Goal, GoalCategory, GoalPriority, GoalStatus } from "@/lib/types";
 
@@ -241,26 +243,38 @@ export function GoalsBoard({
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Goals</h1>
-        <p className="mt-1 text-sm text-zinc-500">Track what you're working toward — one-off or every week.</p>
-      </div>
+      <Reveal>
+        <div className="mb-6">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Goals</h1>
+          <p className="mt-1 text-sm text-zinc-500">Track what you're working toward — one-off or every week.</p>
+        </div>
+      </Reveal>
 
       {goals.length > 0 && (
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile icon={<Target className="h-4 w-4 text-violet-400" />} label="Active" value={overview.activeCount} />
-          <StatTile
-            icon={<TrendingUp className="h-4 w-4 text-blue-400" />}
-            label="Avg. progress"
-            value={`${overview.avgProgress}%`}
-          />
-          <StatTile
-            icon={<Trophy className="h-4 w-4 text-emerald-400" />}
-            label="Completed this month"
-            value={overview.completedThisMonth}
-          />
-          <StatTile icon={<Repeat className="h-4 w-4 text-amber-400" />} label="Weekly goals" value={overview.recurringCount} />
-        </div>
+        <RevealGroup className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4" stagger={0.06}>
+          <RevealItem>
+            <StatTile icon={<Target className="h-4 w-4" />} label="Active" value={overview.activeCount} accent="violet" />
+          </RevealItem>
+          <RevealItem>
+            <StatTile
+              icon={<TrendingUp className="h-4 w-4" />}
+              label="Avg. progress"
+              value={`${overview.avgProgress}%`}
+              accent="blue"
+            />
+          </RevealItem>
+          <RevealItem>
+            <StatTile
+              icon={<Trophy className="h-4 w-4" />}
+              label="Completed this month"
+              value={overview.completedThisMonth}
+              accent="emerald"
+            />
+          </RevealItem>
+          <RevealItem>
+            <StatTile icon={<Repeat className="h-4 w-4" />} label="Weekly goals" value={overview.recurringCount} accent="amber" />
+          </RevealItem>
+        </RevealGroup>
       )}
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -270,8 +284,10 @@ export function GoalsBoard({
               key={f.key}
               onClick={() => setFilter(f.key)}
               className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-medium transition",
-                filter === f.key ? "bg-violet-500/20 text-white" : "text-zinc-500 hover:text-zinc-300"
+                "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
+                filter === f.key
+                  ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(139,92,246,0.5)]"
+                  : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
               )}
             >
               {f.label}
@@ -442,15 +458,6 @@ export function GoalsBoard({
           </div>
         </div>
       </Modal>
-    </div>
-  );
-}
-
-function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return (
-    <div className="glass rounded-xl p-3.5">
-      <div className="mb-1.5 flex items-center gap-1.5">{icon}<span className="text-[11px] text-zinc-500">{label}</span></div>
-      <p className="text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

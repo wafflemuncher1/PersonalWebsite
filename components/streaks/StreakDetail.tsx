@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { ToggleRow } from "@/components/customizer2/controls";
 import { Heatmap } from "@/components/streaks/Heatmap";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { computeStreakStats, toDateKey, addDays, cn } from "@/lib/utils";
 import type { Streak, StreakLog } from "@/lib/types";
 
@@ -99,62 +100,75 @@ export function StreakDetail({ streak, initialLogs }: { streak: Streak; initialL
         ← all streaks
       </Link>
 
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-4xl">{meta.emoji}</span>
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-semibold text-white">{meta.name}</h2>
-              {meta.show_on_profile && (
-                <span className="flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
-                  <Globe className="h-2.5 w-2.5" /> on profile
-                </span>
-              )}
+      <Reveal>
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">{meta.emoji}</span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold text-white">{meta.name}</h2>
+                {meta.show_on_profile && (
+                  <span className="flex items-center gap-1 rounded-full border border-violet-500/30 bg-violet-500/10 px-2 py-0.5 text-[10px] font-medium text-violet-300">
+                    <Globe className="h-2.5 w-2.5" /> on profile
+                  </span>
+                )}
+              </div>
+              <p className="font-mono text-xs text-zinc-500">
+                started {new Date(meta.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
+              </p>
             </div>
-            <p className="font-mono text-xs text-zinc-500">
-              started {new Date(meta.created_at).toLocaleDateString("en-US", { month: "short", year: "numeric" })}
-            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant={doneToday ? "secondary" : "amber"}
+              onClick={() => toggleDay(today)}
+              className="active:scale-[0.97]"
+            >
+              {doneToday ? "✓ done today" : "Mark today complete"}
+            </Button>
+            <Button variant="secondary" onClick={() => setEditOpen(true)}>
+              Edit
+            </Button>
+            <Button variant="danger" onClick={deleteStreak}>
+              Delete
+            </Button>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant={doneToday ? "secondary" : "amber"}
-            onClick={() => toggleDay(today)}
-          >
-            {doneToday ? "✓ done today" : "Mark today complete"}
-          </Button>
-          <Button variant="secondary" onClick={() => setEditOpen(true)}>
-            Edit
-          </Button>
-          <Button variant="danger" onClick={deleteStreak}>
-            Delete
-          </Button>
-        </div>
-      </div>
+      </Reveal>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Card className="p-5">
-          <span className="text-xs uppercase tracking-wide text-zinc-500">Current streak</span>
-          <div className="mt-2 text-2xl font-semibold text-amber-400">{stats.current}d</div>
-        </Card>
-        <Card className="p-5">
-          <span className="text-xs uppercase tracking-wide text-zinc-500">Longest streak</span>
-          <div className="mt-2 text-2xl font-semibold text-white">{stats.longest}d</div>
-        </Card>
-        <Card className="p-5">
-          <span className="text-xs uppercase tracking-wide text-zinc-500">Last 30 days</span>
-          <div className="mt-2 text-2xl font-semibold text-white">{last30}/30</div>
-        </Card>
-        <Card className="p-5">
-          <span className="text-xs uppercase tracking-wide text-zinc-500">All-time total</span>
-          <div className="mt-2 text-2xl font-semibold text-white">{stats.total}</div>
-        </Card>
-      </div>
+      <RevealGroup className="grid grid-cols-2 gap-4 lg:grid-cols-4" stagger={0.06}>
+        <RevealItem>
+          <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
+            <span className="text-xs uppercase tracking-wide text-zinc-500">Current streak</span>
+            <div className="mt-2 text-2xl font-semibold text-amber-400">{stats.current}d</div>
+          </Card>
+        </RevealItem>
+        <RevealItem>
+          <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
+            <span className="text-xs uppercase tracking-wide text-zinc-500">Longest streak</span>
+            <div className="mt-2 text-2xl font-semibold text-white">{stats.longest}d</div>
+          </Card>
+        </RevealItem>
+        <RevealItem>
+          <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
+            <span className="text-xs uppercase tracking-wide text-zinc-500">Last 30 days</span>
+            <div className="mt-2 text-2xl font-semibold text-white">{last30}/30</div>
+          </Card>
+        </RevealItem>
+        <RevealItem>
+          <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
+            <span className="text-xs uppercase tracking-wide text-zinc-500">All-time total</span>
+            <div className="mt-2 text-2xl font-semibold text-white">{stats.total}</div>
+          </Card>
+        </RevealItem>
+      </RevealGroup>
 
-      <Card className="overflow-x-auto p-6">
-        <h3 className="mb-4 text-sm font-medium text-white">Activity — tap a day to toggle</h3>
-        <Heatmap loggedDates={dateSet} weeksCount={53} size="md" showMonths onDayClick={toggleDay} />
-      </Card>
+      <Reveal delay={0.1}>
+        <Card className="overflow-x-auto p-6">
+          <h3 className="mb-4 text-sm font-medium text-white">Activity — tap a day to toggle</h3>
+          <Heatmap loggedDates={dateSet} weeksCount={53} size="md" showMonths onDayClick={toggleDay} />
+        </Card>
+      </Reveal>
 
       <Modal open={editOpen} onClose={() => setEditOpen(false)} title="Edit streak">
         <div className="space-y-3">

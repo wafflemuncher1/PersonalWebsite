@@ -25,10 +25,10 @@ export function Achievements({ achievements }: { achievements: Achievement[] }) 
             key={a.id}
             title={a.label}
             className={cn(
-              "flex shrink-0 flex-col items-center gap-1.5 rounded-xl border px-4 py-3 text-center transition",
+              "flex shrink-0 flex-col items-center gap-1.5 rounded-xl border px-4 py-3 text-center transition-all duration-200 ease-premium",
               a.unlocked
-                ? "border-violet-500/30 bg-violet-500/[0.06]"
-                : "border-white/5 bg-white/[0.01] opacity-40 grayscale"
+                ? "border-amber-500/30 bg-gradient-to-b from-amber-500/[0.1] to-transparent shadow-[0_0_16px_-6px_rgba(245,158,11,0.5)] hover:-translate-y-0.5 hover:border-amber-400/50"
+                : "border-white/5 bg-white/[0.01] opacity-40 grayscale hover:opacity-60"
             )}
           >
             <span className="text-xl leading-none">{a.emoji}</span>

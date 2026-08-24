@@ -57,14 +57,14 @@ export function TodayStreaks({
             onClick={() => toggle(s.id)}
             disabled={pending}
             className={cn(
-              "flex items-center justify-between rounded-lg border p-3.5 text-left transition",
+              "group flex items-center justify-between rounded-lg border p-3.5 text-left transition-all duration-200 ease-premium active:scale-[0.98]",
               isDone
                 ? "border-amber-500/40 bg-amber-500/10 shadow-glow-amber"
-                : "border-white/5 bg-white/[0.02] hover:border-white/15"
+                : "border-white/5 bg-white/[0.02] hover:-translate-y-0.5 hover:border-white/15"
             )}
           >
             <div className="flex items-center gap-3">
-              <span className="text-xl">{s.emoji}</span>
+              <span className="text-xl transition-transform duration-200 group-hover:scale-110">{s.emoji}</span>
               <div>
                 <p className="text-sm font-medium text-zinc-200">{s.name}</p>
                 <p className="font-mono text-[11px] text-zinc-500">
@@ -74,9 +74,9 @@ export function TodayStreaks({
             </div>
             <div
               className={cn(
-                "flex h-6 w-6 items-center justify-center rounded-full border text-xs transition",
+                "flex h-6 w-6 items-center justify-center rounded-full border text-xs transition-all duration-200",
                 isDone
-                  ? "border-amber-400 bg-amber-400 text-ink-950"
+                  ? "scale-110 border-amber-400 bg-amber-400 text-ink-950"
                   : "border-white/15 text-transparent"
               )}
             >

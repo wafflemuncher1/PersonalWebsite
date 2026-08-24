@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Badge } from "@/components/ui/Badge";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { formatDateTime } from "@/lib/utils";
 import { getPlan } from "@/lib/plans";
 import { isReservedUsername } from "@/lib/reserved-usernames";
@@ -158,113 +159,129 @@ export function SettingsPanel({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-white">Settings</h1>
+      <Reveal>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Settings</h1>
+      </Reveal>
 
-      <BillingCard profile={profile} autoCheckout={searchParams.get("checkout")} />
+      <RevealGroup className="space-y-6" stagger={0.06}>
+        <RevealItem>
+          <BillingCard profile={profile} autoCheckout={searchParams.get("checkout")} />
+        </RevealItem>
 
-      <Card className="p-6">
-        <h2 className="mb-4 text-sm font-medium text-white">Account</h2>
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3">
-            <span className="text-zinc-500">Email</span>
-            <span className="font-mono text-zinc-200">{email}</span>
-          </div>
-          <div className="flex items-center justify-between border-b border-white/5 pb-3">
-            <span className="text-zinc-500">Member since</span>
-            <span className="font-mono text-zinc-200">{createdAt ? formatDateTime(createdAt) : "—"}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-zinc-500">Last sign-in</span>
-            <span className="font-mono text-zinc-200">{lastSignInAt ? formatDateTime(lastSignInAt) : "—"}</span>
-          </div>
-        </div>
-      </Card>
-
-      {profile && (
-        <Card className="p-6">
-          <h2 className="mb-1 text-sm font-medium text-white">Page URL</h2>
-          <p className="mb-4 text-xs text-zinc-500">
-            Your public page lives at nocturne.co/{profile.username}. Background, picture, bio,
-            and links live under Profile in the sidebar. You can change this once every{" "}
-            {USERNAME_COOLDOWN_DAYS} days.
-          </p>
-          {usernameLocked ? (
-            <p className="rounded-lg border border-white/5 bg-white/[0.02] px-3.5 py-2.5 text-sm text-zinc-500">
-              You can change your username again in {daysLeft} day{daysLeft === 1 ? "" : "s"}.
-            </p>
-          ) : (
-            <form onSubmit={handleUsernameSave} className="space-y-3">
-              <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition focus-within:border-violet-500/60 focus-within:ring-2 focus-within:ring-violet-500/20">
-                <span className="text-sm text-zinc-600">nocturne.co/</span>
-                <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                  className="w-full bg-transparent px-1 py-2.5 text-sm text-white outline-none"
-                />
+        <RevealItem>
+          <Card className="p-6">
+            <h2 className="mb-4 text-sm font-medium text-white">Account</h2>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <span className="text-zinc-500">Email</span>
+                <span className="font-mono text-zinc-200">{email}</span>
               </div>
-              {usernameStatus === "error" && <p className="text-sm text-red-400">{usernameError}</p>}
-              {usernameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
-              <Button type="submit" disabled={usernameStatus === "saving"}>
-                {usernameStatus === "saving" ? "Saving…" : "Update username"}
+              <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                <span className="text-zinc-500">Member since</span>
+                <span className="font-mono text-zinc-200">{createdAt ? formatDateTime(createdAt) : "—"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500">Last sign-in</span>
+                <span className="font-mono text-zinc-200">{lastSignInAt ? formatDateTime(lastSignInAt) : "—"}</span>
+              </div>
+            </div>
+          </Card>
+        </RevealItem>
+
+        {profile && (
+          <RevealItem>
+            <Card className="p-6">
+              <h2 className="mb-1 text-sm font-medium text-white">Page URL</h2>
+              <p className="mb-4 text-xs text-zinc-500">
+                Your public page lives at nocturne.co/{profile.username}. Background, picture, bio,
+                and links live under Profile in the sidebar. You can change this once every{" "}
+                {USERNAME_COOLDOWN_DAYS} days.
+              </p>
+              {usernameLocked ? (
+                <p className="rounded-lg border border-white/5 bg-white/[0.02] px-3.5 py-2.5 text-sm text-zinc-500">
+                  You can change your username again in {daysLeft} day{daysLeft === 1 ? "" : "s"}.
+                </p>
+              ) : (
+                <form onSubmit={handleUsernameSave} className="space-y-3">
+                  <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-violet-500/60 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]">
+                    <span className="text-sm text-zinc-600">nocturne.co/</span>
+                    <input
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                      className="w-full bg-transparent px-1 py-2.5 text-sm text-white outline-none"
+                    />
+                  </div>
+                  {usernameStatus === "error" && <p className="text-sm text-red-400">{usernameError}</p>}
+                  {usernameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
+                  <Button type="submit" disabled={usernameStatus === "saving"}>
+                    {usernameStatus === "saving" ? "Saving…" : "Update username"}
+                  </Button>
+                </form>
+              )}
+            </Card>
+          </RevealItem>
+        )}
+
+        {profile && (
+          <RevealItem>
+            <Card className="p-6">
+              <h2 className="mb-1 text-sm font-medium text-white">Display Name</h2>
+              <p className="mb-4 text-xs text-zinc-500">
+                Shown on your public page instead of your username. Change it any time.
+              </p>
+              <form onSubmit={handleDisplayNameSave} className="space-y-3">
+                <Input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Your display name"
+                  maxLength={40}
+                />
+                {displayNameStatus === "error" && <p className="text-sm text-red-400">{displayNameError}</p>}
+                {displayNameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
+                <Button type="submit" disabled={displayNameStatus === "saving"}>
+                  {displayNameStatus === "saving" ? "Saving…" : "Update display name"}
+                </Button>
+              </form>
+            </Card>
+          </RevealItem>
+        )}
+
+        <RevealItem>
+          <Card className="p-6">
+            <h2 className="mb-1 text-sm font-medium text-white">Change password</h2>
+            <p className="mb-4 text-xs text-zinc-500">Choose something you don't use anywhere else.</p>
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <Input
+                type="password"
+                placeholder="New password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              {pwStatus === "error" && <p className="text-sm text-red-400">{pwError}</p>}
+              {pwStatus === "done" && <p className="text-sm text-emerald-400">Password updated.</p>}
+              <Button type="submit" disabled={pwStatus === "saving"}>
+                {pwStatus === "saving" ? "Saving…" : "Update password"}
               </Button>
             </form>
-          )}
-        </Card>
-      )}
+          </Card>
+        </RevealItem>
 
-      {profile && (
-        <Card className="p-6">
-          <h2 className="mb-1 text-sm font-medium text-white">Display Name</h2>
-          <p className="mb-4 text-xs text-zinc-500">
-            Shown on your public page instead of your username. Change it any time.
-          </p>
-          <form onSubmit={handleDisplayNameSave} className="space-y-3">
-            <Input
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Your display name"
-              maxLength={40}
-            />
-            {displayNameStatus === "error" && <p className="text-sm text-red-400">{displayNameError}</p>}
-            {displayNameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
-            <Button type="submit" disabled={displayNameStatus === "saving"}>
-              {displayNameStatus === "saving" ? "Saving…" : "Update display name"}
+        <RevealItem>
+          <Card className="p-6">
+            <h2 className="mb-1 text-sm font-medium text-white">Session</h2>
+            <p className="mb-4 text-xs text-zinc-500">Sign out of Nocturne on this device.</p>
+            <Button variant="danger" onClick={handleSignOut}>
+              Sign out
             </Button>
-          </form>
-        </Card>
-      )}
-
-      <Card className="p-6">
-        <h2 className="mb-1 text-sm font-medium text-white">Change password</h2>
-        <p className="mb-4 text-xs text-zinc-500">Choose something you don't use anywhere else.</p>
-        <form onSubmit={handleChangePassword} className="space-y-3">
-          <Input
-            type="password"
-            placeholder="New password"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Confirm new password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          {pwStatus === "error" && <p className="text-sm text-red-400">{pwError}</p>}
-          {pwStatus === "done" && <p className="text-sm text-emerald-400">Password updated.</p>}
-          <Button type="submit" disabled={pwStatus === "saving"}>
-            {pwStatus === "saving" ? "Saving…" : "Update password"}
-          </Button>
-        </form>
-      </Card>
-
-      <Card className="p-6">
-        <h2 className="mb-1 text-sm font-medium text-white">Session</h2>
-        <p className="mb-4 text-xs text-zinc-500">Sign out of Nocturne on this device.</p>
-        <Button variant="danger" onClick={handleSignOut}>
-          Sign out
-        </Button>
-      </Card>
+          </Card>
+        </RevealItem>
+      </RevealGroup>
     </div>
   );
 }
@@ -320,7 +337,7 @@ function BillingCard({
       <h2 className="mb-1 text-sm font-medium text-white">Billing</h2>
       <p className="mb-4 text-xs text-zinc-500">Manage your plan and payment method.</p>
 
-      <div className="mb-4 flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3.5">
+      <div className="mb-4 flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3.5 transition duration-200 hover:border-white/10">
         <div>
           <p className="text-sm text-zinc-200">
             {plan.name} plan

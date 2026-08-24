@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { Reveal } from "@/components/ui/Reveal";
 import { validatePlatformUrl } from "@/lib/link-validation";
 import { FONT_OPTIONS, type FontKey } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
@@ -143,13 +144,13 @@ export function ShopForm({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
+      <Reveal>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">Shop</h1>
         <p className="mt-1 text-sm text-zinc-500">
           A linktree-style row of items visitors can browse and click through to buy — shown as its own page
           when someone scrolls down on your profile.
         </p>
-      </div>
+      </Reveal>
 
       <Card className="space-y-4 p-6">
         <h2 className="text-sm font-medium text-white">Style</h2>
@@ -222,7 +223,7 @@ export function ShopForm({
             type="button"
             onClick={() => setCreating(true)}
             disabled={items.length >= TOTAL_LIMIT}
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-300 transition hover:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-300 transition duration-200 ease-premium hover:bg-violet-500/20 hover:shadow-[0_0_12px_-4px_rgba(139,92,246,0.6)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
           >
             <Plus className="h-3.5 w-3.5" /> Add item
           </button>
@@ -298,7 +299,7 @@ function ShopItemRow({
 }) {
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg border p-3 transition ${
+      className={`flex items-center gap-3 rounded-lg border p-3 transition duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-elevate-hover ${
         item.is_active ? "border-white/10 bg-white/[0.02]" : "border-white/5 bg-white/[0.01] opacity-60"
       }`}
     >
@@ -321,7 +322,7 @@ function ShopItemRow({
           type="button"
           onClick={() => onMove(-1)}
           disabled={!canMoveUp}
-          className="rounded p-0.5 text-zinc-600 hover:text-zinc-300 disabled:opacity-20"
+          className="rounded p-0.5 text-zinc-600 transition duration-150 hover:scale-110 hover:text-zinc-300 disabled:opacity-20 disabled:hover:scale-100"
           aria-label="Move up"
         >
           <ArrowUp className="h-3 w-3" />
@@ -330,7 +331,7 @@ function ShopItemRow({
           type="button"
           onClick={() => onMove(1)}
           disabled={!canMoveDown}
-          className="rounded p-0.5 text-zinc-600 hover:text-zinc-300 disabled:opacity-20"
+          className="rounded p-0.5 text-zinc-600 transition duration-150 hover:scale-110 hover:text-zinc-300 disabled:opacity-20 disabled:hover:scale-100"
           aria-label="Move down"
         >
           <ArrowDown className="h-3 w-3" />
@@ -343,12 +344,12 @@ function ShopItemRow({
         aria-checked={item.is_active}
         onClick={onToggle}
         aria-label={item.is_active ? "Turn off" : "Turn on"}
-        className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
-          item.is_active ? "bg-violet-500" : "bg-white/10"
+        className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 active:scale-95 ${
+          item.is_active ? "bg-violet-500 shadow-[0_0_8px_-1px_rgba(139,92,246,0.7)]" : "bg-white/10"
         }`}
       >
         <span
-          className="h-5 w-5 rounded-full bg-white shadow transition-transform"
+          className="h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-premium"
           style={{ transform: item.is_active ? "translateX(20px)" : "translateX(0)" }}
         />
       </button>
@@ -356,7 +357,7 @@ function ShopItemRow({
       <button
         type="button"
         onClick={onEdit}
-        className="shrink-0 rounded-md p-1.5 text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+        className="shrink-0 rounded-md p-1.5 text-zinc-500 transition duration-150 hover:scale-110 hover:bg-white/5 hover:text-zinc-300 active:scale-95"
         aria-label="Edit item"
       >
         <Pencil className="h-3.5 w-3.5" />
@@ -364,7 +365,7 @@ function ShopItemRow({
       <button
         type="button"
         onClick={onDelete}
-        className="shrink-0 rounded-md p-1.5 text-zinc-500 hover:bg-red-500/10 hover:text-red-300"
+        className="shrink-0 rounded-md p-1.5 text-zinc-500 transition duration-150 hover:scale-110 hover:bg-red-500/10 hover:text-red-300 active:scale-95"
         aria-label="Delete item"
       >
         <Trash2 className="h-3.5 w-3.5" />

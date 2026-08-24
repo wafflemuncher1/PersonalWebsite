@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { Reveal } from "@/components/ui/Reveal";
 import {
   PLATFORMS,
   validatePlatformUrl,
@@ -91,10 +92,12 @@ export function LinksForm({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-white">Links</h1>
-      <p className="-mt-4 text-sm text-zinc-500">
-        Up to {TOTAL_LIMIT} links total — {ACTIVE_LIMIT} can be active on your public page at once.
-      </p>
+      <Reveal>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Links</h1>
+        <p className="mt-1 text-sm text-zinc-500">
+          Up to {TOTAL_LIMIT} links total — {ACTIVE_LIMIT} can be active on your public page at once.
+        </p>
+      </Reveal>
 
       <Card className="p-6">
         <div className="mb-5 flex items-center justify-between">
@@ -108,7 +111,7 @@ export function LinksForm({
             type="button"
             onClick={() => setCreating(true)}
             disabled={links.length >= TOTAL_LIMIT}
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-300 transition hover:bg-violet-500/20 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-300 transition duration-200 ease-premium hover:bg-violet-500/20 hover:shadow-[0_0_12px_-4px_rgba(139,92,246,0.6)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
           >
             <Plus className="h-3.5 w-3.5" /> Create a link
           </button>
@@ -186,7 +189,7 @@ function LinkListRow({
 
   return (
     <div
-      className={`flex items-center gap-3 rounded-lg border p-3 transition ${
+      className={`flex items-center gap-3 rounded-lg border p-3 transition duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-elevate-hover ${
         link.is_active ? "border-white/10 bg-white/[0.02]" : "border-white/5 bg-white/[0.01] opacity-60"
       }`}
     >
@@ -215,12 +218,12 @@ function LinkListRow({
         aria-checked={link.is_active}
         onClick={onToggle}
         aria-label={link.is_active ? "Turn off" : "Turn on"}
-        className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors ${
-          link.is_active ? "bg-violet-500" : "bg-white/10"
+        className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 active:scale-95 ${
+          link.is_active ? "bg-violet-500 shadow-[0_0_8px_-1px_rgba(139,92,246,0.7)]" : "bg-white/10"
         }`}
       >
         <span
-          className="h-5 w-5 rounded-full bg-white shadow transition-transform"
+          className="h-5 w-5 rounded-full bg-white shadow transition-transform duration-200 ease-premium"
           style={{ transform: link.is_active ? "translateX(20px)" : "translateX(0)" }}
         />
       </button>
@@ -228,7 +231,7 @@ function LinkListRow({
       <button
         type="button"
         onClick={onEdit}
-        className="shrink-0 rounded-md p-1.5 text-zinc-500 hover:bg-white/5 hover:text-zinc-300"
+        className="shrink-0 rounded-md p-1.5 text-zinc-500 transition duration-150 hover:scale-110 hover:bg-white/5 hover:text-zinc-300 active:scale-95"
         aria-label="Edit link"
       >
         <Pencil className="h-3.5 w-3.5" />
@@ -236,7 +239,7 @@ function LinkListRow({
       <button
         type="button"
         onClick={onDelete}
-        className="shrink-0 rounded-md p-1.5 text-zinc-500 hover:bg-red-500/10 hover:text-red-300"
+        className="shrink-0 rounded-md p-1.5 text-zinc-500 transition duration-150 hover:scale-110 hover:bg-red-500/10 hover:text-red-300 active:scale-95"
         aria-label="Delete link"
       >
         <Trash2 className="h-3.5 w-3.5" />
@@ -278,7 +281,7 @@ function PlatformPickerIcon({ platform, onClick }: { platform: Platform; onClick
         type="button"
         onClick={onClick}
         aria-label={PLATFORMS[platform].label}
-        className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] transition hover:border-white/25 hover:bg-white/[0.04]"
+        className="flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] transition duration-200 ease-premium hover:-translate-y-0.5 hover:border-violet-500/30 hover:bg-white/[0.05] hover:shadow-elevate active:scale-95"
       >
         {platform === "custom" ? (
           <Link2 size={24} color={PLATFORMS.custom.brandColor} />

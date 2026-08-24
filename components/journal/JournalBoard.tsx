@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { Textarea } from "@/components/ui/Input";
 import { ToggleRow } from "@/components/customizer2/controls";
 import { Heatmap } from "@/components/streaks/Heatmap";
+import { StatTile } from "@/components/ui/StatTile";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { computeStreakStats, cn, relativeTime, formatDateTime } from "@/lib/utils";
 import type { JournalEntry, Mood, Profile } from "@/lib/types";
 
@@ -132,21 +134,30 @@ export function JournalBoard({
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Journal</h1>
-        <p className="mt-1 text-sm text-zinc-500">A private log of how you're doing, day to day.</p>
-      </div>
+      <Reveal>
+        <div className="mb-6">
+          <h1 className="text-3xl font-extrabold tracking-tight text-white">Journal</h1>
+          <p className="mt-1 text-sm text-zinc-500">A private log of how you're doing, day to day.</p>
+        </div>
+      </Reveal>
 
       {entries.length > 0 && (
-        <div className="mb-6 grid grid-cols-3 gap-3">
-          <StatTile icon={<Flame className="h-4 w-4 text-amber-400" />} label="Day streak" value={`${journalStats.current}d`} />
-          <StatTile icon={<BookOpen className="h-4 w-4 text-violet-400" />} label="Total entries" value={entries.length} />
-          <StatTile
-            icon={<Sparkles className="h-4 w-4 text-emerald-400" />}
-            label="Top mood (30d)"
-            value={topMood ? `${moodMeta(topMood).emoji} ${moodMeta(topMood).label}` : "—"}
-          />
-        </div>
+        <RevealGroup className="mb-6 grid grid-cols-3 gap-3" stagger={0.07}>
+          <RevealItem>
+            <StatTile icon={<Flame className="h-4 w-4" />} label="Day streak" value={`${journalStats.current}d`} accent="amber" />
+          </RevealItem>
+          <RevealItem>
+            <StatTile icon={<BookOpen className="h-4 w-4" />} label="Total entries" value={entries.length} accent="violet" />
+          </RevealItem>
+          <RevealItem>
+            <StatTile
+              icon={<Sparkles className="h-4 w-4" />}
+              label="Top mood (30d)"
+              value={topMood ? `${moodMeta(topMood).emoji} ${moodMeta(topMood).label}` : "—"}
+              accent="emerald"
+            />
+          </RevealItem>
+        </RevealGroup>
       )}
 
       {/* Mood & Activity heatmap */}
@@ -202,10 +213,10 @@ export function JournalBoard({
               key={m.id}
               onClick={() => setMood(m.id)}
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full text-lg transition",
+                "flex h-10 w-10 items-center justify-center rounded-full text-lg transition duration-200 ease-premium active:scale-90",
                 mood === m.id
-                  ? "bg-white/10 ring-2 ring-violet-500/50"
-                  : "bg-white/[0.03] opacity-60 hover:opacity-100"
+                  ? "scale-110 bg-white/10 ring-2 ring-violet-500/50"
+                  : "bg-white/[0.03] opacity-60 hover:scale-105 hover:opacity-100"
               )}
               title={m.label}
             >
@@ -239,7 +250,7 @@ export function JournalBoard({
       ) : (
         <div className="space-y-3">
           {entries.map((e) => (
-            <div key={e.id} className="glass rounded-xl p-4">
+            <div key={e.id} className="glass rounded-xl p-4 transition duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-elevate-hover">
               <div className="mb-1.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-lg leading-none">{moodMeta(e.mood).emoji}</span>
@@ -261,15 +272,6 @@ export function JournalBoard({
           ))}
         </div>
       )}
-    </div>
-  );
-}
-
-function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return (
-    <div className="glass rounded-xl p-3.5">
-      <div className="mb-1.5 flex items-center gap-1.5">{icon}<span className="text-[11px] text-zinc-500">{label}</span></div>
-      <p className="text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

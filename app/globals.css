@@ -43,19 +43,44 @@ body {
   background-clip: padding-box;
 }
 
+/* Every dashboard surface (Card, Modal, and every ad-hoc "glass" div across
+   the lifestyle/profile pages) shares this one class, so this is the
+   single highest-leverage spot to raise the whole app's material quality —
+   note the public profile page and its components never reference .glass,
+   so none of this touches it. A soft top-lit wash + hairline gradient edge
+   read as an actual lit, elevated panel instead of a flat translucent box. */
 .glass {
-  background: rgba(255, 255, 255, 0.035);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018));
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.05) inset, 0 14px 34px -18px rgba(0, 0, 0, 0.6);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0) 45%);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
 }
 
 .glass-hover {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-hover:hover {
   border-color: rgba(139, 92, 246, 0.4);
-  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.15), 0 12px 30px -10px rgba(139, 92, 246, 0.45);
+  transform: translateY(-2px);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset, 0 0 0 1px rgba(139, 92, 246, 0.18),
+    0 26px 55px -18px rgba(139, 92, 246, 0.5);
 }
 
 .text-gradient {
@@ -187,6 +212,100 @@ body {
 .name-glitch {
   display: inline-block;
   animation: name-glitch 3.2s infinite;
+}
+
+/* ---------------------------------------------------------------------
+   Dashboard "premium" surface system — additive only, none of this
+   touches .glass/.glass-hover or the public-profile-only classes above
+   (name-shimmer, name-glitch, .noise), which stay exactly as they were.
+   --------------------------------------------------------------------- */
+
+/* Slow-drifting animated gradient border ring for flagship/hero surfaces —
+   used sparingly (once or twice per page), not on every card. */
+.border-glow-animated {
+  position: relative;
+}
+.border-glow-animated::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    120deg,
+    rgba(167, 139, 250, 0.55),
+    rgba(212, 169, 79, 0.32),
+    rgba(167, 139, 250, 0.55)
+  );
+  background-size: 220% 220%;
+  animation: border-glow-move 7s ease infinite;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.55;
+}
+@keyframes border-glow-move {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Diagonal light sweep on hover — used on primary buttons for a subtle
+   "polished glass" feel instead of a flat color-shift hover. */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.32) 48%,
+    rgba(255, 255, 255, 0.32) 52%,
+    transparent 70%
+  );
+  background-size: 250% 100%;
+  background-position: -150% 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.btn-sheen:hover::after {
+  opacity: 1;
+  animation: btn-sheen-move 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes btn-sheen-move {
+  from {
+    background-position: -150% 0;
+  }
+  to {
+    background-position: 150% 0;
+  }
+}
+
+/* Dashboard route-content entrance — a quick, subtle settle so navigating
+   between pages never feels like a hard cut. */
+.page-enter {
+  animation: page-enter-move 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes page-enter-move {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .noise::before {

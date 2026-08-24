@@ -29,13 +29,13 @@ export function Modal({
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-fade-up"
+        className="absolute inset-0 bg-black/75 backdrop-blur-md animate-fade-in"
         onClick={onClose}
       />
       <div
         className={`glass relative z-10 w-full ${
           wide ? "max-w-lg" : "max-w-md"
-        } rounded-2xl p-6 shadow-glow animate-fade-up`}
+        } rounded-2xl p-6 shadow-premium animate-scale-in`}
       >
         <div className="mb-4 flex items-center justify-between">
           <h3 className="text-base font-semibold text-white">{title}</h3>

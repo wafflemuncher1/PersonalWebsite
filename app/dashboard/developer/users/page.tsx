@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { UserDirectory } from "@/components/dev/UserDirectory";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -26,12 +27,12 @@ export default async function DeveloperUsersPage() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <div>
+      <Reveal>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">Users</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Search, filter, and moderate every account on Nocturne.
         </p>
-      </div>
+      </Reveal>
 
       <UserDirectory />
     </div>

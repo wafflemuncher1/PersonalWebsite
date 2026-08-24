@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input, Textarea } from "@/components/ui/Input";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
+import { Reveal } from "@/components/ui/Reveal";
 import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { firstProfaneField } from "@/lib/profanity";
 import { FONT_OPTIONS, type FontKey } from "@/lib/fonts";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/types";
+
+const EASE_PREMIUM = [0.16, 1, 0.3, 1] as const;
 
 function validateImage(file: File): string | null {
   if (!file.type.startsWith("image/")) return "Must be an image.";
@@ -46,21 +50,36 @@ function CollapsibleSection({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <Card className="overflow-hidden p-0">
+    <Card className="overflow-hidden p-0 transition-shadow duration-300 hover:shadow-elevate">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition hover:bg-white/[0.02]"
+        className="flex w-full items-center justify-between gap-3 px-6 py-4 text-left transition duration-200 ease-premium hover:bg-white/[0.025]"
       >
         <div>
           <h2 className="text-sm font-semibold text-white">{title}</h2>
           {description && <p className="mt-0.5 text-xs text-zinc-500">{description}</p>}
         </div>
-        <span className={`shrink-0 text-zinc-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`}>
+        <span
+          className={`shrink-0 text-zinc-500 transition-transform duration-300 ease-premium ${open ? "rotate-180 text-violet-400" : ""}`}
+        >
           ⌄
         </span>
       </button>
-      {open && <div className="space-y-5 border-t border-white/5 px-6 py-5">{children}</div>}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.32, ease: EASE_PREMIUM }}
+            className="overflow-hidden"
+          >
+            <div className="space-y-5 border-t border-white/5 px-6 py-5">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 }
@@ -312,9 +331,13 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <h1 className="text-3xl font-extrabold tracking-tight text-white">Customize</h1>
+      <Reveal>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Customize</h1>
+      </Reveal>
 
-      <ProfileCompletionCard profile={profile} />
+      <Reveal delay={0.05}>
+        <ProfileCompletionCard profile={profile} />
+      </Reveal>
 
       <div className="space-y-3">
         <CollapsibleSection title="Assets" description="Your avatar and backgrounds." defaultOpen>
@@ -984,12 +1007,34 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
         </CollapsibleSection>
       </div>
 
-      <div className="space-y-3">
-        {status === "error" && <p className="text-sm text-red-400">{error}</p>}
-        {status === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
+      <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-ink-925/90 px-4 py-3 shadow-elevate-lg backdrop-blur-md">
         <Button onClick={handleSave} disabled={status === "saving"}>
           {status === "saving" ? "Saving…" : "Save changes"}
         </Button>
+        <AnimatePresence mode="wait">
+          {status === "error" && (
+            <motion.p
+              key="err"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-sm text-red-400"
+            >
+              {error}
+            </motion.p>
+          )}
+          {status === "done" && (
+            <motion.p
+              key="ok"
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="text-sm text-emerald-400"
+            >
+              Saved.
+            </motion.p>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -1020,8 +1065,8 @@ function AssetTile({
         {label}
         {hint && <span className="ml-1.5 text-xs text-zinc-600">({hint})</span>}
       </p>
-      <div className="relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/[0.02]">
-        <label className="flex h-full w-full cursor-pointer items-center justify-center transition hover:bg-white/[0.03]">
+      <div className="group relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] transition duration-200 ease-premium hover:border-violet-500/30 hover:shadow-elevate">
+        <label className="flex h-full w-full cursor-pointer items-center justify-center transition duration-200 group-hover:bg-white/[0.035]">
           {previewUrl ? (
             kind === "video" ? (
               <video src={previewUrl} className="h-full w-full object-cover" muted loop autoPlay playsInline />

@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/Button";
 import { Input, Textarea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { StatTile } from "@/components/ui/StatTile";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { relativeTime, cn } from "@/lib/utils";
 import type { Note } from "@/lib/types";
 
@@ -122,30 +124,24 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Notes</h1>
-          <p className="mt-1 text-sm text-zinc-500">Quick thoughts, saved and searchable.</p>
+      <Reveal>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">Notes</h1>
+            <p className="mt-1 text-sm text-zinc-500">Quick thoughts, saved and searchable.</p>
+          </div>
         </div>
-      </div>
+      </Reveal>
 
       {notes.length > 0 && (
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <div className="glass rounded-xl p-3.5">
-            <div className="mb-1.5 flex items-center gap-1.5">
-              <StickyNote className="h-4 w-4 text-violet-400" />
-              <span className="text-[11px] text-zinc-500">Total notes</span>
-            </div>
-            <p className="text-lg font-semibold text-white">{notes.length}</p>
-          </div>
-          <div className="glass rounded-xl p-3.5">
-            <div className="mb-1.5 flex items-center gap-1.5">
-              <Pin className="h-4 w-4 text-amber-400" />
-              <span className="text-[11px] text-zinc-500">Pinned</span>
-            </div>
-            <p className="text-lg font-semibold text-white">{pinnedCount}</p>
-          </div>
-        </div>
+        <RevealGroup className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3" stagger={0.07}>
+          <RevealItem>
+            <StatTile icon={<StickyNote className="h-4 w-4" />} label="Total notes" value={notes.length} accent="violet" />
+          </RevealItem>
+          <RevealItem>
+            <StatTile icon={<Pin className="h-4 w-4" />} label="Pinned" value={pinnedCount} accent="amber" />
+          </RevealItem>
+        </RevealGroup>
       )}
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -161,8 +157,8 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
               <button
                 onClick={() => setColorFilter(null)}
                 className={cn(
-                  "rounded-full border px-2.5 py-1 text-[11px] transition",
-                  !colorFilter ? "border-white/25 text-white" : "border-white/10 text-zinc-500 hover:text-zinc-300"
+                  "rounded-full border px-2.5 py-1 text-[11px] transition duration-200 active:scale-95",
+                  !colorFilter ? "border-white/25 text-white" : "border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300"
                 )}
               >
                 All
@@ -172,8 +168,8 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
                   key={c}
                   onClick={() => setColorFilter(colorFilter === c ? null : c)}
                   className={cn(
-                    "flex h-6 w-6 items-center justify-center rounded-full transition",
-                    colorFilter === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-70 hover:opacity-100"
+                    "flex h-6 w-6 items-center justify-center rounded-full transition duration-200 active:scale-90",
+                    colorFilter === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-70 hover:scale-110 hover:opacity-100"
                   )}
                   aria-label={`Filter ${c} notes`}
                 >
@@ -196,7 +192,7 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
             <div
               key={n.id}
               className={cn(
-                "glass relative break-inside-avoid overflow-hidden rounded-xl border p-4 pl-5 transition",
+                "glass relative break-inside-avoid overflow-hidden rounded-xl border p-4 pl-5 transition duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-elevate-hover",
                 COLORS[n.color] ?? COLORS.zinc
               )}
             >

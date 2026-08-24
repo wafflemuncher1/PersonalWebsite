@@ -123,16 +123,19 @@ export function Sidebar({
         href={item.href}
         onClick={onClose}
         className={cn(
-          "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
+          "group relative flex items-center gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ease-premium",
           active
             ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-            : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
+            : "text-zinc-400 hover:translate-x-0.5 hover:bg-white/[0.06] hover:text-white"
         )}
       >
+        {active && (
+          <span className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-white/80 to-white/20" />
+        )}
         <span
           className={cn(
-            "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
-            active ? "bg-white/15" : "bg-white/[0.04]"
+            "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base transition-transform duration-200",
+            active ? "bg-white/15" : "bg-white/[0.04] group-hover:scale-110"
           )}
         >
           {item.icon}
@@ -145,10 +148,12 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-ink-950/95 backdrop-blur-xl transition-transform duration-300 ease-out lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-gradient-to-b from-ink-925 via-ink-950 to-ink-925 backdrop-blur-xl transition-transform duration-300 ease-premium lg:translate-x-0",
         open ? "translate-x-0" : "-translate-x-full"
       )}
     >
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-violet-500/25 to-transparent" />
+
       <div className="flex items-center justify-between px-6 py-6">
         <Logo onBeforeNavigate={onClose} />
         <button
@@ -161,7 +166,7 @@ export function Sidebar({
       </div>
 
       <div className="px-4 pb-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5">
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 transition-all duration-200 focus-within:border-violet-500/50 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.14)]">
           <span className="text-zinc-600">⌕</span>
           <input
             value={query}
@@ -184,17 +189,20 @@ export function Sidebar({
                   type="button"
                   onClick={() => setManualOpenKey((k) => (k === group.key ? null : group.key))}
                   className={cn(
-                    "flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium transition-all",
+                    "group relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ease-premium",
                     group.active
                       ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-                      : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
+                      : "text-zinc-400 hover:translate-x-0.5 hover:bg-white/[0.06] hover:text-white"
                   )}
                 >
+                  {group.active && (
+                    <span className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-white/80 to-white/20" />
+                  )}
                   <span className="flex items-center gap-3">
                     <span
                       className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base",
-                        group.active ? "bg-white/15" : "bg-white/[0.04]"
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base transition-transform duration-200",
+                        group.active ? "bg-white/15" : "bg-white/[0.04] group-hover:scale-110"
                       )}
                     >
                       {group.icon}
@@ -218,10 +226,10 @@ export function Sidebar({
                           href={sub.href}
                           onClick={onClose}
                           className={cn(
-                            "block rounded-xl px-3.5 py-2 text-xs font-medium transition",
+                            "block rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ease-premium",
                             subActive
-                              ? "bg-violet-500/15 text-violet-300"
-                              : "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200"
+                              ? "bg-violet-500/15 text-violet-300 shadow-[inset_0_0_0_1px_rgba(139,92,246,0.25)]"
+                              : "text-zinc-500 hover:translate-x-0.5 hover:bg-white/[0.05] hover:text-zinc-200"
                           )}
                         >
                           {sub.label}
@@ -238,21 +246,21 @@ export function Sidebar({
       </nav>
 
       {username && (
-        <div className="space-y-3 border-t border-white/5 p-4">
+        <div className="glass relative m-3 space-y-3 rounded-2xl p-4">
           <div>
             <p className="mb-2 px-1 text-xs text-zinc-500">Check out your page</p>
             <a
               href={`/${username}`}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm font-semibold text-violet-300 transition hover:bg-violet-500/20"
+              className="flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm font-semibold text-violet-300 transition-all duration-200 ease-premium hover:border-violet-500/50 hover:bg-violet-500/20"
             >
               <span>↗</span> My Page
             </a>
           </div>
           <button
             onClick={handleShare}
-            className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-3 text-sm font-semibold text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400"
+            className="btn-sheen flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-3 text-sm font-semibold text-white shadow-glow transition-all duration-200 ease-premium hover:shadow-glow-lg hover:from-violet-500 hover:to-violet-400 active:scale-[0.98]"
           >
             <span>⇱</span>
             {copied ? "Link copied ✓" : "Share Your Profile"}

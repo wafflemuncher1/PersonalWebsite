@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { BadgesManager } from "@/components/badges/BadgesManager";
+import { Reveal } from "@/components/ui/Reveal";
 import type { BadgeDef, ProfileBadge } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -24,12 +25,12 @@ export default async function BadgesPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <div>
+      <Reveal>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">Badges</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Badges are earned, not created. Equip up to 5 to show on your public page.
         </p>
-      </div>
+      </Reveal>
 
       <BadgesManager defs={defs} earned={earned} />
     </div>

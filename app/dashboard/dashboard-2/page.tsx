@@ -2,6 +2,7 @@ import { getDashboardData } from "@/lib/dashboard-data";
 import { Card } from "@/components/ui/Card";
 import { StatTile } from "@/components/dashboard/StatTile";
 import { Achievements } from "@/components/dashboard/Achievements";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 
 export const dynamic = "force-dynamic";
 
@@ -18,53 +19,65 @@ export default async function Dashboard2Page() {
 
   return (
     <div className="space-y-8">
-      <div>
+      <Reveal>
         <h1 className="text-3xl font-extrabold tracking-tight text-white">Dashboard 2</h1>
         <p className="mt-1 text-sm text-zinc-500">
           A sandbox for trying out new dashboard ideas before they go anywhere permanent.
         </p>
-      </div>
+      </Reveal>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          icon="🔥"
-          title="Best Streak"
-          value={`${data.bestCurrent} days`}
-          sub={`Longest ever: ${data.bestLongest} days`}
-          href="/dashboard/streaks"
-        />
-        <StatTile
-          icon="🎯"
-          title="Active Goals"
-          value={data.activeGoals.length}
-          sub={`${data.completedGoalsCount} completed`}
-          href="/dashboard/goals"
-        />
-        <StatTile
-          icon="📓"
-          title="Journal Entries"
-          value={data.journalCount}
-          sub={data.recentJournal[0] ? "Last entry recently" : "No entries yet"}
-          href="/dashboard/journal"
-        />
-        <StatTile
-          icon="⚡"
-          title="Momentum"
-          value={`${data.momentum}%`}
-          sub={data.momentumVibe}
-          href="/dashboard"
-        />
-      </div>
+      <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4" stagger={0.07}>
+        <RevealItem>
+          <StatTile
+            icon="🔥"
+            title="Best Streak"
+            value={`${data.bestCurrent} days`}
+            sub={`Longest ever: ${data.bestLongest} days`}
+            href="/dashboard/streaks"
+          />
+        </RevealItem>
+        <RevealItem>
+          <StatTile
+            icon="🎯"
+            title="Active Goals"
+            value={data.activeGoals.length}
+            sub={`${data.completedGoalsCount} completed`}
+            href="/dashboard/goals"
+          />
+        </RevealItem>
+        <RevealItem>
+          <StatTile
+            icon="📓"
+            title="Journal Entries"
+            value={data.journalCount}
+            sub={data.recentJournal[0] ? "Last entry recently" : "No entries yet"}
+            href="/dashboard/journal"
+          />
+        </RevealItem>
+        <RevealItem>
+          <StatTile
+            icon="⚡"
+            title="Momentum"
+            value={`${data.momentum}%`}
+            sub={data.momentumVibe}
+            href="/dashboard"
+          />
+        </RevealItem>
+      </RevealGroup>
 
-      <Achievements achievements={data.achievements} />
+      <Reveal delay={0.1}>
+        <Achievements achievements={data.achievements} />
+      </Reveal>
 
-      <Card className="border-dashed p-10 text-center">
-        <p className="text-sm font-medium text-zinc-300">More coming as you test things</p>
-        <p className="mx-auto mt-1 max-w-sm text-xs text-zinc-500">
-          This page is intentionally plain — the tiles above show it&apos;s wired up to real data,
-          and everything else is open space to try new widgets or layouts.
-        </p>
-      </Card>
+      <Reveal delay={0.14}>
+        <Card className="border-dashed p-10 text-center transition duration-300 hover:border-white/15">
+          <p className="text-sm font-medium text-zinc-300">More coming as you test things</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-zinc-500">
+            This page is intentionally plain — the tiles above show it&apos;s wired up to real data,
+            and everything else is open space to try new widgets or layouts.
+          </p>
+        </Card>
+      </Reveal>
     </div>
   );
 }

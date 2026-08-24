@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Heatmap } from "@/components/streaks/Heatmap";
+import { StatTile } from "@/components/ui/StatTile";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { computeStreakStats, todayKey, buildWeeks, toDateKey, cn } from "@/lib/utils";
 import type { Streak, StreakLog } from "@/lib/types";
 
@@ -140,28 +142,40 @@ export function StreaksGrid({
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Streaks</h1>
-          <p className="mt-1 text-sm text-zinc-500">Build momentum on the habits that matter to you.</p>
+      <Reveal>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">Streaks</h1>
+            <p className="mt-1 text-sm text-zinc-500">Build momentum on the habits that matter to you.</p>
+          </div>
         </div>
-      </div>
+      </Reveal>
 
       {streaks.some((s) => !s.archived) && (
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile icon={<Flame className="h-4 w-4 text-amber-400" />} label="Active streaks" value={overview.activeCount} />
-          <StatTile
-            icon={<TrendingUp className="h-4 w-4 text-violet-400" />}
-            label="Combined momentum"
-            value={`${overview.combinedCurrent}d`}
-          />
-          <StatTile icon={<Trophy className="h-4 w-4 text-emerald-400" />} label="Best ever" value={`${overview.longestEver}d`} />
-          <StatTile
-            icon={<Globe className="h-4 w-4 text-blue-400" />}
-            label="This week"
-            value={`${overview.weekRate}%`}
-          />
-        </div>
+        <RevealGroup className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4" stagger={0.06}>
+          <RevealItem>
+            <StatTile icon={<Flame className="h-4 w-4" />} label="Active streaks" value={overview.activeCount} accent="amber" />
+          </RevealItem>
+          <RevealItem>
+            <StatTile
+              icon={<TrendingUp className="h-4 w-4" />}
+              label="Combined momentum"
+              value={`${overview.combinedCurrent}d`}
+              accent="violet"
+            />
+          </RevealItem>
+          <RevealItem>
+            <StatTile icon={<Trophy className="h-4 w-4" />} label="Best ever" value={`${overview.longestEver}d`} accent="emerald" />
+          </RevealItem>
+          <RevealItem>
+            <StatTile
+              icon={<Globe className="h-4 w-4" />}
+              label="This week"
+              value={`${overview.weekRate}%`}
+              accent="blue"
+            />
+          </RevealItem>
+        </RevealGroup>
       )}
 
       <div className="mb-6 flex items-center justify-between">
@@ -169,8 +183,10 @@ export function StreaksGrid({
           <button
             onClick={() => setShowArchived(false)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition",
-              !showArchived ? "bg-violet-500/20 text-white" : "text-zinc-500 hover:text-zinc-300"
+              "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
+              !showArchived
+                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(139,92,246,0.5)]"
+                : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
             )}
           >
             Active
@@ -178,8 +194,10 @@ export function StreaksGrid({
           <button
             onClick={() => setShowArchived(true)}
             className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition",
-              showArchived ? "bg-violet-500/20 text-white" : "text-zinc-500 hover:text-zinc-300"
+              "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
+              showArchived
+                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(139,92,246,0.5)]"
+                : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
             )}
           >
             Archived
@@ -209,7 +227,7 @@ export function StreaksGrid({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") router.push(`/dashboard/streaks/${s.id}`);
                 }}
-                className="glass glass-hover relative flex cursor-pointer flex-col overflow-hidden rounded-xl p-4"
+                className="glass glass-hover group relative flex cursor-pointer flex-col overflow-hidden rounded-xl p-4"
               >
                 <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_DOT[s.color] ?? COLOR_DOT.amber)} />
                 <div className="mb-3 flex items-center justify-between pl-1.5">
@@ -233,10 +251,10 @@ export function StreaksGrid({
                     <button
                       onClick={(e) => toggleToday(s, e)}
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full border text-sm transition",
+                        "flex h-8 w-8 items-center justify-center rounded-full border text-sm transition duration-200 ease-premium active:scale-90",
                         doneToday
-                          ? "border-amber-400 bg-amber-400 text-ink-950"
-                          : "border-white/15 text-transparent hover:border-amber-400/50"
+                          ? "border-amber-400 bg-amber-400 text-ink-950 shadow-[0_0_10px_-2px_rgba(245,158,11,0.7)]"
+                          : "border-white/15 text-transparent hover:scale-105 hover:border-amber-400/50"
                       )}
                     >
                       ✓
@@ -339,15 +357,6 @@ export function StreaksGrid({
           </div>
         </div>
       </Modal>
-    </div>
-  );
-}
-
-function StatTile({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
-  return (
-    <div className="glass rounded-xl p-3.5">
-      <div className="mb-1.5 flex items-center gap-1.5">{icon}<span className="text-[11px] text-zinc-500">{label}</span></div>
-      <p className="text-lg font-semibold text-white">{value}</p>
     </div>
   );
 }

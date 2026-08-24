@@ -7,6 +7,7 @@ import { Achievements, type Achievement } from "@/components/dashboard/Achieveme
 import { Card } from "@/components/ui/Card";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Badge } from "@/components/ui/Badge";
+import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { TodayStreaks } from "@/components/streaks/TodayStreaks";
 import { computeStreakStats, relativeTime, todayKey } from "@/lib/utils";
 import type { Goal, JournalEntry, Note, Profile, Streak, StreakLog } from "@/lib/types";
@@ -123,30 +124,40 @@ export default async function OverviewPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-extrabold tracking-tight text-white">Account Overview</h1>
+      <Reveal>
+        <h1 className="text-3xl font-extrabold tracking-tight text-white">Account Overview</h1>
+      </Reveal>
 
       {/* Hero stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <HeroStat
-          label="Best streak"
-          value={bestCurrent}
-          sub={bestCurrent === 1 ? "day running" : "days running"}
-          icon="🔥"
-        />
-        <HeroStat
-          label="Profile views"
-          value={(profile?.view_count ?? 0).toLocaleString()}
-          sub="all time"
-          icon="👁"
-        />
-        <HeroStat label="Momentum" value={momentum} sub={momentumVibe} icon="⚡" />
-        <HeroStat
-          label="Active goals"
-          value={activeGoals.length}
-          sub={`${completedGoals.length} completed`}
-          icon="◎"
-        />
-      </div>
+      <RevealGroup className="grid grid-cols-2 gap-4 lg:grid-cols-4" stagger={0.08}>
+        <RevealItem>
+          <HeroStat
+            label="Best streak"
+            value={bestCurrent}
+            sub={bestCurrent === 1 ? "day running" : "days running"}
+            icon="🔥"
+          />
+        </RevealItem>
+        <RevealItem>
+          <HeroStat
+            label="Profile views"
+            value={(profile?.view_count ?? 0).toLocaleString()}
+            sub="all time"
+            icon="👁"
+          />
+        </RevealItem>
+        <RevealItem>
+          <HeroStat label="Momentum" value={momentum} sub={momentumVibe} icon="⚡" />
+        </RevealItem>
+        <RevealItem>
+          <HeroStat
+            label="Active goals"
+            value={activeGoals.length}
+            sub={`${completedGoals.length} completed`}
+            icon="◎"
+          />
+        </RevealItem>
+      </RevealGroup>
 
       <h2 className="text-lg font-semibold text-white">Account Statistics</h2>
 
@@ -195,8 +206,8 @@ export default async function OverviewPage() {
         <Card className="p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Today&apos;s streaks</h2>
-            <Link href="/dashboard/streaks" className="text-xs text-violet-400 hover:text-violet-300">
-              view all →
+            <Link href="/dashboard/streaks" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
+              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
           </div>
           {allStreaks.length === 0 ? (
@@ -218,8 +229,8 @@ export default async function OverviewPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Journal</h2>
-            <Link href="/dashboard/journal" className="text-xs text-violet-400 hover:text-violet-300">
-              view all →
+            <Link href="/dashboard/journal" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
+              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
           </div>
           {recentJournal.length === 0 ? (
@@ -230,7 +241,7 @@ export default async function OverviewPage() {
                 <Link
                   key={e.id}
                   href="/dashboard/journal"
-                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition hover:border-violet-500/30 hover:bg-white/[0.04]"
+                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-violet-500/30 hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-base leading-none">{MOOD_EMOJI[e.mood] ?? "😐"}</span>
@@ -249,8 +260,8 @@ export default async function OverviewPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Recent notes</h2>
-            <Link href="/dashboard/notes" className="text-xs text-violet-400 hover:text-violet-300">
-              view all →
+            <Link href="/dashboard/notes" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
+              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
           </div>
           {recentNotes.length === 0 ? (
@@ -261,7 +272,7 @@ export default async function OverviewPage() {
                 <Link
                   key={n.id}
                   href="/dashboard/notes"
-                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition hover:border-violet-500/30 hover:bg-white/[0.04]"
+                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-violet-500/30 hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center justify-between">
                     <p className="truncate text-sm font-medium text-zinc-200">{n.title || "Untitled"}</p>
@@ -278,8 +289,8 @@ export default async function OverviewPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Priority goals</h2>
-            <Link href="/dashboard/goals" className="text-xs text-violet-400 hover:text-violet-300">
-              view all →
+            <Link href="/dashboard/goals" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
+              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
             </Link>
           </div>
           {topGoals.length === 0 ? (
@@ -287,7 +298,7 @@ export default async function OverviewPage() {
           ) : (
             <div className="space-y-3">
               {topGoals.map((g) => (
-                <div key={g.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+                <div key={g.id} className="rounded-lg border border-white/5 bg-white/[0.02] p-4 transition-colors duration-200 hover:border-white/10">
                   <div className="mb-2 flex items-center justify-between gap-2">
                     <p className="truncate text-sm font-medium text-zinc-200">{g.title}</p>
                     <Badge
