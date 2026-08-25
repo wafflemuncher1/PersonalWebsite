@@ -3,10 +3,12 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { isReservedUsername } from "@/lib/reserved-usernames";
 import { containsProfanity } from "@/lib/profanity";
 import { GoogleButton } from "@/components/auth/GoogleButton";
+import { Reveal } from "@/components/ui/Reveal";
 
 const USERNAME_RE = /^[a-z0-9_-]{3,20}$/;
 
@@ -22,6 +24,7 @@ function SignupForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState<"idle" | "loading" | "check-email" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
@@ -45,7 +48,7 @@ function SignupForm() {
     }
     if (containsProfanity(cleanUsername)) {
       setStatus("error");
-      setErrorMsg("Let's keep it clean — try a different username.");
+      setErrorMsg("Let's keep it clean. Try a different username.");
       return;
     }
     if (password.length < 8) {
@@ -111,115 +114,143 @@ function SignupForm() {
       <div className="relative z-10 w-full max-w-sm">
         <Link
           href="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm text-zinc-500 transition hover:text-zinc-300"
+          className="mb-8 inline-flex items-center gap-2 text-sm text-zinc-500 transition duration-150 hover:text-zinc-300"
         >
           ← back
         </Link>
 
-        <div className="glass rounded-2xl p-8 shadow-glow">
-          <div className="mb-6 flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_12px_2px_rgba(139,92,246,0.8)]" />
-            <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">
-              create your page
-            </span>
-          </div>
+        <Reveal>
+          <div className="glass rounded-2xl p-8 shadow-glow">
+            <div className="mb-6 flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_12px_2px_rgba(139,92,246,0.8)]" />
+              <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">
+                create your page
+              </span>
+            </div>
 
-          {status === "check-email" ? (
-            <>
-              <h1 className="mb-2 text-2xl font-semibold text-white">Check your email</h1>
-              <p className="text-sm text-zinc-400">
-                We sent a confirmation link to <span className="text-zinc-200">{email}</span>.
-                Click it, then come back and log in.
-              </p>
-              <Link
-                href="/login"
-                className="mt-6 inline-flex rounded-lg bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition hover:bg-white/[0.1]"
-              >
-                Go to login
-              </Link>
-            </>
-          ) : (
-            <>
-              <h1 className="mb-2 text-2xl font-semibold text-white">
-                {plan === "pro" ? "Sign up for Pro" : "Sign up for Nocturne"}
-              </h1>
-              <p className="mb-6 text-sm text-zinc-400">
-                Free forever plan. Upgrade any time from Settings.
-              </p>
+            {status === "check-email" ? (
+              <>
+                <h1 className="mb-2 text-2xl font-semibold text-white">Check your email</h1>
+                <p className="text-sm text-zinc-400">
+                  We sent a confirmation link to <span className="text-zinc-200">{email}</span>.
+                  Click it, then come back and log in.
+                </p>
+                <Link
+                  href="/login"
+                  className="mt-6 inline-flex rounded-lg bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition duration-200 ease-premium hover:bg-white/[0.1] active:scale-95"
+                >
+                  Go to login
+                </Link>
+              </>
+            ) : (
+              <>
+                <h1 className="mb-2 text-2xl font-semibold text-white">
+                  {plan === "pro" ? "Sign up for Pro" : "Sign up for Nocturne"}
+                </h1>
+                <p className="mb-6 text-sm text-zinc-400">
+                  Free forever plan. Upgrade any time from Settings.
+                </p>
 
-              <GoogleButton label="Sign up with Google" />
-              <p className="mt-2 text-center text-[11px] text-zinc-600">
-                We&apos;ll pick a username from your email — change it any time in Settings.
-              </p>
+                <GoogleButton label="Sign up with Google" />
+                <p className="mt-2 text-center text-[11px] text-zinc-600">
+                  We&apos;ll pick a username from your email. Change it any time in Settings.
+                </p>
 
-              <div className="my-5 flex items-center gap-3">
-                <div className="h-px flex-1 bg-white/10" />
-                <span className="text-[11px] uppercase tracking-wide text-zinc-600">or</span>
-                <div className="h-px flex-1 bg-white/10" />
-              </div>
+                <div className="my-5 flex items-center gap-3">
+                  <div className="h-px flex-1 bg-white/10" />
+                  <span className="text-[11px] uppercase tracking-wide text-zinc-600">or</span>
+                  <div className="h-px flex-1 bg-white/10" />
+                </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label htmlFor="username" className="mb-1.5 block text-xs font-medium text-zinc-400">
-                    Username
-                  </label>
-                  <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition focus-within:border-violet-500/60 focus-within:ring-2 focus-within:ring-violet-500/20">
-                    <span className="text-sm text-zinc-600">nocturne.co/</span>
+                <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+                  <div>
+                    <label htmlFor="username" className="mb-1.5 block text-xs font-medium text-zinc-400">
+                      Username
+                    </label>
+                    <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-violet-500/60 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]">
+                      <span className="text-sm text-zinc-600">nocturne.co/</span>
+                      <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        required
+                        autoComplete="username"
+                        spellCheck={false}
+                        autoCapitalize="none"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                        placeholder="yourname"
+                        className="w-full bg-transparent px-1 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-zinc-400">
+                      Email
+                    </label>
                     <input
-                      id="username"
-                      type="text"
+                      id="email"
+                      name="email"
+                      type="email"
+                      inputMode="email"
                       required
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                      placeholder="yourname"
-                      className="w-full bg-transparent px-1 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none"
+                      autoComplete="email"
+                      spellCheck={false}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-violet-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label htmlFor="email" className="mb-1.5 block text-xs font-medium text-zinc-400">
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"
-                  />
-                </div>
+                  <div>
+                    <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-zinc-400">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <input
+                        id="password"
+                        name="new-password"
+                        type={showPassword ? "text" : "password"}
+                        required
+                        autoComplete="new-password"
+                        spellCheck={false}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder="At least 8 characters"
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-violet-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((v) => !v)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 transition hover:text-zinc-300"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
 
-                <div>
-                  <label htmlFor="password" className="mb-1.5 block text-xs font-medium text-zinc-400">
-                    Password
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 8 characters"
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/20"
-                  />
-                </div>
+                  {status === "error" && (
+                    <p role="alert" aria-live="polite" className="text-sm text-red-400">
+                      {errorMsg}
+                    </p>
+                  )}
 
-                {status === "error" && <p className="text-sm text-red-400">{errorMsg}</p>}
-
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  className="w-full rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2.5 text-sm font-medium text-white shadow-glow transition hover:from-violet-500 hover:to-violet-400 disabled:opacity-60"
-                >
-                  {status === "loading" ? "Creating your page…" : "Create account"}
-                </button>
-              </form>
-            </>
-          )}
-        </div>
+                  <button
+                    type="submit"
+                    disabled={status === "loading"}
+                    className="w-full rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2.5 text-sm font-medium text-white shadow-glow transition duration-200 ease-premium hover:from-violet-500 hover:to-violet-400 hover:shadow-glow-lg active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
+                  >
+                    {status === "loading" ? "Creating your page…" : "Create account"}
+                  </button>
+                </form>
+              </>
+            )}
+          </div>
+        </Reveal>
 
         <p className="mt-6 text-center font-mono text-[11px] text-zinc-600">
           Already have an account?{" "}

@@ -61,6 +61,8 @@ export function Heatmap({
                   disabled={isFuture || !onDayClick}
                   onClick={() => onDayClick?.(key)}
                   title={`${key}${logged ? " · done" : ""}`}
+                  aria-label={`${key}${logged ? ", done" : isFuture ? ", upcoming" : ", not done"}`}
+                  aria-pressed={logged}
                   className={cn(
                     cellSize,
                     "rounded-[3px] transition",
