@@ -121,16 +121,9 @@ function SignupForm() {
 
         <Reveal>
           <div className="glass rounded-2xl p-8 shadow-glow">
-            <div className="mb-6 flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-gold-400 shadow-[0_0_12px_2px_rgba(212,169,79,0.7)]" />
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">
-                create your page
-              </span>
-            </div>
-
             {status === "check-email" ? (
               <>
-                <h1 className="mb-2 text-2xl font-semibold text-white">Check your email</h1>
+                <h1 className="font-display mb-2 text-2xl font-semibold text-white">Check your email</h1>
                 <p className="text-sm text-zinc-400">
                   We sent a confirmation link to <span className="text-zinc-200">{email}</span>.
                   Click it, then come back and log in.
@@ -144,7 +137,7 @@ function SignupForm() {
               </>
             ) : (
               <>
-                <h1 className="mb-2 text-2xl font-semibold text-white">
+                <h1 className="font-display mb-2 text-2xl font-semibold text-white">
                   {plan === "pro" ? "Sign up for Pro" : "Sign up for Nocturne"}
                 </h1>
                 <p className="mb-6 text-sm text-zinc-400">

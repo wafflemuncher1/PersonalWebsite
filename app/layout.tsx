@@ -1,8 +1,20 @@
 import type { Metadata } from "next";
+import { Space_Grotesk } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
 import "./globals.css";
+
+// Display face for headlines only — everything else stays on Geist. This is
+// the single biggest lever against the "Inter/Geist everywhere" AI look:
+// Space Grotesk has real character (squared-off curves, a wider stance) that
+// a system sans doesn't.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: {
@@ -22,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable}`}>
+    <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable}`}>
       <body className="min-h-screen bg-ink-950 font-sans antialiased noise">
         <TransitionProvider>{children}</TransitionProvider>
       </body>

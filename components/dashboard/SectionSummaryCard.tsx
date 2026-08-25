@@ -22,7 +22,7 @@ export function SectionSummaryCard({
       <div className="mb-3 flex items-center gap-2 text-sm font-medium text-zinc-300">
         <span>{icon}</span> {title}
       </div>
-      <div className="text-2xl font-bold text-white">{value}</div>
+      <div className="font-display text-2xl font-semibold text-white">{value}</div>
       <div className="mt-1 text-xs text-zinc-500">{label}</div>
       <Link
         href={href}

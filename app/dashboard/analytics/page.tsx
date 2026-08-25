@@ -111,7 +111,7 @@ export default async function AnalyticsPage({
   return (
     <div className="space-y-8">
       <Reveal>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Account Analytics</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Account Analytics</h1>
         <p className="mt-1 text-sm text-zinc-500">
           Track your profile performance and see how many people are visiting your profile.
         </p>
@@ -125,7 +125,7 @@ export default async function AnalyticsPage({
               href={`/dashboard/analytics?range=${r.key}`}
               className={`rounded-xl px-3.5 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95 ${
                 rangeKey === r.key
-                  ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow-lg"
+                  ? "bg-gold-400 text-ink-950 shadow-glow-lg"
                   : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
               }`}
             >

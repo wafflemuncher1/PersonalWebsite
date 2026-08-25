@@ -140,25 +140,25 @@ export function StreakDetail({ streak, initialLogs }: { streak: Streak; initialL
         <RevealItem>
           <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
             <span className="text-xs uppercase tracking-wide text-zinc-500">Current streak</span>
-            <div className="mt-2 text-2xl font-semibold text-amber-400">{stats.current}d</div>
+            <div className="font-display mt-2 text-2xl font-semibold text-amber-400">{stats.current}d</div>
           </Card>
         </RevealItem>
         <RevealItem>
           <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
             <span className="text-xs uppercase tracking-wide text-zinc-500">Longest streak</span>
-            <div className="mt-2 text-2xl font-semibold text-white">{stats.longest}d</div>
+            <div className="font-display mt-2 text-2xl font-semibold text-white">{stats.longest}d</div>
           </Card>
         </RevealItem>
         <RevealItem>
           <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
             <span className="text-xs uppercase tracking-wide text-zinc-500">Last 30 days</span>
-            <div className="mt-2 text-2xl font-semibold text-white">{last30}/30</div>
+            <div className="font-display mt-2 text-2xl font-semibold text-white">{last30}/30</div>
           </Card>
         </RevealItem>
         <RevealItem>
           <Card className="p-5 transition hover:-translate-y-0.5 hover:shadow-elevate-hover">
             <span className="text-xs uppercase tracking-wide text-zinc-500">All-time total</span>
-            <div className="mt-2 text-2xl font-semibold text-white">{stats.total}</div>
+            <div className="font-display mt-2 text-2xl font-semibold text-white">{stats.total}</div>
           </Card>
         </RevealItem>
       </RevealGroup>

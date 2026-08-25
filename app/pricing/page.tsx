@@ -27,7 +27,7 @@ export default function PricingPage() {
       <div className="relative z-10 mx-auto max-w-4xl px-6 pb-24 pt-16 sm:pt-20">
         <Reveal>
           <div className="mx-auto max-w-xl text-center">
-            <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
               Pricing
             </h1>
             <p className="mt-3 text-[15px] text-zinc-400">

@@ -20,7 +20,7 @@ export default async function Dashboard2Page() {
   return (
     <div className="space-y-8">
       <Reveal>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Dashboard 2</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Dashboard 2</h1>
         <p className="mt-1 text-sm text-zinc-500">
           A sandbox for trying out new dashboard ideas before they go anywhere permanent.
         </p>

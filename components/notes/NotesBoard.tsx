@@ -127,7 +127,7 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
       <Reveal>
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">Notes</h1>
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Notes</h1>
             <p className="mt-1 text-sm text-zinc-500">Quick thoughts, saved and searchable.</p>
           </div>
         </div>

@@ -56,14 +56,7 @@ function LoginForm() {
 
         <Reveal>
           <div className="glass rounded-2xl p-8 shadow-glow">
-            <div className="mb-6 flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-gold-400 shadow-[0_0_12px_2px_rgba(212,169,79,0.7)]" />
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">
-                private access
-              </span>
-            </div>
-
-            <h1 className="mb-2 text-2xl font-semibold text-white">Log in to Nocturne</h1>
+            <h1 className="font-display mb-2 text-2xl font-semibold text-white">Log in to Nocturne</h1>
             <p className="mb-6 text-sm text-zinc-400">
               Sign in with Google, or use your email and password.
             </p>
@@ -149,7 +142,7 @@ function LoginForm() {
         </Reveal>
 
         <p className="mt-6 text-center font-mono text-[11px] text-zinc-600">
-          protected by supabase auth · row-level security enforced
+          protected by Supabase Auth, with row-level security enforced
         </p>
         <p className="mt-2 text-center text-[13px] text-zinc-600">
           New here?{" "}

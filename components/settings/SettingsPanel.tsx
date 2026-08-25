@@ -160,7 +160,7 @@ export function SettingsPanel({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Reveal>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Settings</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Settings</h1>
       </Reveal>
 
       <RevealGroup className="space-y-6" stagger={0.06}>

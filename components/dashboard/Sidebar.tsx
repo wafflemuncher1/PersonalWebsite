@@ -3,22 +3,48 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  LayoutGrid,
+  BarChart3,
+  FlaskConical,
+  Settings,
+  UserCircle,
+  Palette,
+  Link2,
+  ShoppingBag,
+  LayoutTemplate,
+  Award,
+  Moon,
+  NotebookPen,
+  BookOpen,
+  Flame,
+  Target,
+  Terminal,
+  Users,
+  Search,
+  X,
+  ChevronDown,
+  ArrowUpRight,
+  Share2,
+  Check,
+} from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
 
-const NAV_TOP = [{ href: "/dashboard", label: "Overview", icon: "◈", exact: true }];
+const NAV_TOP = [{ href: "/dashboard", label: "Overview", icon: LayoutGrid, exact: true }];
 
 const NAV_BOTTOM = [
-  { href: "/dashboard/analytics", label: "Analytics", icon: "📊" },
-  { href: "/dashboard/dashboard-2", label: "Dashboard 2", icon: "🧪" },
-  { href: "/dashboard/settings", label: "Settings", icon: "⚙" },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard/dashboard-2", label: "Dashboard 2", icon: FlaskConical },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 const NAV_GROUPS = [
   {
     key: "profile",
     label: "Profile",
-    icon: "👤",
+    icon: UserCircle,
     items: [
       { href: "/dashboard/profile/customize", label: "Customize" },
       { href: "/dashboard/profile/links", label: "Links" },
@@ -30,7 +56,7 @@ const NAV_GROUPS = [
   {
     key: "lifestyle",
     label: "Lifestyle",
-    icon: "🌙",
+    icon: Moon,
     items: [
       { href: "/dashboard/notes", label: "Notes" },
       { href: "/dashboard/journal", label: "Journal" },
@@ -45,7 +71,7 @@ const NAV_GROUPS = [
 const DEV_GROUP = {
   key: "developer",
   label: "Developer",
-  icon: "🛠",
+  icon: Terminal,
   items: [
     { href: "/dashboard/developer", label: "Overview" },
     { href: "/dashboard/developer/users", label: "Users" },
@@ -115,31 +141,26 @@ export function Sidebar({
     }
   }
 
-  function renderNavLink(item: { href: string; label: string; icon: string; exact?: boolean }) {
+  function renderNavLink(item: { href: string; label: string; icon: LucideIcon; exact?: boolean }) {
     const active = item.exact ? pathname === item.href : pathname?.startsWith(item.href);
+    const Icon = item.icon;
     return (
       <Link
         key={item.href}
         href={item.href}
         onClick={onClose}
         className={cn(
-          "group relative flex items-center gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ease-premium",
+          "group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ease-premium",
           active
-            ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-            : "text-zinc-400 hover:translate-x-0.5 hover:bg-white/[0.06] hover:text-white"
+            ? "bg-gold-400/12 text-gold-200"
+            : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
         )}
       >
-        {active && (
-          <span className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-white/80 to-white/20" />
-        )}
-        <span
-          className={cn(
-            "relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base transition-transform duration-200",
-            active ? "bg-white/15" : "bg-white/[0.04] group-hover:scale-110"
-          )}
-        >
-          {item.icon}
-        </span>
+        {active && <span className="absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-gold-400" />}
+        <Icon
+          className={cn("h-4 w-4 shrink-0 transition-colors", active ? "text-gold-300" : "text-zinc-500 group-hover:text-zinc-300")}
+          strokeWidth={1.75}
+        />
         {item.label}
       </Link>
     );
@@ -148,12 +169,10 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/10 bg-gradient-to-b from-ink-925 via-ink-950 to-ink-925 backdrop-blur-xl transition-transform duration-300 ease-premium lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-white/8 bg-ink-950 transition-transform duration-300 ease-premium lg:translate-x-0",
         open ? "translate-x-0" : "-translate-x-full"
       )}
     >
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-px bg-gradient-to-b from-transparent via-violet-500/25 to-transparent" />
-
       <div className="flex items-center justify-between px-6 py-6">
         <Logo onBeforeNavigate={onClose} />
         <button
@@ -161,24 +180,23 @@ export function Sidebar({
           className="rounded-full p-1.5 text-zinc-500 transition hover:bg-white/10 hover:text-white lg:hidden"
           aria-label="Close menu"
         >
-          ✕
+          <X className="h-4 w-4" />
         </button>
       </div>
 
       <div className="px-4 pb-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 transition-all duration-200 focus-within:border-violet-500/50 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]">
-          <span className="text-zinc-600">⌕</span>
+        <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 transition-all duration-200 focus-within:border-gold-400/40 focus-within:bg-white/[0.05]">
+          <Search className="h-3.5 w-3.5 text-zinc-600" strokeWidth={1.75} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search features…"
+            placeholder="Search features"
             className="w-full bg-transparent text-sm text-white placeholder:text-zinc-600 outline-none"
           />
-          {!query && <span className="font-mono text-[10px] text-zinc-700">⌘K</span>}
         </div>
       </div>
 
-      <nav className="flex-1 space-y-2 overflow-y-auto px-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-4">
         {filteredNavTop.map((item) => renderNavLink(item))}
 
         {groups.map(
@@ -189,35 +207,24 @@ export function Sidebar({
                   type="button"
                   onClick={() => setManualOpenKey((k) => (k === group.key ? null : group.key))}
                   className={cn(
-                    "group relative flex w-full items-center justify-between gap-3 overflow-hidden rounded-2xl px-3.5 py-3 text-sm font-medium transition-all duration-200 ease-premium",
-                    group.active
-                      ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow"
-                      : "text-zinc-400 hover:translate-x-0.5 hover:bg-white/[0.06] hover:text-white"
+                    "group flex w-full items-center justify-between gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ease-premium",
+                    group.active ? "text-gold-200" : "text-zinc-400 hover:bg-white/[0.05] hover:text-white"
                   )}
                 >
-                  {group.active && (
-                    <span className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-gradient-to-b from-white/80 to-white/20" />
-                  )}
                   <span className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-base transition-transform duration-200",
-                        group.active ? "bg-white/15" : "bg-white/[0.04] group-hover:scale-110"
-                      )}
-                    >
-                      {group.icon}
-                    </span>
+                    <group.icon
+                      className={cn("h-4 w-4 shrink-0", group.active ? "text-gold-300" : "text-zinc-500 group-hover:text-zinc-300")}
+                      strokeWidth={1.75}
+                    />
                     {group.label}
                   </span>
-                  <span
-                    className={cn("text-xs transition-transform duration-200", group.expanded ? "rotate-180" : "")}
-                  >
-                    ⌄
-                  </span>
+                  <ChevronDown
+                    className={cn("h-3.5 w-3.5 text-zinc-600 transition-transform duration-200", group.expanded && "rotate-180")}
+                  />
                 </button>
 
                 {group.expanded && (
-                  <div className="ml-4 mt-1.5 space-y-1 border-l border-white/10 pl-4">
+                  <div className="ml-4 mt-1 space-y-0.5 border-l border-white/10 pl-4">
                     {group.filteredItems.map((sub) => {
                       const subActive = pathname === sub.href;
                       return (
@@ -226,10 +233,10 @@ export function Sidebar({
                           href={sub.href}
                           onClick={onClose}
                           className={cn(
-                            "block rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ease-premium",
+                            "block rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200 ease-premium",
                             subActive
-                              ? "bg-violet-500/15 text-violet-300 shadow-[inset_0_0_0_1px_rgba(212,169,79,0.25)]"
-                              : "text-zinc-500 hover:translate-x-0.5 hover:bg-white/[0.05] hover:text-zinc-200"
+                              ? "bg-gold-400/10 text-gold-300"
+                              : "text-zinc-500 hover:bg-white/[0.05] hover:text-zinc-200"
                           )}
                         >
                           {sub.label}
@@ -246,24 +253,21 @@ export function Sidebar({
       </nav>
 
       {username && (
-        <div className="glass relative m-3 space-y-3 rounded-2xl p-4">
-          <div>
-            <p className="mb-2 px-1 text-xs text-zinc-500">Check out your page</p>
-            <a
-              href={`/${username}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm font-semibold text-violet-300 transition-all duration-200 ease-premium hover:border-violet-500/50 hover:bg-violet-500/20"
-            >
-              <span>↗</span> My Page
-            </a>
-          </div>
+        <div className="m-3 space-y-2.5 rounded-2xl border border-white/8 bg-white/[0.02] p-4">
+          <a
+            href={`/${username}`}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-center gap-1.5 rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-zinc-200 transition-all duration-200 ease-premium hover:border-white/25 hover:text-white"
+          >
+            My page <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
           <button
             onClick={handleShare}
-            className="btn-sheen flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-3 text-sm font-semibold text-white shadow-glow transition-all duration-200 ease-premium hover:shadow-glow-lg hover:from-violet-500 hover:to-violet-400 active:scale-[0.98]"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gold-400 px-4 py-2.5 text-sm font-semibold text-ink-950 shadow-glow transition-all duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-[0.98]"
           >
-            <span>⇱</span>
-            {copied ? "Link copied ✓" : "Share Your Profile"}
+            {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+            {copied ? "Link copied" : "Share your profile"}
           </button>
         </div>
       )}

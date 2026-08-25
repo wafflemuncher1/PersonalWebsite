@@ -245,7 +245,7 @@ export function GoalsBoard({
     <div>
       <Reveal>
         <div className="mb-6">
-          <h1 className="text-3xl font-extrabold tracking-tight text-white">Goals</h1>
+          <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Goals</h1>
           <p className="mt-1 text-sm text-zinc-500">Track what you're working toward — one-off or every week.</p>
         </div>
       </Reveal>

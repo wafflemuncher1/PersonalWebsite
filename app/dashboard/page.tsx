@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Flame, Eye, Zap, Target, NotebookPen, BookOpen, ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { HeroStat } from "@/components/dashboard/HeroStat";
 import { StatTile } from "@/components/dashboard/StatTile";
@@ -125,7 +126,7 @@ export default async function OverviewPage() {
   return (
     <div className="space-y-8">
       <Reveal>
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">Account Overview</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Account overview</h1>
       </Reveal>
 
       {/* Hero stats */}
@@ -135,7 +136,7 @@ export default async function OverviewPage() {
             label="Best streak"
             value={bestCurrent}
             sub={bestCurrent === 1 ? "day running" : "days running"}
-            icon="🔥"
+            icon={<Flame className="h-4 w-4" strokeWidth={1.75} />}
           />
         </RevealItem>
         <RevealItem>
@@ -143,50 +144,50 @@ export default async function OverviewPage() {
             label="Profile views"
             value={(profile?.view_count ?? 0).toLocaleString()}
             sub="all time"
-            icon="👁"
+            icon={<Eye className="h-4 w-4" strokeWidth={1.75} />}
           />
         </RevealItem>
         <RevealItem>
-          <HeroStat label="Momentum" value={momentum} sub={momentumVibe} icon="⚡" />
+          <HeroStat label="Momentum" value={momentum} sub={momentumVibe} icon={<Zap className="h-4 w-4" strokeWidth={1.75} />} />
         </RevealItem>
         <RevealItem>
           <HeroStat
             label="Active goals"
             value={activeGoals.length}
             sub={`${completedGoals.length} completed`}
-            icon="◎"
+            icon={<Target className="h-4 w-4" strokeWidth={1.75} />}
           />
         </RevealItem>
       </RevealGroup>
 
-      <h2 className="text-lg font-semibold text-white">Account Statistics</h2>
+      <h2 className="font-display text-lg font-semibold text-white">Account statistics</h2>
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="p-6 lg:col-span-2">
           <div className="grid grid-cols-2 gap-3">
             <StatTile
-              icon="🔥"
+              icon={<Flame className="h-4 w-4" strokeWidth={1.75} />}
               title="Top streak"
               value={topStreak ? `${topStreak.emoji} ${topStreak.name}` : "No streaks yet"}
               sub={topStreak ? `${bestCurrent} day${bestCurrent === 1 ? "" : "s"}` : undefined}
               href="/dashboard/streaks"
             />
             <StatTile
-              icon="◎"
+              icon={<Target className="h-4 w-4" strokeWidth={1.75} />}
               title="Top goal"
               value={topGoals[0]?.title ?? "No goals yet"}
               sub={topGoals[0] ? `${topGoals[0].progress}% complete` : undefined}
               href="/dashboard/goals"
             />
             <StatTile
-              icon="✎"
+              icon={<NotebookPen className="h-4 w-4" strokeWidth={1.75} />}
               title="Recent note"
               value={recentNotes[0] ? recentNotes[0].title || "Untitled" : "No notes yet"}
               sub={recentNotes[0]?.content}
               href="/dashboard/notes"
             />
             <StatTile
-              icon="📓"
+              icon={<BookOpen className="h-4 w-4" strokeWidth={1.75} />}
               title="Journal"
               value={`${journalCount} ${journalCount === 1 ? "entry" : "entries"}`}
               sub={recentJournal[0]?.entry}
@@ -206,8 +207,8 @@ export default async function OverviewPage() {
         <Card className="p-6 lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Today&apos;s streaks</h2>
-            <Link href="/dashboard/streaks" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
-              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            <Link href="/dashboard/streaks" className="group flex items-center gap-1 text-xs text-gold-400 transition-all hover:gap-1.5 hover:text-gold-300">
+              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
           {allStreaks.length === 0 ? (
@@ -229,8 +230,8 @@ export default async function OverviewPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Journal</h2>
-            <Link href="/dashboard/journal" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
-              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            <Link href="/dashboard/journal" className="group flex items-center gap-1 text-xs text-gold-400 transition-all hover:gap-1.5 hover:text-gold-300">
+              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
           {recentJournal.length === 0 ? (
@@ -241,7 +242,7 @@ export default async function OverviewPage() {
                 <Link
                   key={e.id}
                   href="/dashboard/journal"
-                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-violet-500/30 hover:bg-white/[0.04]"
+                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-gold-400/25 hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-base leading-none">{MOOD_EMOJI[e.mood] ?? "😐"}</span>
@@ -260,8 +261,8 @@ export default async function OverviewPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Recent notes</h2>
-            <Link href="/dashboard/notes" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
-              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            <Link href="/dashboard/notes" className="group flex items-center gap-1 text-xs text-gold-400 transition-all hover:gap-1.5 hover:text-gold-300">
+              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
           {recentNotes.length === 0 ? (
@@ -272,7 +273,7 @@ export default async function OverviewPage() {
                 <Link
                   key={n.id}
                   href="/dashboard/notes"
-                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-violet-500/30 hover:bg-white/[0.04]"
+                  className="block rounded-lg border border-white/5 bg-white/[0.02] p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-gold-400/25 hover:bg-white/[0.04]"
                 >
                   <div className="flex items-center justify-between">
                     <p className="truncate text-sm font-medium text-zinc-200">{n.title || "Untitled"}</p>
@@ -289,8 +290,8 @@ export default async function OverviewPage() {
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-medium text-white">Priority goals</h2>
-            <Link href="/dashboard/goals" className="group flex items-center gap-1 text-xs text-violet-400 transition-all hover:gap-1.5 hover:text-violet-300">
-              view all <span className="transition-transform group-hover:translate-x-0.5">→</span>
+            <Link href="/dashboard/goals" className="group flex items-center gap-1 text-xs text-gold-400 transition-all hover:gap-1.5 hover:text-gold-300">
+              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
           {topGoals.length === 0 ? (
@@ -325,9 +326,9 @@ function EmptyState({ message, href, cta }: { message: string; href: string; cta
       <p className="mb-3 text-sm text-zinc-500">{message}</p>
       <Link
         href={href}
-        className="inline-flex rounded-lg bg-violet-500/10 px-3 py-1.5 text-xs font-medium text-violet-300 transition hover:bg-violet-500/20"
+        className="inline-flex items-center gap-1 rounded-lg bg-gold-400/10 px-3 py-1.5 text-xs font-medium text-gold-300 transition hover:bg-gold-400/20"
       >
-        {cta} →
+        {cta} <ArrowRight className="h-3 w-3" />
       </Link>
     </div>
   );

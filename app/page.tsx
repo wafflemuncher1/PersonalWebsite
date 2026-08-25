@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Globe, Flame, Link2, Target } from "lucide-react";
+import { ArrowRight, Flame, Globe, Link2, NotebookPen, Target, CalendarCheck } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { Magnetic } from "@/components/ui/Magnetic";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { PLANS } from "@/lib/plans";
 
@@ -16,6 +17,33 @@ const STEPS = [
   {
     title: "Flex what you want, quietly",
     body: "Opt in to show a stats snapshot on your public page: goals hit, streaks running. Everything else stays yours.",
+  },
+];
+
+const FEATURES = [
+  {
+    icon: Target,
+    title: "Goals",
+    body: "Set targets, track progress, mark them done. No forced deadlines, no guilt-tripping.",
+    span: "lg:col-span-2 lg:row-span-2",
+  },
+  {
+    icon: Flame,
+    title: "Streaks",
+    body: "Log a day, keep the chain going.",
+    span: "",
+  },
+  {
+    icon: NotebookPen,
+    title: "Notes",
+    body: "Freeform, pinned, searchable.",
+    span: "",
+  },
+  {
+    icon: CalendarCheck,
+    title: "Journal",
+    body: "Mood plus a few lines, most days.",
+    span: "lg:col-span-2",
   },
 ];
 
@@ -44,42 +72,33 @@ export default function HomePage() {
         </nav>
       </header>
 
-      <div className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-16 sm:pt-20">
-        {/* Hero — asymmetric split: copy on the left, a real preview of the product on the right */}
-        <section className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-16 sm:pt-24">
+        {/* Hero */}
+        <section className="grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <Reveal>
-            <div className="mb-5 flex items-center gap-2">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">
-                now in early access
-              </span>
-            </div>
-
-            <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              One link. Two sides.
+            <h1 className="font-display text-5xl font-semibold leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl">
+              One link.
+              <br />
+              Two sides.
             </h1>
-            <p className="mt-3 max-w-md text-lg font-medium text-gradient">
-              A public bio-link page out front. A private life tracker behind it.
+            <p className="mt-6 max-w-md text-lg leading-snug text-zinc-300">
+              A public page for your links. A private space for the notes, goals, and streaks
+              you keep to yourself.
             </p>
 
-            <p className="mt-6 max-w-md text-[15px] leading-relaxed text-zinc-400">
-              One page for your links and stats. One private dashboard for the notes, goals, and
-              streaks you keep to yourself.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/signup"
-                className="rounded-lg bg-gold-400 px-5 py-2.5 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
-              >
-                Create your page →
-              </Link>
+            <div className="mt-9 flex flex-wrap items-center gap-4">
+              <Magnetic>
+                <Link
+                  href="/signup"
+                  className="group inline-flex items-center gap-2 rounded-lg bg-gold-400 px-6 py-3 text-sm font-semibold text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
+                >
+                  Create your page
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+                </Link>
+              </Magnetic>
               <Link
                 href="/pricing"
-                className="rounded-lg border border-white/10 bg-white/[0.04] px-5 py-2.5 text-sm font-medium text-zinc-200 transition duration-200 ease-premium hover:border-white/20 hover:bg-white/[0.08] active:scale-95"
+                className="rounded-lg border border-white/10 px-6 py-3 text-sm font-medium text-zinc-300 transition duration-200 ease-premium hover:border-white/25 hover:text-white active:scale-95"
               >
                 See pricing
               </Link>
@@ -88,12 +107,11 @@ export default function HomePage() {
 
           {/* Real component preview: a small live mockup of an actual Nocturne
               public profile, not a fake screenshot — shows the product itself. */}
-          <Reveal delay={0.1} y={16}>
+          <Reveal delay={0.12} y={16}>
             <div className="relative mx-auto w-full max-w-[300px] lg:ml-auto lg:mr-0">
-              <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-gold-500/10 blur-3xl" />
-              <div className="glass animate-float rounded-[2rem] border border-white/10 p-6 shadow-elevate-lg">
+              <div className="glass rounded-[1.75rem] border border-white/10 p-6 shadow-elevate-lg">
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gold-300 to-gold-600 shadow-[0_0_20px_-2px_rgba(212,169,79,0.6)]" />
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gold-300 to-gold-600" />
                   <p className="mt-3 text-sm font-semibold text-white">@yourname</p>
                   <p className="mt-1 text-xs text-zinc-500">night owl, builder, list-maker</p>
 
@@ -128,17 +146,38 @@ export default function HomePage() {
           </Reveal>
         </section>
 
-        {/* How it works — vertical stepped timeline, not a 3-equal-card row */}
-        <section className="mt-28">
+        {/* Feature showcase — asymmetric bento, not three equal cards */}
+        <section className="mt-32">
           <Reveal>
-            <h2 className="mb-10 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.15em] text-zinc-500">
-              <span className="h-px flex-1 bg-gradient-to-r from-gold-500/30 to-transparent" />
-              How it works
-              <span className="h-px flex-1 bg-gradient-to-l from-gold-500/30 to-transparent" />
+            <h2 className="font-display max-w-lg text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Everything private, in one place.
             </h2>
           </Reveal>
 
-          <RevealGroup className="mx-auto max-w-2xl space-y-3" stagger={0.08}>
+          <RevealGroup className="mt-10 grid gap-4 lg:grid-cols-3" stagger={0.08}>
+            {FEATURES.map((f) => (
+              <RevealItem key={f.title} className={f.span}>
+                <div className="glass glass-hover flex h-full flex-col justify-between rounded-2xl p-6 transition duration-200 ease-premium">
+                  <f.icon className="h-5 w-5 text-gold-400" strokeWidth={1.5} />
+                  <div className="mt-6">
+                    <h3 className="font-display text-lg font-semibold text-white">{f.title}</h3>
+                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{f.body}</p>
+                  </div>
+                </div>
+              </RevealItem>
+            ))}
+          </RevealGroup>
+        </section>
+
+        {/* How it works */}
+        <section className="mt-32">
+          <Reveal>
+            <h2 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              How it works
+            </h2>
+          </Reveal>
+
+          <RevealGroup className="mx-auto mt-10 max-w-2xl space-y-3" stagger={0.08}>
             {STEPS.map((s, i) => (
               <RevealItem key={s.title}>
                 <div className="glass glass-hover flex gap-4 rounded-xl p-5 transition duration-200 ease-premium hover:-translate-y-0.5">
@@ -155,14 +194,15 @@ export default function HomePage() {
           </RevealGroup>
         </section>
 
-        {/* Pricing teaser — deliberately different header treatment from the
-            section above so the page doesn't repeat the same layout family twice */}
-        <section className="mt-28">
+        {/* Pricing teaser */}
+        <section className="mt-32">
           <Reveal>
             <div className="mb-8 flex items-end justify-between gap-4">
-              <h2 className="text-2xl font-semibold tracking-tight text-white">Simple pricing</h2>
+              <h2 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                Simple pricing
+              </h2>
               <Link href="/pricing" className="hidden text-xs text-gold-400 hover:text-gold-300 sm:inline">
-                Full plan comparison →
+                Full plan comparison
               </Link>
             </div>
           </Reveal>
@@ -188,7 +228,7 @@ export default function HomePage() {
           </RevealGroup>
           <p className="mt-4 text-center sm:hidden">
             <Link href="/pricing" className="text-xs text-gold-400 hover:text-gold-300">
-              Full plan comparison →
+              Full plan comparison
             </Link>
           </p>
         </section>

@@ -19,7 +19,7 @@ export function Momentum({ score }: { score: number }) {
         <span className="text-xs uppercase tracking-wide text-zinc-500">Momentum</span>
         <span className={cn("font-mono text-xs", vibe.color)}>{vibe.label}</span>
       </div>
-      <div className="mb-3 text-3xl font-semibold text-white">{clamped}</div>
+      <div className="font-display mb-3 text-3xl font-semibold text-white">{clamped}</div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-white/[0.06]">
         <div
           className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-700", vibe.bar)}

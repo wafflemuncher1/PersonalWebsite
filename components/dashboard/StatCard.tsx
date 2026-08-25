@@ -27,7 +27,7 @@ export function StatCard({
         <span className="text-xs uppercase tracking-wide text-zinc-500">{label}</span>
         {icon && <span className={cn("text-lg", glow)}>{icon}</span>}
       </div>
-      <div className="text-2xl font-semibold text-white">{value}</div>
+      <div className="font-display text-2xl font-semibold text-white">{value}</div>
       {sub && <div className="mt-1 text-xs text-zinc-500">{sub}</div>}
     </Card>
   );
