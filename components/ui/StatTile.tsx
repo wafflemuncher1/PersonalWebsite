@@ -43,7 +43,7 @@ export function StatTile({
   className?: string;
 }) {
   return (
-    <div className={cn("glass glass-hover group rounded-xl p-3.5", className)}>
+    <div className={cn("surface surface-hover group rounded-xl p-3.5", className)}>
       <div className="mb-1.5 flex items-center gap-1.5">
         <span className={cn("transition-transform duration-300 group-hover:scale-110", ACCENT_ICON[accent])}>
           {icon}

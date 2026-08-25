@@ -227,7 +227,7 @@ export function StreaksGrid({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") router.push(`/dashboard/streaks/${s.id}`);
                 }}
-                className="glass glass-hover group relative flex cursor-pointer flex-col overflow-hidden rounded-xl p-4"
+                className="surface surface-hover group relative flex cursor-pointer flex-col overflow-hidden rounded-xl p-4"
               >
                 <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_DOT[s.color] ?? COLOR_DOT.amber)} />
                 <div className="mb-3 flex items-center justify-between pl-1.5">

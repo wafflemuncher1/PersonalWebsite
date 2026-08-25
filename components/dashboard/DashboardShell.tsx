@@ -20,10 +20,7 @@ export function DashboardShell({
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen">
-      <div className="pointer-events-none fixed inset-0 bg-radial-glow-soft" />
-      <div className="pointer-events-none fixed inset-0 bg-grid-lines bg-[length:52px_52px] opacity-[0.12] [mask-image:radial-gradient(ellipse_80%_60%_at_50%_0%,#000_10%,transparent_75%)]" />
-
+    <div className="relative min-h-screen bg-ink-950">
       {open && (
         <div
           className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity lg:hidden"

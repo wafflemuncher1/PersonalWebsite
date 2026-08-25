@@ -192,7 +192,7 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
             <div
               key={n.id}
               className={cn(
-                "glass relative break-inside-avoid overflow-hidden rounded-xl border p-4 pl-5 transition duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-elevate-hover",
+                "surface relative break-inside-avoid overflow-hidden rounded-xl p-4 pl-5 transition duration-200 ease-premium hover:-translate-y-0.5",
                 COLORS[n.color] ?? COLORS.zinc
               )}
             >

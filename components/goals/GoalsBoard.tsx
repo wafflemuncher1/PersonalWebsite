@@ -503,7 +503,7 @@ function GoalGroup({
         {goals.map((g) => (
           <div
             key={g.id}
-            className="glass glass-hover rounded-xl p-4"
+            className="surface surface-hover rounded-xl p-4"
           >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">

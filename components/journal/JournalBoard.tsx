@@ -206,7 +206,7 @@ export function JournalBoard({
       )}
 
       {/* Composer */}
-      <div className="glass mb-6 rounded-2xl p-5">
+      <div className="surface mb-6 rounded-2xl p-5">
         <div className="mb-3 flex items-center gap-2">
           {MOODS.map((m) => (
             <button
@@ -250,7 +250,7 @@ export function JournalBoard({
       ) : (
         <div className="space-y-3">
           {entries.map((e) => (
-            <div key={e.id} className="glass rounded-xl p-4 transition duration-200 ease-premium hover:-translate-y-0.5 hover:shadow-elevate-hover">
+            <div key={e.id} className="surface rounded-xl p-4 transition duration-200 ease-premium hover:-translate-y-0.5">
               <div className="mb-1.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-lg leading-none">{moodMeta(e.mood).emoji}</span>
