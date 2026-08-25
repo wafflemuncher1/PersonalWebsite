@@ -166,7 +166,7 @@ export function Sidebar({
       </div>
 
       <div className="px-4 pb-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 transition-all duration-200 focus-within:border-violet-500/50 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.14)]">
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 transition-all duration-200 focus-within:border-violet-500/50 focus-within:bg-white/[0.05] focus-within:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]">
           <span className="text-zinc-600">⌕</span>
           <input
             value={query}
@@ -228,7 +228,7 @@ export function Sidebar({
                           className={cn(
                             "block rounded-xl px-3.5 py-2 text-xs font-medium transition-all duration-200 ease-premium",
                             subActive
-                              ? "bg-violet-500/15 text-violet-300 shadow-[inset_0_0_0_1px_rgba(139,92,246,0.25)]"
+                              ? "bg-violet-500/15 text-violet-300 shadow-[inset_0_0_0_1px_rgba(212,169,79,0.25)]"
                               : "text-zinc-500 hover:translate-x-0.5 hover:bg-white/[0.05] hover:text-zinc-200"
                           )}
                         >

@@ -17,7 +17,7 @@ export default function PricingPage() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2 text-sm font-medium text-white shadow-glow transition duration-200 ease-premium hover:from-violet-500 hover:to-violet-400 hover:shadow-glow-lg active:scale-95"
+            className="rounded-lg bg-gold-400 px-4 py-2 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
           >
             Sign up free
           </Link>
@@ -40,10 +40,10 @@ export default function PricingPage() {
           {PLANS.map((plan) => (
             <RevealItem key={plan.id}>
               <div
-                className={`glass glass-hover h-full rounded-2xl p-8 transition duration-200 ease-premium hover:-translate-y-0.5 ${plan.id === "pro" ? "shadow-glow ring-1 ring-violet-500/30" : ""}`}
+                className={`glass glass-hover h-full rounded-2xl p-8 transition duration-200 ease-premium hover:-translate-y-0.5 ${plan.id === "pro" ? "shadow-glow ring-1 ring-gold-400/25" : ""}`}
               >
                 {plan.id === "pro" && (
-                  <div className="mb-4 inline-flex rounded-full bg-violet-500/10 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-violet-300">
+                  <div className="mb-4 inline-flex rounded-full bg-gold-400/10 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-gold-300">
                     Most popular
                   </div>
                 )}
@@ -69,7 +69,7 @@ export default function PricingPage() {
                   href={`/signup?plan=${plan.id}`}
                   className={`mt-8 flex w-full items-center justify-center rounded-lg px-4 py-2.5 text-sm font-medium transition duration-200 ease-premium active:scale-[0.98] ${
                     plan.id === "pro"
-                      ? "bg-gradient-to-r from-violet-600 to-violet-500 text-white shadow-glow hover:from-violet-500 hover:to-violet-400 hover:shadow-glow-lg"
+                      ? "bg-gold-400 text-ink-950 shadow-glow hover:bg-gold-300 hover:shadow-glow-lg"
                       : "border border-white/10 bg-white/[0.04] text-zinc-200 hover:border-white/20 hover:bg-white/[0.08]"
                   }`}
                 >
@@ -83,7 +83,7 @@ export default function PricingPage() {
         <Reveal delay={0.15}>
           <p className="mt-10 text-center text-xs text-zinc-600">
             Already on Nocturne?{" "}
-            <Link href="/dashboard/settings" className="text-violet-400 hover:text-violet-300">
+            <Link href="/dashboard/settings" className="text-gold-400 hover:text-gold-300">
               Manage your plan
             </Link>{" "}
             from Settings.

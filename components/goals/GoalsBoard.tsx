@@ -286,7 +286,7 @@ export function GoalsBoard({
               className={cn(
                 "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
                 filter === f.key
-                  ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(139,92,246,0.5)]"
+                  ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(212,169,79,0.5)]"
                   : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
               )}
             >

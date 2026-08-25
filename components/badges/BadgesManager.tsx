@@ -97,7 +97,7 @@ export function BadgesManager({ defs, earned: initialEarned }: { defs: BadgeDef[
                         onClick={() => toggleEquip(row)}
                         aria-label={row.equipped ? "Unequip badge" : "Equip badge"}
                         className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 active:scale-95 ${
-                          row.equipped ? "bg-violet-500 shadow-[0_0_8px_-1px_rgba(139,92,246,0.7)]" : "bg-white/10"
+                          row.equipped ? "bg-violet-500 shadow-[0_0_8px_-1px_rgba(212,169,79,0.7)]" : "bg-white/10"
                         }`}
                       >
                         <span

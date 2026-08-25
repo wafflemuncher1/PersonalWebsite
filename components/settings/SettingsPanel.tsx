@@ -203,7 +203,7 @@ export function SettingsPanel({
                 </p>
               ) : (
                 <form onSubmit={handleUsernameSave} className="space-y-3">
-                  <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-violet-500/60 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]">
+                  <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-violet-500/60 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(212,169,79,0.16)]">
                     <span className="text-sm text-zinc-600">nocturne.co/</span>
                     <input
                       value={username}

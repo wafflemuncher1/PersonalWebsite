@@ -111,7 +111,7 @@ export function LinksForm({
             type="button"
             onClick={() => setCreating(true)}
             disabled={links.length >= TOTAL_LIMIT}
-            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-300 transition duration-200 ease-premium hover:bg-violet-500/20 hover:shadow-[0_0_12px_-4px_rgba(139,92,246,0.6)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
+            className="flex shrink-0 items-center gap-1.5 rounded-lg border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs font-medium text-violet-300 transition duration-200 ease-premium hover:bg-violet-500/20 hover:shadow-[0_0_12px_-4px_rgba(212,169,79,0.6)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:active:scale-100"
           >
             <Plus className="h-3.5 w-3.5" /> Create a link
           </button>
@@ -219,7 +219,7 @@ function LinkListRow({
         onClick={onToggle}
         aria-label={link.is_active ? "Turn off" : "Turn on"}
         className={`flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200 active:scale-95 ${
-          link.is_active ? "bg-violet-500 shadow-[0_0_8px_-1px_rgba(139,92,246,0.7)]" : "bg-white/10"
+          link.is_active ? "bg-violet-500 shadow-[0_0_8px_-1px_rgba(212,169,79,0.7)]" : "bg-white/10"
         }`}
       >
         <span

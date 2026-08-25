@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 const colorMap: Record<string, string> = {
-  violet: "bg-violet-500/10 text-violet-300 border-violet-500/25 shadow-[0_0_12px_-4px_rgba(139,92,246,0.6)]",
+  violet: "bg-gold-400/10 text-gold-300 border-gold-400/25 shadow-[0_0_12px_-4px_rgba(212,169,79,0.5)]",
   amber: "bg-amber-500/10 text-amber-300 border-amber-500/25 shadow-[0_0_12px_-4px_rgba(245,158,11,0.6)]",
   emerald: "bg-emerald-500/10 text-emerald-300 border-emerald-500/25 shadow-[0_0_12px_-4px_rgba(16,185,129,0.6)]",
   red: "bg-red-500/10 text-red-300 border-red-500/25 shadow-[0_0_12px_-4px_rgba(239,68,68,0.6)]",

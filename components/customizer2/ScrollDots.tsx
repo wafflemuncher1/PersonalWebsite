@@ -30,7 +30,7 @@ export function ScrollDots({
                 className={cn(
                   "rounded-full transition-all duration-300",
                   i === activeIndex
-                    ? "h-2.5 w-2.5 bg-violet-400 shadow-[0_0_10px_2px_rgba(139,92,246,0.7)]"
+                    ? "h-2.5 w-2.5 bg-violet-400 shadow-[0_0_10px_2px_rgba(212,169,79,0.7)]"
                     : "h-1.5 w-1.5 bg-white/25 group-hover:bg-white/50"
                 )}
               />

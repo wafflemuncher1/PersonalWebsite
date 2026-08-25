@@ -57,7 +57,7 @@ function LoginForm() {
         <Reveal>
           <div className="glass rounded-2xl p-8 shadow-glow">
             <div className="mb-6 flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-violet-500 shadow-[0_0_12px_2px_rgba(139,92,246,0.8)]" />
+              <div className="h-2 w-2 rounded-full bg-gold-400 shadow-[0_0_12px_2px_rgba(212,169,79,0.7)]" />
               <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">
                 private access
               </span>
@@ -98,7 +98,7 @@ function LoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-violet-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-gold-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]"
                 />
               </div>
 
@@ -117,7 +117,7 @@ function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Your password"
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-violet-500/60 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(139,92,246,0.16)]"
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-gold-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]"
                   />
                   <button
                     type="button"
@@ -140,7 +140,7 @@ function LoginForm() {
               <button
                 type="submit"
                 disabled={status === "loading"}
-                className="w-full rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2.5 text-sm font-medium text-white shadow-glow transition duration-200 ease-premium hover:from-violet-500 hover:to-violet-400 hover:shadow-glow-lg active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
+                className="w-full rounded-lg bg-gold-400 px-4 py-2.5 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
               >
                 {status === "loading" ? "Signing in…" : "Sign in"}
               </button>
@@ -153,7 +153,7 @@ function LoginForm() {
         </p>
         <p className="mt-2 text-center text-[13px] text-zinc-600">
           New here?{" "}
-          <Link href="/signup" className="text-violet-400 hover:text-violet-300">
+          <Link href="/signup" className="text-gold-400 hover:text-gold-300">
             Create your page
           </Link>
         </p>

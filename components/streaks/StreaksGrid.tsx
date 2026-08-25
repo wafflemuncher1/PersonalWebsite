@@ -26,7 +26,7 @@ const COLOR_DOT: Record<string, string> = {
 
 const COLOR_ACTIVE: Record<string, string> = {
   amber: "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]",
-  violet: "bg-violet-500 shadow-[0_0_6px_rgba(139,92,246,0.6)]",
+  violet: "bg-violet-500 shadow-[0_0_6px_rgba(212,169,79,0.6)]",
   emerald: "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]",
   blue: "bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.6)]",
   pink: "bg-pink-500 shadow-[0_0_6px_rgba(236,72,153,0.6)]",
@@ -185,7 +185,7 @@ export function StreaksGrid({
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
               !showArchived
-                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(139,92,246,0.5)]"
+                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(212,169,79,0.5)]"
                 : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
             )}
           >
@@ -196,7 +196,7 @@ export function StreaksGrid({
             className={cn(
               "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
               showArchived
-                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(139,92,246,0.5)]"
+                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(212,169,79,0.5)]"
                 : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
             )}
           >

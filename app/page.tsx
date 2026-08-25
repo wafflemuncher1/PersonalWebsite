@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Globe, Flame, Link2, Sparkles, Target } from "lucide-react";
+import { Globe, Flame, Link2, Target } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { PLANS } from "@/lib/plans";
@@ -37,7 +37,7 @@ export default function HomePage() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-4 py-2 text-sm font-medium text-white shadow-glow transition duration-200 ease-premium hover:from-violet-500 hover:to-violet-400 hover:shadow-glow-lg active:scale-95"
+            className="rounded-lg bg-gold-400 px-4 py-2 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
           >
             Sign up free
           </Link>
@@ -73,7 +73,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-wrap items-center gap-3">
               <Link
                 href="/signup"
-                className="rounded-lg bg-gradient-to-r from-violet-600 to-violet-500 px-5 py-2.5 text-sm font-medium text-white shadow-glow transition duration-200 ease-premium hover:from-violet-500 hover:to-violet-400 hover:shadow-glow-lg active:scale-95"
+                className="rounded-lg bg-gold-400 px-5 py-2.5 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
               >
                 Create your page →
               </Link>
@@ -90,10 +90,10 @@ export default function HomePage() {
               public profile, not a fake screenshot — shows the product itself. */}
           <Reveal delay={0.1} y={16}>
             <div className="relative mx-auto w-full max-w-[300px] lg:ml-auto lg:mr-0">
-              <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-violet-600/20 blur-3xl" />
+              <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-gold-500/10 blur-3xl" />
               <div className="glass animate-float rounded-[2rem] border border-white/10 p-6 shadow-elevate-lg">
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-violet-400 to-violet-700 shadow-[0_0_20px_-2px_rgba(139,92,246,0.7)]" />
+                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gold-300 to-gold-600 shadow-[0_0_20px_-2px_rgba(212,169,79,0.6)]" />
                   <p className="mt-3 text-sm font-semibold text-white">@yourname</p>
                   <p className="mt-1 text-xs text-zinc-500">night owl, builder, list-maker</p>
 
@@ -102,7 +102,7 @@ export default function HomePage() {
                       <Flame className="h-3 w-3" /> 42
                     </span>
                     <span className="h-3 w-px bg-white/10" />
-                    <span className="flex items-center gap-1 text-[11px] text-violet-300">
+                    <span className="flex items-center gap-1 text-[11px] text-gold-300">
                       <Target className="h-3 w-3" /> 6
                     </span>
                     <span className="h-3 w-px bg-white/10" />
@@ -117,7 +117,7 @@ export default function HomePage() {
                         key={label}
                         className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-left"
                       >
-                        <Link2 className="h-3.5 w-3.5 shrink-0 text-violet-400" />
+                        <Link2 className="h-3.5 w-3.5 shrink-0 text-gold-400" />
                         <span className="truncate text-xs text-zinc-300">{label}</span>
                       </div>
                     ))}
@@ -132,9 +132,9 @@ export default function HomePage() {
         <section className="mt-28">
           <Reveal>
             <h2 className="mb-10 flex items-center gap-3 text-sm font-medium uppercase tracking-[0.15em] text-zinc-500">
-              <span className="h-px flex-1 bg-gradient-to-r from-violet-500/40 to-transparent" />
+              <span className="h-px flex-1 bg-gradient-to-r from-gold-500/30 to-transparent" />
               How it works
-              <span className="h-px flex-1 bg-gradient-to-l from-violet-500/40 to-transparent" />
+              <span className="h-px flex-1 bg-gradient-to-l from-gold-500/30 to-transparent" />
             </h2>
           </Reveal>
 
@@ -142,7 +142,7 @@ export default function HomePage() {
             {STEPS.map((s, i) => (
               <RevealItem key={s.title}>
                 <div className="glass glass-hover flex gap-4 rounded-xl p-5 transition duration-200 ease-premium hover:-translate-y-0.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-violet-500/30 bg-violet-500/10 font-mono text-sm text-violet-300">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold-500/25 bg-gold-500/10 font-mono text-sm text-gold-300">
                     {i + 1}
                   </div>
                   <div>
@@ -160,11 +160,8 @@ export default function HomePage() {
         <section className="mt-28">
           <Reveal>
             <div className="mb-8 flex items-end justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-amber-400" />
-                <h2 className="text-2xl font-semibold tracking-tight text-white">Simple pricing</h2>
-              </div>
-              <Link href="/pricing" className="hidden text-xs text-violet-400 hover:text-violet-300 sm:inline">
+              <h2 className="text-2xl font-semibold tracking-tight text-white">Simple pricing</h2>
+              <Link href="/pricing" className="hidden text-xs text-gold-400 hover:text-gold-300 sm:inline">
                 Full plan comparison →
               </Link>
             </div>
@@ -190,7 +187,7 @@ export default function HomePage() {
             ))}
           </RevealGroup>
           <p className="mt-4 text-center sm:hidden">
-            <Link href="/pricing" className="text-xs text-violet-400 hover:text-violet-300">
+            <Link href="/pricing" className="text-xs text-gold-400 hover:text-gold-300">
               Full plan comparison →
             </Link>
           </p>
@@ -202,10 +199,10 @@ export default function HomePage() {
             © {new Date().getFullYear()} Nocturne
           </p>
           <div className="flex gap-4 font-mono text-[11px] text-zinc-600">
-            <Link href="/pricing" className="hover:text-violet-400">
+            <Link href="/pricing" className="hover:text-gold-400">
               Pricing
             </Link>
-            <Link href="/login" className="hover:text-violet-400">
+            <Link href="/login" className="hover:text-gold-400">
               Log in
             </Link>
           </div>

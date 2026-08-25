@@ -18,17 +18,24 @@ const config: Config = {
           750: "#160e26",
           700: "#1b1229",
         },
+        /* "violet" is retained only as an alias so the large surface area of
+           existing dashboard/profile screens (built against violet-* utility
+           classes) picks up the site's real accent — warm gold/bronze,
+           replacing the earlier AI-purple-glow palette — without a mechanical
+           rewrite of every file. New/hand-touched components should reach
+           for `gold`/`ink` directly instead of `violet`. */
         violet: {
-          50: "#f4f0ff",
-          100: "#e6dcff",
-          200: "#cfbcff",
-          300: "#b294fc",
-          400: "#a78bfa",
-          500: "#8b5cf6",
-          600: "#7c3aed",
-          700: "#6d28d9",
-          800: "#5b21b6",
-          900: "#4c1d95",
+          50: "#faf6ec",
+          100: "#f3e0a8",
+          200: "#f3e0a8",
+          300: "#f3e0a8",
+          400: "#e8c877",
+          500: "#d4a94f",
+          600: "#b8863a",
+          700: "#96702e",
+          800: "#7a5c26",
+          900: "#4a3418",
+          950: "#2e2010",
         },
         amber: {
           300: "#fcd34d",
@@ -40,6 +47,10 @@ const config: Config = {
           300: "#f3e0a8",
           400: "#e8c877",
           500: "#d4a94f",
+          600: "#b8863a",
+          700: "#96702e",
+          900: "#4a3418",
+          950: "#2e2010",
         },
       },
       fontFamily: {
@@ -48,23 +59,23 @@ const config: Config = {
       },
       backgroundImage: {
         "radial-glow":
-          "radial-gradient(circle at 20% -10%, rgba(139,92,246,0.25), transparent 45%), radial-gradient(circle at 100% 0%, rgba(245,158,11,0.12), transparent 40%)",
+          "radial-gradient(circle at 20% -10%, rgba(212,169,79,0.14), transparent 45%)",
         "radial-glow-soft":
-          "radial-gradient(circle at 15% -10%, rgba(139,92,246,0.16), transparent 40%), radial-gradient(circle at 90% 10%, rgba(212,169,79,0.08), transparent 35%), radial-gradient(circle at 50% 120%, rgba(139,92,246,0.10), transparent 45%)",
+          "radial-gradient(circle at 15% -10%, rgba(212,169,79,0.10), transparent 40%), radial-gradient(circle at 90% 100%, rgba(212,169,79,0.06), transparent 45%)",
         "grid-lines":
           "linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px)",
         "sheen-sweep":
           "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 48%, rgba(255,255,255,0.22) 52%, transparent 70%)",
-        "border-glow": "linear-gradient(135deg, rgba(167,139,250,0.6), rgba(212,169,79,0.35), rgba(167,139,250,0.15))",
+        "border-glow": "linear-gradient(135deg, rgba(212,169,79,0.55), rgba(212,169,79,0.15))",
       },
       boxShadow: {
-        glow: "0 0 0 1px rgba(139,92,246,0.15), 0 8px 30px -8px rgba(139,92,246,0.35)",
+        glow: "0 0 0 1px rgba(212,169,79,0.18), 0 8px 30px -8px rgba(212,169,79,0.3)",
         "glow-amber": "0 0 0 1px rgba(245,158,11,0.2), 0 8px 30px -8px rgba(245,158,11,0.35)",
-        "glow-lg": "0 0 0 1px rgba(139,92,246,0.18), 0 20px 60px -15px rgba(139,92,246,0.5)",
+        "glow-lg": "0 0 0 1px rgba(212,169,79,0.2), 0 20px 60px -15px rgba(212,169,79,0.4)",
         elevate: "0 1px 0 0 rgba(255,255,255,0.05) inset, 0 12px 32px -12px rgba(0,0,0,0.65)",
         "elevate-lg": "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 30px 70px -20px rgba(0,0,0,0.75)",
         "elevate-hover":
-          "0 1px 0 0 rgba(255,255,255,0.08) inset, 0 0 0 1px rgba(139,92,246,0.25), 0 24px 55px -18px rgba(139,92,246,0.45)",
+          "0 1px 0 0 rgba(255,255,255,0.08) inset, 0 0 0 1px rgba(212,169,79,0.22), 0 24px 55px -18px rgba(212,169,79,0.3)",
         premium:
           "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 0 0 1px rgba(255,255,255,0.06), 0 25px 60px -20px rgba(0,0,0,0.8)",
       },
