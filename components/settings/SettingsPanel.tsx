@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Input } from "@/components/ui/Input";
-import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { formatDateTime } from "@/lib/utils";
 import { getPlan } from "@/lib/plans";
@@ -160,7 +160,7 @@ export function SettingsPanel({
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Reveal>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Settings</h1>
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Settings</h1>
       </Reveal>
 
       <RevealGroup className="space-y-6" stagger={0.06}>
@@ -169,116 +169,134 @@ export function SettingsPanel({
         </RevealItem>
 
         <RevealItem>
-          <Card className="p-6">
-            <h2 className="mb-4 text-sm font-medium text-white">Account</h2>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-zinc-500">Email</span>
-                <span className="font-mono text-zinc-200">{email}</span>
+          <Card>
+            <CardHeader>
+              <CardTitle>Account</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <div className="flex items-center justify-between border-b pb-3">
+                <span className="text-muted-foreground">Email</span>
+                <span className="font-mono">{email}</span>
               </div>
-              <div className="flex items-center justify-between border-b border-white/5 pb-3">
-                <span className="text-zinc-500">Member since</span>
-                <span className="font-mono text-zinc-200">{createdAt ? formatDateTime(createdAt) : "—"}</span>
+              <div className="flex items-center justify-between border-b pb-3">
+                <span className="text-muted-foreground">Member since</span>
+                <span className="font-mono">{createdAt ? formatDateTime(createdAt) : "—"}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-zinc-500">Last sign-in</span>
-                <span className="font-mono text-zinc-200">{lastSignInAt ? formatDateTime(lastSignInAt) : "—"}</span>
+                <span className="text-muted-foreground">Last sign-in</span>
+                <span className="font-mono">{lastSignInAt ? formatDateTime(lastSignInAt) : "—"}</span>
               </div>
-            </div>
+            </CardContent>
           </Card>
         </RevealItem>
 
         {profile && (
           <RevealItem>
-            <Card className="p-6">
-              <h2 className="mb-1 text-sm font-medium text-white">Page URL</h2>
-              <p className="mb-4 text-xs text-zinc-500">
-                Your public page lives at nocturne.co/{profile.username}. Background, picture, bio,
-                and links live under Profile in the sidebar. You can change this once every{" "}
-                {USERNAME_COOLDOWN_DAYS} days.
-              </p>
-              {usernameLocked ? (
-                <p className="rounded-lg border border-white/5 bg-white/[0.02] px-3.5 py-2.5 text-sm text-zinc-500">
-                  You can change your username again in {daysLeft} day{daysLeft === 1 ? "" : "s"}.
-                </p>
-              ) : (
-                <form onSubmit={handleUsernameSave} className="space-y-3">
-                  <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-violet-500/60 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(212,169,79,0.16)]">
-                    <span className="text-sm text-zinc-600">nocturne.co/</span>
-                    <input
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
-                      className="w-full bg-transparent px-1 py-2.5 text-sm text-white outline-none"
-                    />
-                  </div>
-                  {usernameStatus === "error" && <p className="text-sm text-red-400">{usernameError}</p>}
-                  {usernameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
-                  <Button type="submit" disabled={usernameStatus === "saving"}>
-                    {usernameStatus === "saving" ? "Saving…" : "Update username"}
+            <Card>
+              <CardHeader>
+                <CardTitle>Page URL</CardTitle>
+                <CardDescription>
+                  Your public page lives at nocturne.co/{profile.username}. Background, picture, bio,
+                  and links live under Profile in the sidebar. You can change this once every{" "}
+                  {USERNAME_COOLDOWN_DAYS} days.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {usernameLocked ? (
+                  <p className="rounded-lg border bg-muted/30 px-3.5 py-2.5 text-sm text-muted-foreground">
+                    You can change your username again in {daysLeft} day{daysLeft === 1 ? "" : "s"}.
+                  </p>
+                ) : (
+                  <form onSubmit={handleUsernameSave} className="space-y-3">
+                    <div className="flex h-8 items-center rounded-lg border border-input bg-transparent pl-2.5 pr-1 transition-colors focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+                      <span className="text-sm text-muted-foreground">nocturne.co/</span>
+                      <input
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value.toLowerCase())}
+                        className="w-full bg-transparent px-1 py-1 text-sm outline-none"
+                      />
+                    </div>
+                    {usernameStatus === "error" && <p className="text-sm text-destructive">{usernameError}</p>}
+                    {usernameStatus === "done" && <p className="text-sm text-emerald-500">Saved.</p>}
+                    <Button type="submit" disabled={usernameStatus === "saving"}>
+                      {usernameStatus === "saving" ? "Saving…" : "Update username"}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
+          </RevealItem>
+        )}
+
+        {profile && (
+          <RevealItem>
+            <Card>
+              <CardHeader>
+                <CardTitle>Display Name</CardTitle>
+                <CardDescription>
+                  Shown on your public page instead of your username. Change it any time.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleDisplayNameSave} className="space-y-3">
+                  <Input
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your display name"
+                    maxLength={40}
+                  />
+                  {displayNameStatus === "error" && <p className="text-sm text-destructive">{displayNameError}</p>}
+                  {displayNameStatus === "done" && <p className="text-sm text-emerald-500">Saved.</p>}
+                  <Button type="submit" disabled={displayNameStatus === "saving"}>
+                    {displayNameStatus === "saving" ? "Saving…" : "Update display name"}
                   </Button>
                 </form>
-              )}
-            </Card>
-          </RevealItem>
-        )}
-
-        {profile && (
-          <RevealItem>
-            <Card className="p-6">
-              <h2 className="mb-1 text-sm font-medium text-white">Display Name</h2>
-              <p className="mb-4 text-xs text-zinc-500">
-                Shown on your public page instead of your username. Change it any time.
-              </p>
-              <form onSubmit={handleDisplayNameSave} className="space-y-3">
-                <Input
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Your display name"
-                  maxLength={40}
-                />
-                {displayNameStatus === "error" && <p className="text-sm text-red-400">{displayNameError}</p>}
-                {displayNameStatus === "done" && <p className="text-sm text-emerald-400">Saved.</p>}
-                <Button type="submit" disabled={displayNameStatus === "saving"}>
-                  {displayNameStatus === "saving" ? "Saving…" : "Update display name"}
-                </Button>
-              </form>
+              </CardContent>
             </Card>
           </RevealItem>
         )}
 
         <RevealItem>
-          <Card className="p-6">
-            <h2 className="mb-1 text-sm font-medium text-white">Change password</h2>
-            <p className="mb-4 text-xs text-zinc-500">Choose something you don't use anywhere else.</p>
-            <form onSubmit={handleChangePassword} className="space-y-3">
-              <Input
-                type="password"
-                placeholder="New password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="Confirm new password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              {pwStatus === "error" && <p className="text-sm text-red-400">{pwError}</p>}
-              {pwStatus === "done" && <p className="text-sm text-emerald-400">Password updated.</p>}
-              <Button type="submit" disabled={pwStatus === "saving"}>
-                {pwStatus === "saving" ? "Saving…" : "Update password"}
-              </Button>
-            </form>
+          <Card>
+            <CardHeader>
+              <CardTitle>Change password</CardTitle>
+              <CardDescription>Choose something you don&apos;t use anywhere else.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                <Input
+                  type="password"
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <Input
+                  type="password"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                {pwStatus === "error" && <p className="text-sm text-destructive">{pwError}</p>}
+                {pwStatus === "done" && <p className="text-sm text-emerald-500">Password updated.</p>}
+                <Button type="submit" disabled={pwStatus === "saving"}>
+                  {pwStatus === "saving" ? "Saving…" : "Update password"}
+                </Button>
+              </form>
+            </CardContent>
           </Card>
         </RevealItem>
 
         <RevealItem>
-          <Card className="p-6">
-            <h2 className="mb-1 text-sm font-medium text-white">Session</h2>
-            <p className="mb-4 text-xs text-zinc-500">Sign out of Nocturne on this device.</p>
-            <Button variant="danger" onClick={handleSignOut}>
-              Sign out
-            </Button>
+          <Card>
+            <CardHeader>
+              <CardTitle>Session</CardTitle>
+              <CardDescription>Sign out of Nocturne on this device.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="destructive" onClick={handleSignOut}>
+                Sign out
+              </Button>
+            </CardContent>
           </Card>
         </RevealItem>
       </RevealGroup>
@@ -333,43 +351,46 @@ function BillingCard({
   }, [autoCheckout]);
 
   return (
-    <Card className="p-6">
-      <h2 className="mb-1 text-sm font-medium text-white">Billing</h2>
-      <p className="mb-4 text-xs text-zinc-500">Manage your plan and payment method.</p>
-
-      <div className="mb-4 flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] p-3.5 transition duration-200 hover:border-white/10">
-        <div>
-          <p className="text-sm text-zinc-200">
-            {plan.name} plan
-            {profile?.subscription_status && profile.subscription_status !== "inactive" && (
-              <span className="ml-2">
-                <Badge color={profile.subscription_status === "active" ? "emerald" : "amber"}>
-                  {profile.subscription_status}
-                </Badge>
-              </span>
-            )}
-          </p>
-          <p className="text-xs text-zinc-500">
-            {plan.price}
-            {plan.priceSuffix}
-          </p>
+    <Card>
+      <CardHeader>
+        <CardTitle>Billing</CardTitle>
+        <CardDescription>Manage your plan and payment method.</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="mb-4 flex items-center justify-between rounded-lg border bg-muted/30 p-3.5 transition-colors hover:bg-muted/50">
+          <div>
+            <p className="text-sm">
+              {plan.name} plan
+              {profile?.subscription_status && profile.subscription_status !== "inactive" && (
+                <span className="ml-2">
+                  <Badge variant={profile.subscription_status === "active" ? "default" : "secondary"}>
+                    {profile.subscription_status}
+                  </Badge>
+                </span>
+              )}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {plan.price}
+              {plan.priceSuffix}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
+        {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
 
-      <div className="flex gap-3">
-        {profile?.plan !== "pro" && (
-          <Button onClick={handleUpgrade} disabled={loading !== null}>
-            {loading === "checkout" ? "Redirecting…" : "Upgrade to Pro"}
-          </Button>
-        )}
-        {profile?.stripe_customer_id && (
-          <Button variant="secondary" onClick={handleManageBilling} disabled={loading !== null}>
-            {loading === "portal" ? "Redirecting…" : "Manage billing"}
-          </Button>
-        )}
-      </div>
+        <div className="flex gap-3">
+          {profile?.plan !== "pro" && (
+            <Button onClick={handleUpgrade} disabled={loading !== null}>
+              {loading === "checkout" ? "Redirecting…" : "Upgrade to Pro"}
+            </Button>
+          )}
+          {profile?.stripe_customer_id && (
+            <Button variant="secondary" onClick={handleManageBilling} disabled={loading !== null}>
+              {loading === "portal" ? "Redirecting…" : "Manage billing"}
+            </Button>
+          )}
+        </div>
+      </CardContent>
     </Card>
   );
 }

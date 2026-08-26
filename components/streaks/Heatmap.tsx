@@ -39,7 +39,7 @@ export function Heatmap({
             const showLabel =
               i === 0 || first.getDate() <= 7 && weeks[i - 1][0].getMonth() !== first.getMonth();
             return (
-              <div key={i} className={cn(size === "sm" ? "w-2.5" : "w-3.5", "font-mono text-[9px] text-zinc-600")}>
+              <div key={i} className={cn(size === "sm" ? "w-2.5" : "w-3.5", "font-mono text-[9px] text-muted-foreground")}>
                 {showLabel ? MONTH_LABELS[first.getMonth()] : ""}
               </div>
             );
@@ -72,7 +72,7 @@ export function Heatmap({
                         ? customColor
                         : logged
                           ? activeColorClass
-                          : "bg-white/[0.06] hover:bg-white/[0.14]",
+                          : "bg-muted hover:bg-muted/70",
                     onDayClick && !isFuture ? "cursor-pointer" : "cursor-default"
                   )}
                 />

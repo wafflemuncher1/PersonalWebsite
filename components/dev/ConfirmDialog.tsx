@@ -1,7 +1,18 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export function ConfirmDialog({
   open,
@@ -40,68 +51,46 @@ export function ConfirmDialog({
   const typedBlocked = !!requireTyped && typed !== requireTyped;
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/70 px-6 backdrop-blur-sm"
-          onClick={onCancel}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 12 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: 12 }}
-            transition={{ type: "spring", stiffness: 320, damping: 28 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm rounded-2xl border border-white/10 bg-ink-950 p-5 shadow-2xl"
+    <AlertDialog open={open} onOpenChange={(next) => !next && onCancel()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle className={cn("flex items-center gap-2.5", danger ? "text-destructive" : "text-primary")}>
+            {icon}
+            {title}
+          </AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+
+        {requireTyped && (
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">
+              Type <span className="font-mono text-foreground">{requireTyped}</span> to confirm
+            </Label>
+            <Input
+              autoFocus
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              className="font-mono text-xs"
+            />
+          </div>
+        )}
+
+        {error && <p className="text-xs text-destructive">{error}</p>}
+
+        <AlertDialogFooter>
+          <Button variant="outline" onClick={onCancel} disabled={loading} className="flex-1">
+            Cancel
+          </Button>
+          <Button
+            variant={danger ? "destructive" : "default"}
+            onClick={onConfirm}
+            disabled={loading || typedBlocked}
+            className="flex-1"
           >
-            <div className={`flex items-center gap-2.5 ${danger ? "text-red-400" : "text-violet-400"}`}>
-              {icon}
-              <p className="text-sm font-semibold text-white">{title}</p>
-            </div>
-            <div className="mt-2.5 text-xs leading-relaxed text-zinc-400">{description}</div>
-
-            {requireTyped && (
-              <div className="mt-3">
-                <label className="mb-1 block text-[11px] text-zinc-500">
-                  Type <span className="font-mono text-zinc-300">{requireTyped}</span> to confirm
-                </label>
-                <input
-                  autoFocus
-                  value={typed}
-                  onChange={(e) => setTyped(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 font-mono text-xs text-white outline-none focus:border-red-500/60"
-                />
-              </div>
-            )}
-
-            {error && <p className="mt-2.5 text-xs text-red-400">{error}</p>}
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={loading}
-                className="flex-1 rounded-lg border border-white/10 py-2 text-xs font-medium text-zinc-300 transition hover:bg-white/5 disabled:opacity-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={onConfirm}
-                disabled={loading || typedBlocked}
-                className={`flex-1 rounded-lg py-2 text-xs font-semibold transition disabled:opacity-50 ${
-                  danger ? "bg-red-500 text-white hover:bg-red-400" : "bg-violet-500 text-white hover:bg-violet-400"
-                }`}
-              >
-                {loading ? "Working…" : confirmLabel}
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+            {loading ? "Working…" : confirmLabel}
+          </Button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

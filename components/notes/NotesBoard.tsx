@@ -3,21 +3,28 @@
 import { useMemo, useState } from "react";
 import { Pin, StickyNote } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
-import { Input, Textarea } from "@/components/ui/Input";
-import { Modal } from "@/components/ui/Modal";
-import { StatTile } from "@/components/ui/StatTile";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { HeroStat } from "@/components/dashboard/HeroStat";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { relativeTime, cn } from "@/lib/utils";
 import type { Note } from "@/lib/types";
 
 const COLORS: Record<string, string> = {
-  violet: "border-violet-500/30 hover:border-violet-500/50",
-  amber: "border-amber-500/30 hover:border-amber-500/50",
-  emerald: "border-emerald-500/30 hover:border-emerald-500/50",
-  blue: "border-blue-500/30 hover:border-blue-500/50",
-  pink: "border-pink-500/30 hover:border-pink-500/50",
-  zinc: "border-white/10 hover:border-white/25",
+  violet: "ring-violet-500/30 hover:ring-violet-500/50",
+  amber: "ring-amber-500/30 hover:ring-amber-500/50",
+  emerald: "ring-emerald-500/30 hover:ring-emerald-500/50",
+  blue: "ring-blue-500/30 hover:ring-blue-500/50",
+  pink: "ring-pink-500/30 hover:ring-pink-500/50",
+  zinc: "ring-foreground/10 hover:ring-foreground/20",
 };
 
 const COLOR_DOT: Record<string, string> = {
@@ -35,7 +42,7 @@ const COLOR_BAR: Record<string, string> = {
   emerald: "bg-emerald-500/70",
   blue: "bg-blue-500/70",
   pink: "bg-pink-500/70",
-  zinc: "bg-white/20",
+  zinc: "bg-foreground/20",
 };
 
 export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
@@ -127,8 +134,8 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
       <Reveal>
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Notes</h1>
-            <p className="mt-1 text-sm text-zinc-500">Quick thoughts, saved and searchable.</p>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Notes</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Quick thoughts, saved and searchable.</p>
           </div>
         </div>
       </Reveal>
@@ -136,10 +143,10 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
       {notes.length > 0 && (
         <RevealGroup className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3" stagger={0.07}>
           <RevealItem>
-            <StatTile icon={<StickyNote className="h-4 w-4" />} label="Total notes" value={notes.length} accent="violet" />
+            <HeroStat icon={<StickyNote className="h-4 w-4" />} label="Total notes" value={notes.length} />
           </RevealItem>
           <RevealItem>
-            <StatTile icon={<Pin className="h-4 w-4" />} label="Pinned" value={pinnedCount} accent="amber" />
+            <HeroStat icon={<Pin className="h-4 w-4" />} label="Pinned" value={pinnedCount} />
           </RevealItem>
         </RevealGroup>
       )}
@@ -158,7 +165,9 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
                 onClick={() => setColorFilter(null)}
                 className={cn(
                   "rounded-full border px-2.5 py-1 text-[11px] transition duration-200 active:scale-95",
-                  !colorFilter ? "border-white/25 text-white" : "border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300"
+                  !colorFilter
+                    ? "border-foreground/25 text-foreground"
+                    : "border-border text-muted-foreground hover:border-foreground/20 hover:text-foreground"
                 )}
               >
                 All
@@ -169,7 +178,7 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
                   onClick={() => setColorFilter(colorFilter === c ? null : c)}
                   className={cn(
                     "flex h-6 w-6 items-center justify-center rounded-full transition duration-200 active:scale-90",
-                    colorFilter === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-70 hover:scale-110 hover:opacity-100"
+                    colorFilter === c ? "ring-2 ring-foreground/60 ring-offset-2 ring-offset-background" : "opacity-70 hover:scale-110 hover:opacity-100"
                   )}
                   aria-label={`Filter ${c} notes`}
                 >
@@ -183,84 +192,89 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-white/10 p-12 text-center text-sm text-zinc-500">
+        <div className="rounded-xl border border-dashed p-12 text-center text-sm text-muted-foreground">
           {notes.length === 0 ? "No notes yet — capture your first thought." : "No notes match your search."}
         </div>
       ) : (
         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
           {filtered.map((n) => (
-            <div
+            <Card
               key={n.id}
               className={cn(
-                "surface relative break-inside-avoid overflow-hidden rounded-xl p-4 pl-5 transition duration-200 ease-premium hover:-translate-y-0.5",
+                "relative break-inside-avoid overflow-hidden ring-1 transition duration-200 ease-premium hover:-translate-y-0.5",
                 COLORS[n.color] ?? COLORS.zinc
               )}
             >
               <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_BAR[n.color] ?? COLOR_BAR.zinc)} />
-              <div className="mb-2 flex items-start justify-between gap-2">
-                <h3 className="font-medium text-zinc-100">{n.title || "Untitled"}</h3>
+              <div className="mb-2 flex items-start justify-between gap-2 px-4 pl-5">
+                <h3 className="font-medium">{n.title || "Untitled"}</h3>
                 <button
                   onClick={() => togglePin(n)}
-                  className={cn("shrink-0 text-sm transition", n.pinned ? "text-amber-400" : "text-zinc-700 hover:text-zinc-400")}
+                  className={cn("shrink-0 text-sm transition", n.pinned ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground")}
                   title={n.pinned ? "Unpin" : "Pin"}
                 >
-                  <Pin className={cn("h-3.5 w-3.5", n.pinned && "fill-amber-400")} />
+                  <Pin className={cn("h-3.5 w-3.5", n.pinned && "fill-primary")} />
                 </button>
               </div>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-400">{n.content}</p>
-              <div className="mt-3 flex items-center justify-between">
-                <span className="font-mono text-[10px] text-zinc-600">{relativeTime(n.updated_at)}</span>
+              <p className="whitespace-pre-wrap px-4 pl-5 text-sm leading-relaxed text-muted-foreground">{n.content}</p>
+              <div className="mt-3 flex items-center justify-between px-4 pl-5">
+                <span className="font-mono text-[10px] text-muted-foreground">{relativeTime(n.updated_at)}</span>
                 <div className="flex gap-2 text-xs">
-                  <button onClick={() => openEdit(n)} className="text-zinc-500 hover:text-violet-300">
+                  <button onClick={() => openEdit(n)} className="text-muted-foreground hover:text-primary">
                     edit
                   </button>
-                  <button onClick={() => remove(n.id)} className="text-zinc-500 hover:text-red-300">
+                  <button onClick={() => remove(n.id)} className="text-muted-foreground hover:text-destructive">
                     delete
                   </button>
                 </div>
               </div>
-            </div>
+            </Card>
           ))}
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Edit note" : "New note"}>
-        <div className="space-y-3">
-          <Input
-            placeholder="Title"
-            value={form.title}
-            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            autoFocus
-          />
-          <Textarea
-            placeholder="Write something…"
-            value={form.content}
-            onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-            rows={6}
-          />
-          <div className="flex items-center gap-2">
-            {Object.keys(COLOR_DOT).map((c) => (
-              <button
-                key={c}
-                onClick={() => setForm((f) => ({ ...f, color: c }))}
-                className={cn(
-                  "h-6 w-6 rounded-full transition",
-                  COLOR_DOT[c],
-                  form.color === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-60"
-                )}
-              />
-            ))}
+      <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editing ? "Edit note" : "New note"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Title"
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              autoFocus
+            />
+            <Textarea
+              placeholder="Write something…"
+              value={form.content}
+              onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
+              rows={6}
+            />
+            <div className="flex items-center gap-2">
+              {Object.keys(COLOR_DOT).map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setForm((f) => ({ ...f, color: c }))}
+                  className={cn(
+                    "h-6 w-6 rounded-full transition",
+                    COLOR_DOT[c],
+                    form.color === c ? "ring-2 ring-foreground/60 ring-offset-2 ring-offset-background" : "opacity-60"
+                  )}
+                />
+              ))}
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={save} disabled={saving}>
+                {saving ? "Saving…" : "Save note"}
+              </Button>
+            </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={save} disabled={saving}>
-              {saving ? "Saving…" : "Save note"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

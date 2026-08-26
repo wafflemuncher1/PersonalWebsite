@@ -1,8 +1,19 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowUpRight, Menu } from "lucide-react";
+import { ArrowUpRight, LogOut, ExternalLink } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const TITLES: Record<string, string> = {
   "/dashboard": "Overview",
@@ -23,11 +34,9 @@ const TITLES: Record<string, string> = {
 export function Topbar({
   email,
   username,
-  onMenuClick,
 }: {
   email: string;
   username: string | null;
-  onMenuClick: () => void;
 }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -43,19 +52,16 @@ export function Topbar({
     router.refresh();
   }
 
+  const initial = (username ?? email ?? "?").trim().charAt(0).toUpperCase() || "?";
+
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-white/5 bg-ink-950/70 px-6 py-4 backdrop-blur-xl sm:px-8">
-      <div className="flex items-center gap-4">
-        <button
-          onClick={onMenuClick}
-          aria-label="Toggle menu"
-          className="flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.03] text-zinc-300 transition-all duration-200 ease-premium hover:border-gold-400/40 hover:bg-gold-400/10 hover:text-white active:scale-95 lg:hidden"
-        >
-          <Menu className="h-4 w-4" strokeWidth={1.75} />
-        </button>
+    <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b bg-background/80 px-4 py-3 backdrop-blur-lg sm:px-6">
+      <div className="flex items-center gap-3">
+        <SidebarTrigger />
+        <Separator orientation="vertical" className="h-5" />
         <div>
-          <h1 className="font-display text-lg font-semibold tracking-tight text-white">{title}</h1>
-          <p className="font-mono text-[11px] text-zinc-600">
+          <h1 className="font-display text-base font-semibold tracking-tight">{title}</h1>
+          <p className="font-mono text-[11px] text-muted-foreground">
             {new Date().toLocaleDateString("en-US", {
               weekday: "long",
               month: "long",
@@ -65,24 +71,48 @@ export function Topbar({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2">
         {username && (
-          <a
-            href={`/${username}`}
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1 rounded-lg bg-gold-400 px-3 py-1.5 text-xs font-semibold text-ink-950 shadow-glow transition-all duration-200 ease-premium hover:bg-gold-300 active:scale-95 lg:hidden"
-          >
-            View my page <ArrowUpRight className="h-3 w-3" />
-          </a>
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden gap-1.5 sm:inline-flex"
+            render={
+              <a href={`/${username}`} target="_blank" rel="noreferrer">
+                View my page <ArrowUpRight className="h-3.5 w-3.5" />
+              </a>
+            }
+          />
         )}
-        <span className="hidden font-mono text-xs text-zinc-500 sm:inline">{email}</span>
-        <button
-          onClick={handleSignOut}
-          className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs text-zinc-400 transition-all duration-200 ease-premium hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-300 active:scale-95"
-        >
-          Sign out
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <button className="flex items-center gap-2 rounded-full outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
+                    {initial}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            }
+          />
+          <DropdownMenuContent align="end" className="w-56">
+            <div className="px-2 py-1.5 text-xs text-muted-foreground">{email}</div>
+            <DropdownMenuSeparator />
+            {username && (
+              <DropdownMenuItem
+                render={
+                  <a href={`/${username}`} target="_blank" rel="noreferrer">
+                    <ExternalLink /> View public page
+                  </a>
+                }
+              />
+            )}
+            <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
+              <LogOut /> Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

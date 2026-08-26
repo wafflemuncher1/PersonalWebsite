@@ -3,7 +3,10 @@ import { Space_Grotesk } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { TransitionProvider } from "@/components/transition/TransitionProvider";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import { cn } from "@/lib/utils";
 
 // Display face for headlines only — everything else stays on Geist. This is
 // the single biggest lever against the "Inter/Geist everywhere" AI look:
@@ -34,9 +37,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${GeistSans.variable} ${GeistMono.variable} ${spaceGrotesk.variable}`}>
-      <body className="min-h-screen bg-ink-950 font-sans antialiased noise">
-        <TransitionProvider>{children}</TransitionProvider>
+    <html lang="en" className={cn("dark", GeistSans.variable, GeistMono.variable, spaceGrotesk.variable, "font-sans")}>
+      <body className="min-h-screen bg-background font-sans text-foreground antialiased noise">
+        <TooltipProvider delay={200}>
+          <TransitionProvider>{children}</TransitionProvider>
+          <Toaster />
+        </TooltipProvider>
       </body>
     </html>
   );

@@ -1,6 +1,9 @@
 import { InputHTMLAttributes, TextareaHTMLAttributes, forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
+// Forked from the old components/ui/Input so the profile-customizer surface
+// keeps its exact look, independent of whatever components/ui/Input.tsx
+// becomes for the dashboard redesign.
 export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
   ({ className, ...props }, ref) => (
     <input

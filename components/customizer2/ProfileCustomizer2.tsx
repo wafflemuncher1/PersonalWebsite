@@ -7,7 +7,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { Input, Textarea } from "@/components/ui/Input";
+import { Input, Textarea } from "@/components/profile/ui/Input";
 import { LivePreview } from "@/components/customizer2/LivePreview";
 import {
   AudioDropzone,

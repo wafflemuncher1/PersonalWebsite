@@ -4,9 +4,11 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Flame, Globe, Trophy, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { StatTile } from "@/components/ui/StatTile";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
@@ -18,7 +20,7 @@ const COLORS = ["amber", "violet", "emerald", "blue", "pink"];
 
 const COLOR_DOT: Record<string, string> = {
   amber: "bg-amber-500",
-  violet: "bg-violet-500",
+  violet: "bg-primary",
   emerald: "bg-emerald-500",
   blue: "bg-blue-500",
   pink: "bg-pink-500",
@@ -26,7 +28,7 @@ const COLOR_DOT: Record<string, string> = {
 
 const COLOR_ACTIVE: Record<string, string> = {
   amber: "bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.6)]",
-  violet: "bg-violet-500 shadow-[0_0_6px_rgba(212,169,79,0.6)]",
+  violet: "bg-primary shadow-[0_0_6px_rgba(212,169,79,0.6)]",
   emerald: "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]",
   blue: "bg-blue-500 shadow-[0_0_6px_rgba(59,130,246,0.6)]",
   pink: "bg-pink-500 shadow-[0_0_6px_rgba(236,72,153,0.6)]",
@@ -145,8 +147,8 @@ export function StreaksGrid({
       <Reveal>
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Streaks</h1>
-            <p className="mt-1 text-sm text-zinc-500">Build momentum on the habits that matter to you.</p>
+            <h1 className="font-display text-3xl font-semibold tracking-tight">Streaks</h1>
+            <p className="mt-1 text-sm text-muted-foreground">Build momentum on the habits that matter to you.</p>
           </div>
         </div>
       </Reveal>
@@ -179,37 +181,19 @@ export function StreaksGrid({
       )}
 
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] p-1">
-          <button
-            onClick={() => setShowArchived(false)}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
-              !showArchived
-                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(212,169,79,0.5)]"
-                : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
-            )}
-          >
-            Active
-          </button>
-          <button
-            onClick={() => setShowArchived(true)}
-            className={cn(
-              "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
-              showArchived
-                ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(212,169,79,0.5)]"
-                : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
-            )}
-          >
-            Archived
-          </button>
-        </div>
+        <Tabs value={showArchived ? "archived" : "active"} onValueChange={(v) => setShowArchived(v === "archived")}>
+          <TabsList>
+            <TabsTrigger value="active">Active</TabsTrigger>
+            <TabsTrigger value="archived">Archived</TabsTrigger>
+          </TabsList>
+        </Tabs>
         <Button size="sm" onClick={() => setModalOpen(true)}>
           + New streak
         </Button>
       </div>
 
       {visible.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-white/10 p-12 text-center text-sm text-zinc-500">
+        <div className="rounded-xl border border-dashed p-12 text-center text-sm text-muted-foreground">
           {showArchived ? "No archived streaks." : "No streaks yet — start building momentum."}
         </div>
       ) : (
@@ -219,7 +203,7 @@ export function StreaksGrid({
             const stats = computeStreakStats(dateSet);
             const doneToday = dateSet.has(today);
             return (
-              <div
+              <Card
                 key={s.id}
                 role="button"
                 tabIndex={0}
@@ -227,7 +211,7 @@ export function StreaksGrid({
                 onKeyDown={(e) => {
                   if (e.key === "Enter") router.push(`/dashboard/streaks/${s.id}`);
                 }}
-                className="surface surface-hover group relative flex cursor-pointer flex-col overflow-hidden rounded-xl p-4"
+                className="group relative flex cursor-pointer flex-col overflow-hidden p-4 transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:border-primary/25"
               >
                 <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_DOT[s.color] ?? COLOR_DOT.amber)} />
                 <div className="mb-3 flex items-center justify-between pl-1.5">
@@ -235,14 +219,14 @@ export function StreaksGrid({
                     <span className="text-2xl">{s.emoji}</span>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <p className="text-sm font-medium text-zinc-100">{s.name}</p>
+                        <p className="text-sm font-medium text-foreground">{s.name}</p>
                         {s.show_on_profile && (
                           <span title="Shown on public profile">
-                            <Globe className="h-3 w-3 text-violet-400" />
+                            <Globe className="h-3 w-3 text-primary" />
                           </span>
                         )}
                       </div>
-                      <p className="font-mono text-[11px] text-zinc-500">
+                      <p className="font-mono text-[11px] text-muted-foreground">
                         {stats.current} current · {stats.longest} best
                       </p>
                     </div>
@@ -253,8 +237,8 @@ export function StreaksGrid({
                       className={cn(
                         "flex h-8 w-8 items-center justify-center rounded-full border text-sm transition duration-200 ease-premium active:scale-90",
                         doneToday
-                          ? "border-amber-400 bg-amber-400 text-ink-950 shadow-[0_0_10px_-2px_rgba(245,158,11,0.7)]"
-                          : "border-white/15 text-transparent hover:scale-105 hover:border-amber-400/50"
+                          ? "border-amber-400 bg-amber-400 text-background shadow-[0_0_10px_-2px_rgba(245,158,11,0.7)]"
+                          : "border-input text-transparent hover:scale-105 hover:border-amber-400/50"
                       )}
                     >
                       ✓
@@ -268,95 +252,104 @@ export function StreaksGrid({
                   activeColorClass={COLOR_ACTIVE[s.color] ?? COLOR_ACTIVE.amber}
                 />
                 <div className="mt-3 flex items-center justify-between pl-1.5">
-                  <span className="font-mono text-[10px] text-zinc-600">{stats.total} total days</span>
+                  <span className="font-mono text-[10px] text-muted-foreground">{stats.total} total days</span>
                   <div className="flex items-center gap-3">
                     <button
                       onClick={(e) => toggleOnProfile(s, e)}
                       className={cn(
                         "font-mono text-[10px] transition",
-                        s.show_on_profile ? "text-violet-400 hover:text-violet-300" : "text-zinc-600 hover:text-zinc-300"
+                        s.show_on_profile ? "text-primary hover:text-primary/80" : "text-muted-foreground hover:text-foreground"
                       )}
                     >
                       {s.show_on_profile ? "on profile" : "show on profile"}
                     </button>
                     <button
                       onClick={(e) => toggleArchive(s, e)}
-                      className="font-mono text-[10px] text-zinc-600 hover:text-zinc-300"
+                      className="font-mono text-[10px] text-muted-foreground hover:text-foreground"
                     >
                       {s.archived ? "unarchive" : "archive"}
                     </button>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="New streak">
-        <div className="space-y-3">
-          <Input
-            placeholder="e.g. Read, Gym, Meditate"
-            value={form.name}
-            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-            autoFocus
-          />
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Icon</label>
-            <div className="flex flex-wrap gap-2">
-              {EMOJIS.map((e) => (
-                <button
-                  key={e}
-                  onClick={() => setForm((f) => ({ ...f, emoji: e }))}
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-lg border text-lg transition",
-                    form.emoji === e ? "border-violet-500/60 bg-violet-500/10" : "border-white/10 hover:border-white/25"
-                  )}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">Color</label>
-            <div className="flex gap-2">
-              {COLORS.map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setForm((f) => ({ ...f, color: c }))}
-                  className={cn(
-                    "h-6 w-6 rounded-full transition",
-                    COLOR_DOT[c],
-                    form.color === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-60"
-                  )}
-                />
-              ))}
-            </div>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">
-              Weekly goal — {form.goal_per_week}x / week
-            </label>
-            <input
-              type="range"
-              min={1}
-              max={7}
-              value={form.goal_per_week}
-              onChange={(e) => setForm((f) => ({ ...f, goal_per_week: Number(e.target.value) }))}
-              className="w-full accent-amber-500"
+      <Dialog open={modalOpen} onOpenChange={(v) => !v && setModalOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New streak</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="e.g. Read, Gym, Meditate"
+              value={form.name}
+              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+              autoFocus
             />
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Icon</label>
+              <div className="flex flex-wrap gap-2">
+                {EMOJIS.map((e) => (
+                  <button
+                    key={e}
+                    onClick={() => setForm((f) => ({ ...f, emoji: e }))}
+                    className={cn(
+                      "flex h-9 w-9 items-center justify-center rounded-lg border text-lg transition",
+                      form.emoji === e ? "border-primary/60 bg-primary/10" : "hover:border-foreground/25"
+                    )}
+                  >
+                    {e}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Color</label>
+              <div className="flex gap-2">
+                {COLORS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setForm((f) => ({ ...f, color: c }))}
+                    className={cn(
+                      "h-6 w-6 rounded-full transition",
+                      COLOR_DOT[c],
+                      form.color === c ? "ring-2 ring-offset-2 ring-offset-background ring-foreground/60" : "opacity-60"
+                    )}
+                  />
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Weekly goal — {form.goal_per_week}x / week
+              </label>
+              <input
+                type="range"
+                min={1}
+                max={7}
+                value={form.goal_per_week}
+                onChange={(e) => setForm((f) => ({ ...f, goal_per_week: Number(e.target.value) }))}
+                className="w-full accent-amber-500"
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={createStreak}
+                disabled={saving}
+                className="bg-amber-500 text-background hover:bg-amber-500/80"
+              >
+                {saving ? "Creating…" : "Create streak"}
+              </Button>
+            </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="amber" onClick={createStreak} disabled={saving}>
-              {saving ? "Creating…" : "Create streak"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

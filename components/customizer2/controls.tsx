@@ -5,7 +5,7 @@ import { useDropzone } from "react-dropzone";
 import { HexColorPicker } from "react-colorful";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/profile/ui/Card";
 
 export function SectionCard({
   title,

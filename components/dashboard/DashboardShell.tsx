@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import { Topbar } from "@/components/dashboard/Topbar";
 
 export function DashboardShell({
@@ -16,26 +16,17 @@ export function DashboardShell({
   isDev?: boolean;
   children: React.ReactNode;
 }) {
-  const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
   return (
-    <div className="relative min-h-screen bg-ink-950">
-      {open && (
-        <div
-          className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity lg:hidden"
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      <Sidebar open={open} onClose={() => setOpen(false)} username={username} isDev={isDev} />
-
-      <div className="relative lg:pl-72">
-        <Topbar email={email} username={username} onMenuClick={() => setOpen((o) => !o)} />
-        <main key={pathname} className="page-enter relative z-10 px-6 py-8 sm:px-8">
+    <SidebarProvider>
+      <AppSidebar username={username} isDev={isDev} />
+      <SidebarInset>
+        <Topbar email={email} username={username} />
+        <main key={pathname} className="page-enter flex-1 space-y-8 p-4 sm:p-6 lg:p-8">
           {children}
         </main>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

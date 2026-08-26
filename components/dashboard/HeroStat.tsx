@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function HeroStat({
   label,
@@ -12,15 +13,17 @@ export function HeroStat({
   icon: ReactNode;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.025] p-5 shadow-elevate transition-all duration-300 ease-premium hover:-translate-y-1 hover:border-gold-400/25 hover:shadow-elevate-hover">
-      <div className="mb-4 flex items-center justify-between">
-        <span className="text-sm text-zinc-400">{label}</span>
-        <span className="text-zinc-500 transition-transform duration-300 group-hover:scale-110 group-hover:text-gold-300">
-          {icon}
-        </span>
-      </div>
-      <div className="font-display text-2xl font-semibold tracking-tight text-white">{value}</div>
-      {sub && <div className="mt-1 text-xs text-zinc-500">{sub}</div>}
-    </div>
+    <Card className="group transition-all duration-300 ease-premium hover:-translate-y-1 hover:border-primary/30">
+      <CardContent>
+        <div className="mb-4 flex items-center justify-between">
+          <span className="text-sm text-muted-foreground">{label}</span>
+          <span className="text-muted-foreground transition-transform duration-300 group-hover:scale-110 group-hover:text-primary">
+            {icon}
+          </span>
+        </div>
+        <div className="font-display text-2xl font-semibold tracking-tight">{value}</div>
+        {sub && <div className="mt-1 text-xs text-muted-foreground">{sub}</div>}
+      </CardContent>
+    </Card>
   );
 }

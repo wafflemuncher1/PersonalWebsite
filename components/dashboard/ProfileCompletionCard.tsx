@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/profile/ui/Card";
 import { cn } from "@/lib/utils";
 import type { Profile } from "@/lib/types";
 

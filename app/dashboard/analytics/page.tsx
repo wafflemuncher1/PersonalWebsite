@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Eye, Link2, Target, TrendingUp } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/Card";
-import { StatTile } from "@/components/ui/StatTile";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { HeroStat } from "@/components/dashboard/HeroStat";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
-import { toDateKey, addDays } from "@/lib/utils";
+import { cn, toDateKey, addDays } from "@/lib/utils";
 import type { LinkClickEvent, Profile, ProfileViewEvent } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -111,130 +111,142 @@ export default async function AnalyticsPage({
   return (
     <div className="space-y-8">
       <Reveal>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Account Analytics</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Account Analytics</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           Track your profile performance and see how many people are visiting your profile.
         </p>
       </Reveal>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.02] p-1">
+        <div className="flex items-center gap-2 rounded-2xl border bg-muted/30 p-1">
           {RANGES.map((r) => (
             <Link
               key={r.key}
               href={`/dashboard/analytics?range=${r.key}`}
-              className={`rounded-xl px-3.5 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95 ${
+              className={cn(
+                "rounded-xl px-3.5 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
                 rangeKey === r.key
-                  ? "bg-gold-400 text-ink-950 shadow-glow-lg"
-                  : "text-zinc-400 hover:bg-white/[0.06] hover:text-white"
-              }`}
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
             >
               Last {r.label}
             </Link>
           ))}
         </div>
-        <p className="font-mono text-[10px] uppercase tracking-wide text-zinc-600">Last updated just now</p>
+        <p className="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">Last updated just now</p>
       </div>
 
       <RevealGroup className="grid grid-cols-2 gap-4 lg:grid-cols-4" stagger={0.07}>
         <RevealItem>
-          <StatTile icon={<Link2 className="h-4 w-4" />} label="Total link clicks" value={totalClicks} accent="violet" />
+          <HeroStat icon={<Link2 className="h-4 w-4" />} label="Total link clicks" value={totalClicks} />
         </RevealItem>
         <RevealItem>
-          <StatTile icon={<Target className="h-4 w-4" />} label="Click rate" value={`${clickRate}%`} accent="amber" />
+          <HeroStat icon={<Target className="h-4 w-4" />} label="Click rate" value={`${clickRate}%`} />
         </RevealItem>
         <RevealItem>
-          <StatTile icon={<Eye className="h-4 w-4" />} label="Profile views" value={totalViews} accent="blue" />
+          <HeroStat icon={<Eye className="h-4 w-4" />} label="Profile views" value={totalViews} />
         </RevealItem>
         <RevealItem>
-          <StatTile
+          <HeroStat
             icon={<TrendingUp className="h-4 w-4" />}
             label="Avg. daily views"
             value={avgDailyViews.toLocaleString()}
-            accent="emerald"
           />
         </RevealItem>
       </RevealGroup>
 
       <Reveal delay={0.08}>
-        <Card className="p-6">
-          <h2 className="mb-1 text-sm font-medium text-white">Profile views</h2>
-          <p className="mb-6 text-xs text-zinc-500">In the last {rangeDays} days</p>
-          {totalViews === 0 ? (
-            <EmptyChart message="No views yet in this range." />
-          ) : (
-            <div className="flex h-40 items-end gap-1.5">
-              {dayBuckets.map((b) => (
-                <div key={b.key} className="flex flex-1 flex-col items-center gap-2">
-                  <div className="flex h-32 w-full items-end">
-                    <div
-                      className="w-full rounded-t-md bg-gradient-to-t from-violet-600 to-violet-400 transition-all duration-500 ease-premium hover:from-violet-500 hover:to-violet-300"
-                      style={{ height: `${Math.max(4, (b.count / maxDaily) * 100)}%` }}
-                      title={`${b.label}: ${b.count}`}
-                    />
+        <Card>
+          <CardHeader>
+            <CardTitle>Profile views</CardTitle>
+            <CardDescription>In the last {rangeDays} days</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {totalViews === 0 ? (
+              <EmptyChart message="No views yet in this range." />
+            ) : (
+              <div className="flex h-40 items-end gap-1.5">
+                {dayBuckets.map((b) => (
+                  <div key={b.key} className="flex flex-1 flex-col items-center gap-2">
+                    <div className="flex h-32 w-full items-end">
+                      <div
+                        className="w-full rounded-t-md bg-gradient-to-t from-primary/50 to-primary transition-all duration-500 ease-premium hover:from-primary/70 hover:to-primary"
+                        style={{ height: `${Math.max(4, (b.count / maxDaily) * 100)}%` }}
+                        title={`${b.label}: ${b.count}`}
+                      />
+                    </div>
+                    {(rangeDays <= 7 || dayBuckets.indexOf(b) % Math.ceil(rangeDays / 8) === 0) && (
+                      <span className="font-mono text-[9px] text-muted-foreground">{b.label}</span>
+                    )}
                   </div>
-                  {(rangeDays <= 7 || dayBuckets.indexOf(b) % Math.ceil(rangeDays / 8) === 0) && (
-                    <span className="font-mono text-[9px] text-zinc-600">{b.label}</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </CardContent>
         </Card>
       </Reveal>
 
       <RevealGroup className="grid gap-6 lg:grid-cols-2" stagger={0.08}>
         <RevealItem>
-          <Card className="p-6">
-            <h2 className="mb-5 text-sm font-medium text-white">Visitor devices</h2>
-            {deviceRows.length === 0 ? (
-              <EmptyChart message="No device data yet." />
-            ) : (
-              <div className="space-y-3">
-                {deviceRows.map(([device, count]) => (
-                  <div key={device}>
-                    <div className="mb-1 flex items-center justify-between text-xs">
-                      <span className="flex items-center gap-1.5 text-zinc-300">
-                        <span>{deviceEmoji(device)}</span> {device}
-                      </span>
-                      <span className="font-mono text-zinc-500">{count}</span>
+          <Card>
+            <CardHeader>
+              <CardTitle>Visitor devices</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {deviceRows.length === 0 ? (
+                <EmptyChart message="No device data yet." />
+              ) : (
+                <div className="space-y-3">
+                  {deviceRows.map(([device, count]) => (
+                    <div key={device}>
+                      <div className="mb-1 flex items-center justify-between text-xs">
+                        <span className="flex items-center gap-1.5 text-foreground/90">
+                          <span>{deviceEmoji(device)}</span> {device}
+                        </span>
+                        <span className="font-mono text-muted-foreground">{count}</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all duration-700 ease-premium"
+                          style={{ width: `${Math.max(4, (count / maxDevice) * 100)}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400 transition-all duration-700 ease-premium"
-                        style={{ width: `${Math.max(4, (count / maxDevice) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </CardContent>
           </Card>
         </RevealItem>
 
         <RevealItem>
-          <Card className="p-6">
-            <h2 className="mb-5 text-sm font-medium text-white">Top countries by views</h2>
-            {countryRows.length === 0 ? (
-              <EmptyChart message="No location data yet." />
-            ) : (
-              <div className="space-y-3">
-                {countryRows.map(([country, count]) => (
-                  <div key={country}>
-                    <div className="mb-1 flex items-center justify-between text-xs">
-                      <span className="text-zinc-300">{country}</span>
-                      <span className="font-mono text-zinc-500">{count}</span>
+          <Card>
+            <CardHeader>
+              <CardTitle>Top countries by views</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {countryRows.length === 0 ? (
+                <EmptyChart message="No location data yet." />
+              ) : (
+                <div className="space-y-3">
+                  {countryRows.map(([country, count]) => (
+                    <div key={country}>
+                      <div className="mb-1 flex items-center justify-between text-xs">
+                        <span className="text-foreground/90">{country}</span>
+                        <span className="font-mono text-muted-foreground">{count}</span>
+                      </div>
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-primary/60 to-primary transition-all duration-700 ease-premium"
+                          style={{ width: `${Math.max(4, (count / maxCountry) * 100)}%` }}
+                        />
+                      </div>
                     </div>
-                    <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400 transition-all duration-700 ease-premium"
-                        style={{ width: `${Math.max(4, (count / maxCountry) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </CardContent>
           </Card>
         </RevealItem>
       </RevealGroup>
@@ -244,8 +256,8 @@ export default async function AnalyticsPage({
 
 function EmptyChart({ message }: { message: string }) {
   return (
-    <div className="flex h-24 items-center justify-center rounded-lg border border-dashed border-white/10">
-      <p className="text-xs text-zinc-600">{message}</p>
+    <div className="flex h-24 items-center justify-center rounded-lg border border-dashed">
+      <p className="text-xs text-muted-foreground">{message}</p>
     </div>
   );
 }

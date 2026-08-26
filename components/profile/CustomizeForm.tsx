@@ -3,9 +3,9 @@
 import { useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import { Input, Textarea } from "@/components/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/profile/ui/Card";
+import { Input, Textarea } from "@/components/profile/ui/Input";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { Reveal } from "@/components/ui/Reveal";
 import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";

@@ -6,8 +6,8 @@ import type { IconType } from "react-icons";
 import { FaYoutube, FaTiktok, FaInstagram, FaFacebook } from "react-icons/fa6";
 import { ArrowLeft, Link2, Pencil, Plus, Trash2, Upload, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/profile/ui/Card";
 import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
 import { Reveal } from "@/components/ui/Reveal";
 import {

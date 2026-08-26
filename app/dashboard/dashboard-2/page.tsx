@@ -1,5 +1,5 @@
 import { getDashboardData } from "@/lib/dashboard-data";
-import { Card } from "@/components/ui/Card";
+import { Card } from "@/components/ui/card";
 import { StatTile } from "@/components/dashboard/StatTile";
 import { Achievements } from "@/components/dashboard/Achievements";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
@@ -20,8 +20,8 @@ export default async function Dashboard2Page() {
   return (
     <div className="space-y-8">
       <Reveal>
-        <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Dashboard 2</h1>
-        <p className="mt-1 text-sm text-zinc-500">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">Dashboard 2</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
           A sandbox for trying out new dashboard ideas before they go anywhere permanent.
         </p>
       </Reveal>
@@ -70,9 +70,9 @@ export default async function Dashboard2Page() {
       </Reveal>
 
       <Reveal delay={0.14}>
-        <Card className="border-dashed p-10 text-center transition duration-300 hover:border-white/15">
-          <p className="text-sm font-medium text-zinc-300">More coming as you test things</p>
-          <p className="mx-auto mt-1 max-w-sm text-xs text-zinc-500">
+        <Card className="border-dashed p-10 text-center transition-colors duration-300 hover:border-primary/25">
+          <p className="text-sm font-medium">More coming as you test things</p>
+          <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
             This page is intentionally plain — the tiles above show it&apos;s wired up to real data,
             and everything else is open space to try new widgets or layouts.
           </p>

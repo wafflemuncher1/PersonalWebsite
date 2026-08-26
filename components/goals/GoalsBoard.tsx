@@ -3,11 +3,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Repeat, Target, TrendingUp, Trophy } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/Button";
-import { Input, Textarea } from "@/components/ui/Input";
-import { Modal } from "@/components/ui/Modal";
-import { ProgressBar } from "@/components/ui/ProgressBar";
-import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleRow } from "@/components/customizer2/controls";
 import { StatTile } from "@/components/ui/StatTile";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
@@ -20,6 +24,25 @@ const PRIORITY_COLOR: Record<GoalPriority, string> = {
   high: "red",
   medium: "amber",
   low: "zinc",
+};
+
+const COLOR_BADGE: Record<string, string> = {
+  violet: "border-primary/30 bg-primary/10 text-primary",
+  amber: "border-amber-500/30 bg-amber-500/10 text-amber-400",
+  emerald: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+  blue: "border-blue-500/30 bg-blue-500/10 text-blue-400",
+  pink: "border-pink-500/30 bg-pink-500/10 text-pink-400",
+  red: "border-destructive/30 bg-destructive/10 text-destructive",
+  zinc: "border-border bg-muted text-muted-foreground",
+};
+
+const COLOR_SWATCH: Record<string, string> = {
+  violet: "bg-primary",
+  amber: "bg-amber-500",
+  emerald: "bg-emerald-500",
+  blue: "bg-blue-500",
+  pink: "bg-pink-500",
+  zinc: "bg-zinc-500",
 };
 
 const FILTERS: { key: GoalStatus | "all"; label: string }[] = [
@@ -245,8 +268,8 @@ export function GoalsBoard({
     <div>
       <Reveal>
         <div className="mb-6">
-          <h1 className="font-display text-3xl font-semibold tracking-tight text-white">Goals</h1>
-          <p className="mt-1 text-sm text-zinc-500">Track what you're working toward — one-off or every week.</p>
+          <h1 className="font-display text-3xl font-semibold tracking-tight">Goals</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Track what you're working toward — one-off or every week.</p>
         </div>
       </Reveal>
 
@@ -278,22 +301,15 @@ export function GoalsBoard({
       )}
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-1.5 rounded-lg border border-white/10 bg-white/[0.03] p-1">
-          {FILTERS.map((f) => (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={cn(
-                "rounded-md px-3 py-1.5 text-xs font-medium transition duration-200 ease-premium active:scale-95",
-                filter === f.key
-                  ? "bg-violet-500/20 text-white shadow-[0_0_10px_-3px_rgba(212,169,79,0.5)]"
-                  : "text-zinc-500 hover:bg-white/[0.03] hover:text-zinc-300"
-              )}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as GoalStatus | "all")}>
+          <TabsList>
+            {FILTERS.map((f) => (
+              <TabsTrigger key={f.key} value={f.key}>
+                {f.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={() => setCatModalOpen(true)}>
             + Category
@@ -305,7 +321,7 @@ export function GoalsBoard({
       </div>
 
       {filteredGoals.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-white/10 p-12 text-center text-sm text-zinc-500">
+        <div className="rounded-xl border border-dashed p-12 text-center text-sm text-muted-foreground">
           Nothing here yet.
         </div>
       ) : (
@@ -339,125 +355,132 @@ export function GoalsBoard({
         </div>
       )}
 
-      <Modal
-        open={goalModalOpen}
-        onClose={() => setGoalModalOpen(false)}
-        title={editingGoal ? "Edit goal" : "New goal"}
-      >
-        <div className="space-y-3">
-          <Input
-            placeholder="Goal title"
-            value={goalForm.title}
-            onChange={(e) => setGoalForm((f) => ({ ...f, title: e.target.value }))}
-            autoFocus
-          />
-          <Textarea
-            placeholder="Description (optional)"
-            value={goalForm.description}
-            onChange={(e) => setGoalForm((f) => ({ ...f, description: e.target.value }))}
-            rows={3}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <select
-              value={goalForm.category_id}
-              onChange={(e) => setGoalForm((f) => ({ ...f, category_id: e.target.value }))}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/60"
-            >
-              <option value="">No category</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id} className="bg-ink-900">
-                  {c.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={goalForm.priority}
-              onChange={(e) => setGoalForm((f) => ({ ...f, priority: e.target.value as GoalPriority }))}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/60"
-            >
-              <option value="low" className="bg-ink-900">Low priority</option>
-              <option value="medium" className="bg-ink-900">Medium priority</option>
-              <option value="high" className="bg-ink-900">High priority</option>
-            </select>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-xs font-medium text-zinc-400">
-              Progress — {goalForm.progress}%
-            </label>
-            <input
-              type="range"
-              min={0}
-              max={100}
-              value={goalForm.progress}
-              onChange={(e) => setGoalForm((f) => ({ ...f, progress: Number(e.target.value) }))}
-              className="w-full accent-violet-500"
+      <Dialog open={goalModalOpen} onOpenChange={(v) => !v && setGoalModalOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingGoal ? "Edit goal" : "New goal"}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Goal title"
+              value={goalForm.title}
+              onChange={(e) => setGoalForm((f) => ({ ...f, title: e.target.value }))}
+              autoFocus
             />
-          </div>
-          {!goalForm.is_recurring && (
+            <Textarea
+              placeholder="Description (optional)"
+              value={goalForm.description}
+              onChange={(e) => setGoalForm((f) => ({ ...f, description: e.target.value }))}
+              rows={3}
+            />
+            <div className="grid grid-cols-2 gap-3">
+              <Select
+                value={goalForm.category_id || "none"}
+                onValueChange={(v) => setGoalForm((f) => ({ ...f, category_id: v && v !== "none" ? String(v) : "" }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="No category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No category</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select
+                value={goalForm.priority}
+                onValueChange={(v) => setGoalForm((f) => ({ ...f, priority: v as GoalPriority }))}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low priority</SelectItem>
+                  <SelectItem value="medium">Medium priority</SelectItem>
+                  <SelectItem value="high">High priority</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-zinc-400">Target date</label>
-              <Input
-                type="date"
-                value={goalForm.target_date}
-                onChange={(e) => setGoalForm((f) => ({ ...f, target_date: e.target.value }))}
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                Progress — {goalForm.progress}%
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={goalForm.progress}
+                onChange={(e) => setGoalForm((f) => ({ ...f, progress: Number(e.target.value) }))}
+                className="w-full accent-primary"
               />
             </div>
-          )}
-          <ToggleRow
-            label="Repeat Weekly"
-            sub="Progress and completion automatically reset every Monday."
-            checked={goalForm.is_recurring}
-            onChange={(v) => setGoalForm((f) => ({ ...f, is_recurring: v }))}
-          />
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setGoalModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={saveGoal} disabled={saving}>
-              {saving ? "Saving…" : "Save goal"}
-            </Button>
+            {!goalForm.is_recurring && (
+              <div>
+                <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Target date</label>
+                <Input
+                  type="date"
+                  value={goalForm.target_date}
+                  onChange={(e) => setGoalForm((f) => ({ ...f, target_date: e.target.value }))}
+                />
+              </div>
+            )}
+            <ToggleRow
+              label="Repeat Weekly"
+              sub="Progress and completion automatically reset every Monday."
+              checked={goalForm.is_recurring}
+              onChange={(v) => setGoalForm((f) => ({ ...f, is_recurring: v }))}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setGoalModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={saveGoal} disabled={saving}>
+                {saving ? "Saving…" : "Save goal"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </Modal>
+        </DialogContent>
+      </Dialog>
 
-      <Modal open={catModalOpen} onClose={() => setCatModalOpen(false)} title="New category">
-        <div className="space-y-3">
-          <Input
-            placeholder="e.g. Career, Health, Finance"
-            value={catForm.name}
-            onChange={(e) => setCatForm((f) => ({ ...f, name: e.target.value }))}
-            autoFocus
-          />
-          <div className="flex gap-2">
-            {CATEGORY_COLORS.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCatForm((f) => ({ ...f, color: c }))}
-                className={cn(
-                  "h-6 w-6 rounded-full transition",
-                  {
-                    violet: "bg-violet-500",
-                    amber: "bg-amber-500",
-                    emerald: "bg-emerald-500",
-                    blue: "bg-blue-500",
-                    pink: "bg-pink-500",
-                    zinc: "bg-zinc-500",
-                  }[c],
-                  catForm.color === c ? "ring-2 ring-white/60 ring-offset-2 ring-offset-ink-900" : "opacity-60"
-                )}
-              />
-            ))}
+      <Dialog open={catModalOpen} onOpenChange={(v) => !v && setCatModalOpen(false)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>New category</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="e.g. Career, Health, Finance"
+              value={catForm.name}
+              onChange={(e) => setCatForm((f) => ({ ...f, name: e.target.value }))}
+              autoFocus
+            />
+            <div className="flex gap-2">
+              {CATEGORY_COLORS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCatForm((f) => ({ ...f, color: c }))}
+                  className={cn(
+                    "h-6 w-6 rounded-full transition",
+                    COLOR_SWATCH[c],
+                    catForm.color === c ? "ring-2 ring-offset-2 ring-offset-background ring-foreground/60" : "opacity-60"
+                  )}
+                />
+              ))}
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="ghost" onClick={() => setCatModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={saveCategory} disabled={saving}>
+                {saving ? "Saving…" : "Create"}
+              </Button>
+            </div>
           </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button variant="ghost" onClick={() => setCatModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={saveCategory} disabled={saving}>
-              {saving ? "Saving…" : "Create"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -485,15 +508,17 @@ function GoalGroup({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Badge color={color}>{title}</Badge>
-          <span className="text-xs text-zinc-600">{goals.length}</span>
+          <Badge variant="outline" className={COLOR_BADGE[color] ?? COLOR_BADGE.zinc}>
+            {title}
+          </Badge>
+          <span className="text-xs text-muted-foreground">{goals.length}</span>
         </div>
         <div className="flex gap-3 text-xs">
-          <button onClick={onAdd} className="text-zinc-500 hover:text-violet-300">
+          <button onClick={onAdd} className="text-muted-foreground hover:text-primary">
             + add
           </button>
           {onDeleteCategory && (
-            <button onClick={onDeleteCategory} className="text-zinc-600 hover:text-red-300">
+            <button onClick={onDeleteCategory} className="text-muted-foreground hover:text-destructive">
               remove category
             </button>
           )}
@@ -501,40 +526,41 @@ function GoalGroup({
       </div>
       <div className="space-y-2">
         {goals.map((g) => (
-          <div
-            key={g.id}
-            className="surface surface-hover rounded-xl p-4"
-          >
+          <Card key={g.id} className="p-4 transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:border-primary/25">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p
                     className={cn(
                       "truncate text-sm font-medium",
-                      g.status === "completed" ? "text-zinc-500 line-through" : "text-zinc-100"
+                      g.status === "completed" ? "text-muted-foreground line-through" : "text-foreground"
                     )}
                   >
                     {g.title}
                   </p>
-                  <Badge color={PRIORITY_COLOR[g.priority]}>{g.priority}</Badge>
+                  <Badge variant="outline" className={COLOR_BADGE[PRIORITY_COLOR[g.priority]]}>
+                    {g.priority}
+                  </Badge>
                   {g.is_recurring && (
-                    <span className="flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] text-amber-300">
+                    <span className="flex items-center gap-1 rounded-md border border-amber-500/20 bg-amber-500/10 px-1.5 py-0.5 font-mono text-[10px] text-amber-400">
                       <Repeat className="h-2.5 w-2.5" /> weekly
                     </span>
                   )}
-                  {g.status === "archived" && <Badge color="zinc">archived</Badge>}
+                  {g.status === "archived" && (
+                    <Badge variant="secondary">archived</Badge>
+                  )}
                 </div>
                 {g.description && (
-                  <p className="mt-1 line-clamp-2 text-xs text-zinc-500">{g.description}</p>
+                  <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{g.description}</p>
                 )}
                 <div className="mt-3 flex items-center gap-3">
-                  <ProgressBar value={g.progress} className="max-w-[180px]" />
-                  <span className="font-mono text-[10px] text-zinc-600">{g.progress}%</span>
+                  <Progress value={g.progress} className="max-w-[180px]" />
+                  <span className="font-mono text-[10px] text-muted-foreground">{g.progress}%</span>
                   {g.is_recurring ? (
-                    <span className="font-mono text-[10px] text-zinc-600">resets Monday</span>
+                    <span className="font-mono text-[10px] text-muted-foreground">resets Monday</span>
                   ) : (
                     g.target_date && (
-                      <span className="font-mono text-[10px] text-zinc-600">due {formatDate(g.target_date)}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">due {formatDate(g.target_date)}</span>
                     )
                   )}
                 </div>
@@ -546,24 +572,24 @@ function GoalGroup({
                   </button>
                 )}
                 {g.status === "active" && (
-                  <button onClick={() => onSetStatus(g, "archived")} className="text-zinc-600 hover:text-zinc-400">
+                  <button onClick={() => onSetStatus(g, "archived")} className="text-muted-foreground hover:text-foreground">
                     archive
                   </button>
                 )}
                 {g.status !== "active" && (
-                  <button onClick={() => onSetStatus(g, "active")} className="text-zinc-600 hover:text-zinc-400">
+                  <button onClick={() => onSetStatus(g, "active")} className="text-muted-foreground hover:text-foreground">
                     reactivate
                   </button>
                 )}
-                <button onClick={() => onEdit(g)} className="text-zinc-600 hover:text-violet-300">
+                <button onClick={() => onEdit(g)} className="text-muted-foreground hover:text-primary">
                   edit
                 </button>
-                <button onClick={() => onDelete(g.id)} className="text-zinc-600 hover:text-red-300">
+                <button onClick={() => onDelete(g.id)} className="text-muted-foreground hover:text-destructive">
                   delete
                 </button>
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>
