@@ -19,7 +19,7 @@ export function StatTile({
   return (
     <div
       className={cn(
-        "group flex flex-col rounded-xl border bg-muted/30 p-5 transition-all duration-200 ease-premium hover:border-primary/25 hover:bg-muted/50"
+        "glass-inset glass-inset-hover group flex flex-col rounded-xl p-5 transition-all duration-200 ease-premium hover:border-primary/25"
       )}
     >
       <div className="mb-2.5 flex items-center gap-2 text-sm font-medium text-foreground">

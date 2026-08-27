@@ -203,7 +203,7 @@ export function SettingsPanel({
               </CardHeader>
               <CardContent>
                 {usernameLocked ? (
-                  <p className="rounded-lg border bg-muted/30 px-3.5 py-2.5 text-sm text-muted-foreground">
+                  <p className="glass-inset rounded-lg px-3.5 py-2.5 text-sm text-muted-foreground">
                     You can change your username again in {daysLeft} day{daysLeft === 1 ? "" : "s"}.
                   </p>
                 ) : (
@@ -357,7 +357,7 @@ function BillingCard({
         <CardDescription>Manage your plan and payment method.</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex items-center justify-between rounded-lg border bg-muted/30 p-3.5 transition-colors hover:bg-muted/50">
+        <div className="glass-inset glass-inset-hover mb-4 flex items-center justify-between rounded-lg p-3.5">
           <div>
             <p className="text-sm">
               {plan.name} plan

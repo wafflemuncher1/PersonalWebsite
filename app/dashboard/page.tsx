@@ -248,7 +248,7 @@ export default async function OverviewPage() {
                   <Link
                     key={e.id}
                     href="/dashboard/journal"
-                    className="block rounded-lg border bg-muted/30 p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-primary/30"
+                    className="glass-inset glass-inset-hover block rounded-lg p-3 transition-all duration-200 ease-premium hover:translate-x-0.5"
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-base leading-none">{MOOD_EMOJI[e.mood] ?? "😐"}</span>
@@ -281,7 +281,7 @@ export default async function OverviewPage() {
                   <Link
                     key={n.id}
                     href="/dashboard/notes"
-                    className="block rounded-lg border bg-muted/30 p-3 transition-all duration-200 ease-premium hover:translate-x-0.5 hover:border-primary/30"
+                    className="glass-inset glass-inset-hover block rounded-lg p-3 transition-all duration-200 ease-premium hover:translate-x-0.5"
                   >
                     <div className="flex items-center justify-between">
                       <p className="truncate text-sm font-medium">{n.title || "Untitled"}</p>
@@ -309,7 +309,7 @@ export default async function OverviewPage() {
             ) : (
               <div className="space-y-3">
                 {topGoals.map((g) => (
-                  <div key={g.id} className="rounded-lg border bg-muted/30 p-4">
+                  <div key={g.id} className="glass-inset rounded-lg p-4">
                     <div className="mb-2 flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-medium">{g.title}</p>
                       <Badge variant={g.priority === "high" ? "destructive" : g.priority === "medium" ? "secondary" : "outline"}>

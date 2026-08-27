@@ -55,7 +55,7 @@ export function Topbar({
   const initial = (username ?? email ?? "?").trim().charAt(0).toUpperCase() || "?";
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between gap-4 border-b bg-background/80 px-4 py-3 backdrop-blur-lg sm:px-6">
+    <header className="glass sticky top-3 z-20 mx-3 flex items-center justify-between gap-4 rounded-2xl px-4 py-3 sm:mx-4 sm:px-6">
       <div className="flex items-center gap-3">
         <SidebarTrigger />
         <Separator orientation="vertical" className="h-5" />

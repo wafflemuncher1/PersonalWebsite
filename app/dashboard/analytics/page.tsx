@@ -118,7 +118,7 @@ export default async function AnalyticsPage({
       </Reveal>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 rounded-2xl border bg-muted/30 p-1">
+        <div className="glass-inset flex items-center gap-2 rounded-2xl p-1">
           {RANGES.map((r) => (
             <Link
               key={r.key}
