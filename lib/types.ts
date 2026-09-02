@@ -140,7 +140,7 @@ export type Profile = {
   journal_heatmap_enabled: boolean;
   show_stats: boolean;
   username_changed_at: string | null;
-  is_dev: boolean;
+  role: "normal" | "tester" | "dev";
   is_banned: boolean;
   banned_at: string | null;
   view_count: number;
