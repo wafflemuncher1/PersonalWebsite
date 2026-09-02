@@ -116,55 +116,10 @@ body {
     transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .glass-hover:hover {
-  border-color: rgba(212, 169, 79, 0.3);
+  border-color: rgba(62, 194, 245, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset, 0 0 0 1px rgba(212, 169, 79, 0.14),
-    0 26px 55px -18px rgba(212, 169, 79, 0.35);
-}
-
-.text-gradient {
-  background: linear-gradient(90deg, #f3e0a8 0%, #d4a94f 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Customizer 2 — Swiper vertical section nav */
-.c2-swiper {
-  height: 100%;
-}
-.c2-swiper .swiper-wrapper {
-  height: 100%;
-}
-.c2-swiper .swiper-slide {
-  height: 100%;
-  overflow-y: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.c2-pagination {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-.c2-pagination .swiper-pagination-bullet {
-  width: 8px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.25);
-  opacity: 1;
-  margin: 0;
-  transition: all 0.25s ease;
-}
-.c2-pagination .swiper-pagination-bullet:hover {
-  background: rgba(255, 255, 255, 0.5);
-}
-.c2-pagination .swiper-pagination-bullet-active {
-  width: 10px;
-  height: 10px;
-  background: #d4a94f;
-  box-shadow: 0 0 10px 2px rgba(212, 169, 79, 0.6);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.07) inset, 0 0 0 1px rgba(62, 194, 245, 0.14),
+    0 26px 55px -18px rgba(62, 194, 245, 0.35);
 }
 
 /* Public profile — vertical snap-scroll between pages (card, About Me, …) */
@@ -275,8 +230,8 @@ body {
   background: transparent !important;
 }
 [data-sidebar="menu-button"][data-active="true"] {
-  background: linear-gradient(180deg, rgba(212, 169, 79, 0.16), rgba(212, 169, 79, 0.06)) !important;
-  box-shadow: 0 0 0 1px rgba(212, 169, 79, 0.22) inset;
+  background: linear-gradient(180deg, rgba(62, 194, 245, 0.16), rgba(62, 194, 245, 0.06)) !important;
+  box-shadow: 0 0 0 1px rgba(62, 194, 245, 0.22) inset;
 }
 
 /* Lighter glass tint for tiles nested inside an already-glass Card — full
@@ -286,14 +241,6 @@ body {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.09);
 }
-.glass-inset-hover {
-  transition: border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.glass-inset-hover:hover {
-  border-color: rgba(212, 169, 79, 0.28);
-  background: rgba(255, 255, 255, 0.06);
-}
 
 .dashboard-ambient {
   position: fixed;
@@ -301,9 +248,9 @@ body {
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(circle at 12% -8%, rgba(212, 169, 79, 0.1), transparent 42%),
-    radial-gradient(circle at 92% 8%, rgba(212, 169, 79, 0.06), transparent 40%),
-    radial-gradient(circle at 50% 115%, rgba(212, 169, 79, 0.05), transparent 45%);
+    radial-gradient(circle at 12% -8%, rgba(62, 194, 245, 0.1), transparent 42%),
+    radial-gradient(circle at 92% 8%, rgba(62, 194, 245, 0.06), transparent 40%),
+    radial-gradient(circle at 50% 115%, rgba(62, 194, 245, 0.05), transparent 45%);
 }
 
 /* ---------------------------------------------------------------------
@@ -311,78 +258,6 @@ body {
    touches .glass/.glass-hover or the public-profile-only classes above
    (name-shimmer, name-glitch, .noise), which stay exactly as they were.
    --------------------------------------------------------------------- */
-
-/* Slow-drifting animated gradient border ring for flagship/hero surfaces —
-   used sparingly (once or twice per page), not on every card. */
-.border-glow-animated {
-  position: relative;
-}
-.border-glow-animated::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    120deg,
-    rgba(212, 169, 79, 0.6),
-    rgba(212, 169, 79, 0.08),
-    rgba(212, 169, 79, 0.6)
-  );
-  background-size: 220% 220%;
-  animation: border-glow-move 7s ease infinite;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0.55;
-}
-@keyframes border-glow-move {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-/* Diagonal light sweep on hover — used on primary buttons for a subtle
-   "polished glass" feel instead of a flat color-shift hover. */
-.btn-sheen {
-  position: relative;
-  overflow: hidden;
-}
-.btn-sheen::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    115deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.32) 48%,
-    rgba(255, 255, 255, 0.32) 52%,
-    transparent 70%
-  );
-  background-size: 250% 100%;
-  background-position: -150% 0;
-  opacity: 0;
-  pointer-events: none;
-}
-.btn-sheen:hover::after {
-  opacity: 1;
-  animation: btn-sheen-move 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-@keyframes btn-sheen-move {
-  from {
-    background-position: -150% 0;
-  }
-  to {
-    background-position: 150% 0;
-  }
-}
 
 /* Dashboard route-content entrance — a quick, subtle settle so navigating
    between pages never feels like a hard cut. */
@@ -508,41 +383,43 @@ body {
     --sidebar-ring: oklch(0.708 0 0);
   }
   .dark {
-    /* Nocturne dark theme — neutral near-black base (shadcn's default
-       grayscale "base-nova" tokens), with a single gold accent standing in
-       for --primary/--ring everywhere instead of grayscale-on-grayscale.
-       This is the app's only theme; light mode is unused. */
+    /* Nocturne dark theme (v2) — neutral near-black base (shadcn's default
+       grayscale "base-nova" tokens), with a single cyan/signal accent
+       standing in for --primary/--ring everywhere instead of
+       grayscale-on-grayscale. This drives the dashboard shell and profile
+       settings; the public profile page never references these shadcn
+       tokens, so it's unaffected. Light mode is unused. */
     --background: oklch(0.15 0.01 300);
     --foreground: oklch(0.97 0.01 90);
     --card: oklch(0.19 0.012 300);
     --card-foreground: oklch(0.97 0.01 90);
     --popover: oklch(0.19 0.012 300);
     --popover-foreground: oklch(0.97 0.01 90);
-    --primary: oklch(0.8 0.11 85);
-    --primary-foreground: oklch(0.16 0.02 85);
+    --primary: oklch(0.78 0.13 220);
+    --primary-foreground: oklch(0.16 0.02 220);
     --secondary: oklch(0.26 0.012 300);
     --secondary-foreground: oklch(0.97 0.01 90);
     --muted: oklch(0.24 0.012 300);
     --muted-foreground: oklch(0.65 0.02 90);
-    --accent: oklch(0.27 0.03 85);
-    --accent-foreground: oklch(0.93 0.05 90);
+    --accent: oklch(0.27 0.05 220);
+    --accent-foreground: oklch(0.93 0.05 220);
     --destructive: oklch(0.704 0.191 22.216);
     --border: oklch(1 0 0 / 9%);
     --input: oklch(1 0 0 / 12%);
-    --ring: oklch(0.8 0.11 85 / 55%);
-    --chart-1: oklch(0.8 0.11 85);
-    --chart-2: oklch(0.65 0.09 85);
+    --ring: oklch(0.78 0.13 220 / 55%);
+    --chart-1: oklch(0.78 0.13 220);
+    --chart-2: oklch(0.65 0.1 220);
     --chart-3: oklch(0.556 0 0);
     --chart-4: oklch(0.439 0 0);
     --chart-5: oklch(0.269 0 0);
     --sidebar: oklch(0.13 0.01 300);
     --sidebar-foreground: oklch(0.97 0.01 90);
-    --sidebar-primary: oklch(0.8 0.11 85);
-    --sidebar-primary-foreground: oklch(0.16 0.02 85);
+    --sidebar-primary: oklch(0.78 0.13 220);
+    --sidebar-primary-foreground: oklch(0.16 0.02 220);
     --sidebar-accent: oklch(0.24 0.012 300);
     --sidebar-accent-foreground: oklch(0.97 0.01 90);
     --sidebar-border: oklch(1 0 0 / 8%);
-    --sidebar-ring: oklch(0.8 0.11 85 / 55%);
+    --sidebar-ring: oklch(0.78 0.13 220 / 55%);
   }
   * {
     @apply border-border outline-ring/50;
