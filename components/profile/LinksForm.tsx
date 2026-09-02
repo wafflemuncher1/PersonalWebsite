@@ -8,7 +8,7 @@ import { ArrowLeft, Link2, Pencil, Plus, Trash2, Upload, X } from "lucide-react"
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/profile/ui/Card";
-import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { ColorField, Slider, ToggleRow } from "@/components/shared/controls";
 import { Reveal } from "@/components/ui/Reveal";
 import {
   PLATFORMS,

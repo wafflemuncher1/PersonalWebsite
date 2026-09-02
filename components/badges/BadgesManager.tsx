@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { ColorField, Slider, ToggleRow } from "@/components/shared/controls";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn } from "@/lib/utils";
 import { badgeIcon } from "@/lib/badge-icons";

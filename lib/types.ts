@@ -156,56 +156,8 @@ export type Profile = {
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
   view_count: number;
-  customizer2_settings: Customizer2Settings | null;
   created_at: string;
   updated_at: string;
-};
-
-// State for the test "Profile Customizer 2" page. Fully separate from the
-// real bio/location/avatar_url/background_url fields above — nothing here
-// touches the live public profile.
-export type Customizer2Settings = {
-  backgroundUrl: string;
-  avatarUrl: string;
-  cursorUrl: string;
-  cursorEffect: string;
-  frame: string;
-  opacity: number;
-  blur: number;
-  profileEffect: string;
-  backgroundEffect: string;
-  location: string;
-  description: string;
-  audioUrl: string;
-  audioAutoplay: boolean;
-  glow: {
-    username: boolean;
-    socials: boolean;
-    badges: boolean;
-  };
-  colors: {
-    accent: string;
-    text: string;
-    background: string;
-    icon: string;
-    backgroundEffect: string;
-    primary: string;
-    secondary: string;
-    name: string;
-    description: string;
-    location: string;
-    uid: string;
-  };
-  disableGradients: boolean;
-  toggles: {
-    monochromeIcons: boolean;
-    animatedTitle: boolean;
-    swapBoxColors: boolean;
-    volumeControl: boolean;
-    useDiscordAvatar: boolean;
-    discordAvatarDecoration: boolean;
-    statsCorner: boolean;
-  };
 };
 
 // Badge catalog — never written to by users, only by us. `icon` is a key

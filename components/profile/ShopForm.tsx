@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/profile/ui/Card";
 import { Input, Textarea } from "@/components/profile/ui/Input";
-import { ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { ColorField, Slider, ToggleRow } from "@/components/shared/controls";
 import { Reveal } from "@/components/ui/Reveal";
 import { validatePlatformUrl } from "@/lib/link-validation";
 import { FONT_OPTIONS, type FontKey } from "@/lib/fonts";

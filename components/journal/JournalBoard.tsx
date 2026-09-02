@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ToggleRow } from "@/components/customizer2/controls";
+import { ToggleRow } from "@/components/shared/controls";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { HeroStat } from "@/components/dashboard/HeroStat";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";

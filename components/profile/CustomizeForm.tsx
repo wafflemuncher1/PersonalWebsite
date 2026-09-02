@@ -8,7 +8,7 @@ import { Card } from "@/components/profile/ui/Card";
 import { Input, Textarea } from "@/components/profile/ui/Input";
 import { ProfileCompletionCard } from "@/components/dashboard/ProfileCompletionCard";
 import { Reveal } from "@/components/ui/Reveal";
-import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/customizer2/controls";
+import { AudioDropzone, ColorField, Slider, ToggleRow } from "@/components/shared/controls";
 import { firstProfaneField } from "@/lib/profanity";
 import { FONT_OPTIONS, type FontKey } from "@/lib/fonts";
 import { cn } from "@/lib/utils";

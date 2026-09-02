@@ -13,7 +13,7 @@ import { ProfileEffectRing } from "@/components/profile/ProfileEffectRing";
 import { LinkWidgets } from "@/components/profile/LinkWidgets";
 import { ProfileExperience } from "@/components/profile/ProfileExperience";
 import { ProfileBadges, type EquippedBadge } from "@/components/profile/ProfileBadges";
-import { CursorTrail } from "@/components/customizer2/CursorTrail";
+import { CursorTrail } from "@/components/shared/CursorTrail";
 import type { BadgeDef, Profile, ProfileLinkItem, ShopItem, Streak } from "@/lib/types";
 
 export const dynamic = "force-dynamic";

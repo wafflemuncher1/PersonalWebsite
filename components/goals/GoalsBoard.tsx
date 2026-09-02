@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToggleRow } from "@/components/customizer2/controls";
+import { ToggleRow } from "@/components/shared/controls";
 import { StatTile } from "@/components/ui/StatTile";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { cn, formatDate, toDateKey } from "@/lib/utils";

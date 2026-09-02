@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ToggleRow } from "@/components/customizer2/controls";
+import { ToggleRow } from "@/components/shared/controls";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { computeStreakStats, toDateKey, addDays, cn } from "@/lib/utils";
