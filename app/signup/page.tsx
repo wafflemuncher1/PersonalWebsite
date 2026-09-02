@@ -105,9 +105,9 @@ function SignupForm() {
   }
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-12">
-      <div className="pointer-events-none absolute inset-0 bg-radial-glow" />
-      <div className="pointer-events-none absolute inset-0 bg-grid-lines bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black,transparent)]" />
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-void-950 px-6 py-12">
+      <div className="pointer-events-none absolute inset-0 bg-radial-glow-signal" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-lines bg-[size:48px_48px] opacity-60 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black,transparent)]" />
 
       <div className="relative z-10 w-full max-w-sm">
         <Link
@@ -118,7 +118,7 @@ function SignupForm() {
         </Link>
 
         <Reveal>
-          <div className="glass rounded-2xl p-8 shadow-glow">
+          <div className="glass rounded-2xl p-8 shadow-glow-signal">
             {status === "check-email" ? (
               <>
                 <h1 className="font-display mb-2 text-2xl font-semibold text-white">Check your email</h1>
@@ -155,7 +155,7 @@ function SignupForm() {
                     <label htmlFor="username" className="mb-1.5 block text-xs font-medium text-zinc-400">
                       Username
                     </label>
-                    <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-gold-400/50 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]">
+                    <div className="flex items-center rounded-lg border border-white/10 bg-white/5 pl-3.5 pr-1 transition duration-200 ease-premium focus-within:border-signal-400/50 focus-within:bg-white/[0.07] focus-within:shadow-[0_0_0_3px_rgba(62,194,245,0.14)]">
                       <span className="text-sm text-zinc-600">nocturne.co/</span>
                       <input
                         id="username"
@@ -188,7 +188,7 @@ function SignupForm() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-gold-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]"
+                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-signal-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(62,194,245,0.14)]"
                     />
                   </div>
 
@@ -207,7 +207,7 @@ function SignupForm() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="At least 8 characters"
-                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-gold-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]"
+                        className="w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-zinc-600 outline-none transition duration-200 ease-premium focus:border-signal-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(62,194,245,0.14)]"
                       />
                       <button
                         type="button"
@@ -230,7 +230,7 @@ function SignupForm() {
                   <button
                     type="submit"
                     disabled={status === "loading"}
-                    className="w-full rounded-lg bg-gold-400 px-4 py-2.5 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
+                    className="w-full rounded-lg bg-signal-500 px-4 py-2.5 text-sm font-medium text-void-950 shadow-glow-signal transition duration-200 ease-premium hover:bg-signal-400 hover:shadow-glow-signal-lg active:scale-[0.98] disabled:opacity-60 disabled:active:scale-100"
                   >
                     {status === "loading" ? "Creating your page…" : "Create account"}
                   </button>
@@ -242,7 +242,7 @@ function SignupForm() {
 
         <p className="mt-6 text-center font-mono text-[11px] text-zinc-600">
           Already have an account?{" "}
-          <Link href="/login" className="text-gold-400 hover:text-gold-300">
+          <Link href="/login" className="text-signal-400 hover:text-signal-300">
             Log in
           </Link>
         </p>
