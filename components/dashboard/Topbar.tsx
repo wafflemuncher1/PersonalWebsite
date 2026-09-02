@@ -21,6 +21,7 @@ const TITLES: Record<string, string> = {
   "/dashboard/profile/links": "Links",
   "/dashboard/profile/shop": "Shop",
   "/dashboard/profile/templates": "Templates",
+  "/dashboard/developer": "Developer",
 };
 
 export function Topbar({

@@ -20,17 +20,23 @@ import {
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import type { LucideIcon } from "lucide-react";
-import { NAV_GROUPS, type NavItem } from "@/lib/dashboard-nav";
+import { NAV_GROUPS, DEV_GROUP, type NavItem } from "@/lib/dashboard-nav";
 
 const NAV_BOTTOM: NavItem[] = [{ href: "/dashboard/settings", label: "Settings", icon: Settings }];
 
-export function AppSidebar({ username }: { username: string | null }) {
+export function AppSidebar({
+  username,
+  isDev = false,
+}: {
+  username: string | null;
+  isDev?: boolean;
+}) {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
 
-  const groups = NAV_GROUPS;
+  const groups = useMemo(() => (isDev ? [...NAV_GROUPS, DEV_GROUP] : NAV_GROUPS), [isDev]);
 
   const matches = (label: string) => !q || label.toLowerCase().includes(q);
 

@@ -4,6 +4,7 @@ import {
   Link2,
   ShoppingBag,
   LayoutTemplate,
+  Terminal,
   type LucideIcon,
 } from "lucide-react";
 
@@ -34,3 +35,11 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
 ];
+
+// Only ever shown to profiles with role = 'dev'.
+export const DEV_GROUP: NavGroup = {
+  key: "developer",
+  label: "Developer",
+  icon: Terminal,
+  items: [{ href: "/dashboard/developer", label: "Developer", icon: Terminal }],
+};
