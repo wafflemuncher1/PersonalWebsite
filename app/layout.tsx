@@ -21,11 +21,11 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: {
-    default: "Nocturne: bio link + private life tracker",
+    default: "Nocturne: a bio-link page that's actually yours",
     template: "%s · Nocturne",
   },
   description:
-    "Nocturne: a public bio-link page out front, a private notes/goals/streaks/journal dashboard behind it.",
+    "Nocturne: a fully customizable bio-link page — background, motion, glow, links, and your own shop, all behind one URL.",
   metadataBase: process.env.NEXT_PUBLIC_SITE_URL
     ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
     : undefined,

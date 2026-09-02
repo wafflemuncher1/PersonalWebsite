@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Flame, Globe, Link2, NotebookPen, Target, CalendarCheck } from "lucide-react";
+import { ArrowRight, Palette, Link2, ShoppingBag, Sparkles } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Magnetic } from "@/components/ui/Magnetic";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
@@ -7,50 +7,48 @@ import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 const STEPS = [
   {
     title: "Claim your page",
-    body: "Sign up and get a public bio-link page at nocturne.co/yourname: links, avatar, bio, all in one place.",
+    body: "Sign up and your page exists at nocturne.co/yourname — instantly, before you've touched a single setting.",
   },
   {
-    title: "Track your life, privately",
-    body: "Log back in and land in a private dashboard for notes, goals, and streaks. Nobody sees this but you.",
+    title: "Make it yours",
+    body: "Background, fonts, glow, animated name, cursor effects — a full studio, not a theme picker.",
   },
   {
-    title: "Flex what you want, quietly",
-    body: "Opt in to show a stats snapshot on your public page: goals hit, streaks running. Everything else stays yours.",
+    title: "Send the one link",
+    body: "Bio, links, shop, all of it — behind a single URL you put everywhere else.",
   },
 ];
 
 const FEATURES = [
   {
-    icon: Target,
-    title: "Goals",
-    body: "Set targets, track progress, mark them done. No forced deadlines, no guilt-tripping.",
+    icon: Palette,
+    title: "Customize",
+    body: "Backgrounds, colors, fonts, glow effects, animated names, custom cursors — every pixel is a setting, not a template slot.",
     span: "lg:col-span-2 lg:row-span-2",
   },
   {
-    icon: Flame,
-    title: "Streaks",
-    body: "Log a day, keep the chain going.",
+    icon: Link2,
+    title: "Links",
+    body: "Custom icons, colors, and glow per link. Ordered exactly how you want.",
     span: "",
   },
   {
-    icon: NotebookPen,
-    title: "Notes",
-    body: "Freeform, pinned, searchable.",
+    icon: ShoppingBag,
+    title: "Shop",
+    body: "A clean grid for anything you sell or point people toward.",
     span: "",
-  },
-  {
-    icon: CalendarCheck,
-    title: "Journal",
-    body: "Mood plus a few lines, most days.",
-    span: "lg:col-span-2",
   },
 ];
 
 export default function HomePage() {
   return (
-    <main className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-radial-glow" />
-      <div className="pointer-events-none absolute inset-0 bg-grid-lines bg-[size:56px_56px] [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)]" />
+    <main className="relative min-h-screen overflow-hidden bg-void-950">
+      <div className="pointer-events-none absolute inset-0 bg-radial-glow-signal" />
+      <div className="pointer-events-none absolute inset-0 bg-grid-lines bg-[size:56px_56px] opacity-60 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_0%,black,transparent)]" />
+      <div
+        className="pointer-events-none absolute -top-40 right-[-10%] h-[520px] w-[520px] rounded-full opacity-40 blur-3xl"
+        style={{ background: "radial-gradient(circle, rgba(62,194,245,0.28), transparent 70%)" }}
+      />
 
       {/* Nav */}
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 pt-8">
@@ -61,9 +59,9 @@ export default function HomePage() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-lg bg-gold-400 px-4 py-2 text-sm font-medium text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
+            className="rounded-lg bg-signal-500 px-4 py-2 text-sm font-medium text-void-950 shadow-glow-signal transition duration-200 ease-premium hover:bg-signal-400 hover:shadow-glow-signal-lg active:scale-95"
           >
-            Sign up free
+            Claim your page
           </Link>
         </nav>
       </header>
@@ -72,21 +70,27 @@ export default function HomePage() {
         {/* Hero */}
         <section className="grid items-center gap-16 lg:grid-cols-[1.05fr_0.95fr] lg:gap-10">
           <Reveal>
+            <div className="mb-5 inline-flex items-center gap-1.5 rounded-full border border-signal-500/25 bg-signal-500/10 px-3 py-1 text-xs font-medium text-signal-300">
+              <Sparkles className="h-3 w-3" />
+              Not a template. A studio.
+            </div>
             <h1 className="font-display text-5xl font-semibold leading-[0.98] tracking-tight text-white sm:text-6xl lg:text-7xl">
-              One link.
+              A page that
               <br />
-              Two sides.
+              actually looks
+              <br />
+              like you.
             </h1>
             <p className="mt-6 max-w-md text-lg leading-snug text-zinc-300">
-              A public page for your links. A private space for the notes, goals, and streaks
-              you keep to yourself.
+              One link. Fully custom — background, motion, glow, your own shop. Nothing about it
+              reads as a default.
             </p>
 
             <div className="mt-9 flex flex-wrap items-center gap-4">
               <Magnetic>
                 <Link
                   href="/signup"
-                  className="group inline-flex items-center gap-2 rounded-lg bg-gold-400 px-6 py-3 text-sm font-semibold text-ink-950 shadow-glow transition duration-200 ease-premium hover:bg-gold-300 hover:shadow-glow-lg active:scale-95"
+                  className="group inline-flex items-center gap-2 rounded-lg bg-signal-500 px-6 py-3 text-sm font-semibold text-void-950 shadow-glow-signal transition duration-200 ease-premium hover:bg-signal-400 hover:shadow-glow-signal-lg active:scale-95"
                 >
                   Create your page
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
@@ -95,37 +99,27 @@ export default function HomePage() {
             </div>
           </Reveal>
 
-          {/* Real component preview: a small live mockup of an actual Nocturne
-              public profile, not a fake screenshot — shows the product itself. */}
+          {/* Live mockup of an actual customized Nocturne profile — not a
+              stock screenshot — reflecting the real Customize/Links/Shop
+              feature set rather than the retired lifestyle-stats framing. */}
           <Reveal delay={0.12} y={16}>
             <div className="relative mx-auto w-full max-w-[300px] lg:ml-auto lg:mr-0">
-              <div className="glass rounded-[1.75rem] border border-white/10 p-6 shadow-elevate-lg">
+              <div className="glass animate-float rounded-[1.75rem] border border-white/10 p-6 shadow-elevate-lg">
                 <div className="flex flex-col items-center text-center">
-                  <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gold-300 to-gold-600" />
-                  <p className="mt-3 text-sm font-semibold text-white">@yourname</p>
-                  <p className="mt-1 text-xs text-zinc-500">night owl, builder, list-maker</p>
-
-                  <div className="mt-5 flex items-center gap-3 rounded-full border border-white/5 bg-white/[0.03] px-3 py-1.5">
-                    <span className="flex items-center gap-1 text-[11px] text-amber-300">
-                      <Flame className="h-3 w-3" /> 42
-                    </span>
-                    <span className="h-3 w-px bg-white/10" />
-                    <span className="flex items-center gap-1 text-[11px] text-gold-300">
-                      <Target className="h-3 w-3" /> 6
-                    </span>
-                    <span className="h-3 w-px bg-white/10" />
-                    <span className="flex items-center gap-1 text-[11px] text-zinc-400">
-                      <Globe className="h-3 w-3" /> 812
-                    </span>
-                  </div>
+                  <div className="relative h-16 w-16 rounded-full bg-gradient-to-br from-signal-300 to-signal-600 shadow-glow-signal" />
+                  <p className="animate-pulse-glow mt-3 text-sm font-semibold text-white">
+                    @yourname
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-500">night owl, builder, maker</p>
 
                   <div className="mt-5 w-full space-y-2">
-                    {["Portfolio", "Newsletter", "Shop"].map((label) => (
+                    {["Portfolio", "Newsletter", "Shop"].map((label, i) => (
                       <div
                         key={label}
-                        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-left"
+                        className="animate-fade-up flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3.5 py-2.5 text-left"
+                        style={{ animationDelay: `${0.2 + i * 0.1}s` }}
                       >
-                        <Link2 className="h-3.5 w-3.5 shrink-0 text-gold-400" />
+                        <Link2 className="h-3.5 w-3.5 shrink-0 text-signal-400" />
                         <span className="truncate text-xs text-zinc-300">{label}</span>
                       </div>
                     ))}
@@ -140,15 +134,15 @@ export default function HomePage() {
         <section className="mt-32">
           <Reveal>
             <h2 className="font-display max-w-lg text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              Everything private, in one place.
+              Every pixel is yours to move.
             </h2>
           </Reveal>
 
           <RevealGroup className="mt-10 grid gap-4 lg:grid-cols-3" stagger={0.08}>
             {FEATURES.map((f) => (
               <RevealItem key={f.title} className={f.span}>
-                <div className="glass glass-hover flex h-full flex-col justify-between rounded-2xl p-6 transition duration-200 ease-premium">
-                  <f.icon className="h-5 w-5 text-gold-400" strokeWidth={1.5} />
+                <div className="glass glass-hover flex h-full flex-col justify-between rounded-2xl p-6 transition duration-200 ease-premium hover:-translate-y-0.5">
+                  <f.icon className="h-5 w-5 text-signal-400" strokeWidth={1.5} />
                   <div className="mt-6">
                     <h3 className="font-display text-lg font-semibold text-white">{f.title}</h3>
                     <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">{f.body}</p>
@@ -171,7 +165,7 @@ export default function HomePage() {
             {STEPS.map((s, i) => (
               <RevealItem key={s.title}>
                 <div className="glass glass-hover flex gap-4 rounded-xl p-5 transition duration-200 ease-premium hover:-translate-y-0.5">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold-500/25 bg-gold-500/10 font-mono text-sm text-gold-300">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-signal-500/25 bg-signal-500/10 font-mono text-sm text-signal-300">
                     {i + 1}
                   </div>
                   <div>
@@ -190,7 +184,7 @@ export default function HomePage() {
             © {new Date().getFullYear()} Nocturne
           </p>
           <div className="flex gap-4 font-mono text-[11px] text-zinc-600">
-            <Link href="/login" className="hover:text-gold-400">
+            <Link href="/login" className="hover:text-signal-400">
               Log in
             </Link>
           </div>

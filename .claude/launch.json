@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "nocturne-dev",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeExecutable": "nix",
+      "runtimeArgs": ["shell", "nixpkgs#nodejs_22", "--command", "npm", "run", "dev"],
       "port": 3000
     }
   ]
