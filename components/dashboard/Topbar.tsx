@@ -33,9 +33,7 @@ export function Topbar({
   const pathname = usePathname();
   const router = useRouter();
 
-  const title =
-    TITLES[pathname ?? ""] ??
-    (pathname?.startsWith("/dashboard/streaks") ? "Streak" : "Dashboard");
+  const title = TITLES[pathname ?? ""] ?? "Dashboard";
 
   async function handleSignOut() {
     const supabase = createClient();
