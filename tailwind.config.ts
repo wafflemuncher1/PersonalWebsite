@@ -52,6 +52,26 @@ const config: Config = {
           900: "#4a3418",
           950: "#2e2010",
         },
+        /* New design language for everything being rebuilt (landing, auth,
+           dashboard shell, profile settings) — a neutral-cool near-black
+           instead of ink's purple undertone, paired with a single cyan/blue
+           accent instead of gold. Additive: `ink`/`gold`/`violet` above are
+           untouched and still back the public profile page unchanged. */
+        void: {
+          950: "#08090b",
+          900: "#0c0e11",
+          850: "#111318",
+          800: "#15181e",
+          750: "#1a1d24",
+          700: "#20242c",
+        },
+        signal: {
+          300: "#a8e6ff",
+          400: "#6fd4ff",
+          500: "#3ec2f5",
+          600: "#1f9fd9",
+          700: "#167cae",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
@@ -68,6 +88,10 @@ const config: Config = {
         "sheen-sweep":
           "linear-gradient(115deg, transparent 30%, rgba(255,255,255,0.22) 48%, rgba(255,255,255,0.22) 52%, transparent 70%)",
         "border-glow": "linear-gradient(135deg, rgba(212,169,79,0.55), rgba(212,169,79,0.15))",
+        "radial-glow-signal":
+          "radial-gradient(circle at 20% -10%, rgba(62,194,245,0.16), transparent 45%)",
+        "radial-glow-signal-soft":
+          "radial-gradient(circle at 15% -10%, rgba(62,194,245,0.10), transparent 40%), radial-gradient(circle at 90% 100%, rgba(62,194,245,0.06), transparent 45%)",
       },
       boxShadow: {
         glow: "0 0 0 1px rgba(212,169,79,0.18), 0 8px 30px -8px rgba(212,169,79,0.3)",
@@ -79,6 +103,8 @@ const config: Config = {
           "0 1px 0 0 rgba(255,255,255,0.08) inset, 0 0 0 1px rgba(212,169,79,0.22), 0 24px 55px -18px rgba(212,169,79,0.3)",
         premium:
           "0 1px 0 0 rgba(255,255,255,0.06) inset, 0 0 0 1px rgba(255,255,255,0.06), 0 25px 60px -20px rgba(0,0,0,0.8)",
+        "glow-signal": "0 0 0 1px rgba(62,194,245,0.18), 0 8px 30px -8px rgba(62,194,245,0.3)",
+        "glow-signal-lg": "0 0 0 1px rgba(62,194,245,0.2), 0 20px 60px -15px rgba(62,194,245,0.4)",
       },
       keyframes: {
         "fade-up": {
