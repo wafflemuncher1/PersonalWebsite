@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import {
   LayoutGrid,
   BarChart3,
-  FlaskConical,
   Settings,
   Search,
   ArrowUpRight,
@@ -35,7 +34,6 @@ const NAV_TOP: NavItem[] = [{ href: "/dashboard", label: "Overview", icon: Layou
 
 const NAV_BOTTOM: NavItem[] = [
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/dashboard-2", label: "Dashboard 2", icon: FlaskConical },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
