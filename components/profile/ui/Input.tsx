@@ -9,7 +9,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
     <input
       ref={ref}
       className={cn(
-        "w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition-all duration-200 ease-premium focus:border-gold-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]",
+        "w-full rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition-all duration-200 ease-premium focus:border-signal-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(62,194,245,0.14)]",
         className
       )}
       {...props}
@@ -25,7 +25,7 @@ export const Textarea = forwardRef<
   <textarea
     ref={ref}
     className={cn(
-      "w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition-all duration-200 ease-premium focus:border-gold-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(212,169,79,0.14)]",
+      "w-full resize-none rounded-lg border border-white/10 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-zinc-600 outline-none transition-all duration-200 ease-premium focus:border-signal-400/50 focus:bg-white/[0.07] focus:shadow-[0_0_0_3px_rgba(62,194,245,0.14)]",
       className
     )}
     {...props}

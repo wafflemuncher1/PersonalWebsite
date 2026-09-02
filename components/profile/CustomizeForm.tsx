@@ -61,7 +61,7 @@ function CollapsibleSection({
           {description && <p className="mt-0.5 text-xs text-zinc-500">{description}</p>}
         </div>
         <span
-          className={`shrink-0 text-zinc-500 transition-transform duration-300 ease-premium ${open ? "rotate-180 text-violet-400" : ""}`}
+          className={`shrink-0 text-zinc-500 transition-transform duration-300 ease-premium ${open ? "rotate-180 text-signal-400" : ""}`}
         >
           ⌄
         </span>
@@ -390,7 +390,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                 onClick={() => setLayout("top")}
                 className={`rounded-lg border p-3 text-left text-sm transition ${
                   layout === "top"
-                    ? "border-violet-500/50 bg-violet-500/10 text-white"
+                    ? "border-signal-500/50 bg-signal-500/10 text-white"
                     : "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-white/25"
                 }`}
               >
@@ -402,7 +402,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                 onClick={() => setLayout("side")}
                 className={`rounded-lg border p-3 text-left text-sm transition ${
                   layout === "side"
-                    ? "border-violet-500/50 bg-violet-500/10 text-white"
+                    ? "border-signal-500/50 bg-signal-500/10 text-white"
                     : "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-white/25"
                 }`}
               >
@@ -421,7 +421,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               type="checkbox"
               checked={showStats}
               onChange={(e) => setShowStats(e.target.checked)}
-              className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-violet-500"
+              className="h-5 w-5 shrink-0 rounded border-white/20 bg-white/5 accent-signal-500"
             />
           </label>
         </CollapsibleSection>
@@ -443,7 +443,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <select
               value={descriptionFont}
               onChange={(e) => setDescriptionFont(e.target.value as FontKey)}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               {FONT_OPTIONS.map((f) => (
                 <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
@@ -470,7 +470,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <select
               value={descriptionAnimation}
               onChange={(e) => setDescriptionAnimation(e.target.value as "none" | "typewriter" | "scramble")}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               <option value="none" className="bg-ink-950">None</option>
               <option value="typewriter" className="bg-ink-950">Typewriter</option>
@@ -485,7 +485,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <select
               value={nameFont}
               onChange={(e) => setNameFont(e.target.value as FontKey)}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               {FONT_OPTIONS.map((f) => (
                 <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
@@ -504,7 +504,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                   e.target.value as "none" | "typewriter" | "scramble" | "wave" | "bounce" | "shimmer" | "glitch"
                 )
               }
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               <option value="none" className="bg-ink-950">None</option>
               <option value="typewriter" className="bg-ink-950">Typewriter</option>
@@ -563,7 +563,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
               <select
                 value={locationPosition}
                 onChange={(e) => setLocationPosition(e.target.value as "bottom-left" | "bottom-right" | "card")}
-                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
               >
                 <option value="card" className="bg-ink-950">On Card</option>
                 <option value="bottom-left" className="bg-ink-950">Bottom Left</option>
@@ -579,7 +579,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <select
               value={bgType}
               onChange={(e) => setBgType(e.target.value as "solid" | "gradient" | "image" | "video")}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               <option value="solid" className="bg-ink-950">Solid Color</option>
               <option value="gradient" className="bg-ink-950">Gradient</option>
@@ -614,7 +614,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
           <select
             value={profileEffect}
             onChange={(e) => setProfileEffect(e.target.value as "none" | "spin" | "pulse" | "rainbow" | "sparkle")}
-            className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+            className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
           >
             <option value="none" className="bg-ink-950">None</option>
             <option value="spin" className="bg-ink-950">Spinning Ring</option>
@@ -671,7 +671,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                     | "trail"
                 )
               }
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               <option value="none" className="bg-ink-950">None</option>
               <option value="sparkle" className="bg-ink-950">Sparkle Trail</option>
@@ -700,7 +700,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                 value={cursorEmoji}
                 onChange={(e) => setCursorEmoji(e.target.value.slice(0, 4))}
                 maxLength={4}
-                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-lg text-white outline-none focus:border-violet-500/50"
+                className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-center text-lg text-white outline-none focus:border-signal-500/50"
               />
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {["✨", "🔥", "❤️", "😂", "💀", "👑", "⭐", "🎉", "💜", "⚡"].map((e) => (
@@ -710,7 +710,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                     onClick={() => setCursorEmoji(e)}
                     className={`flex h-8 w-8 items-center justify-center rounded-md border text-base transition ${
                       cursorEmoji === e
-                        ? "border-violet-500/60 bg-violet-500/10"
+                        ? "border-signal-500/60 bg-signal-500/10"
                         : "border-white/10 bg-white/[0.02] hover:border-white/25"
                     }`}
                   >
@@ -778,7 +778,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
                 <select
                   value={audioNameFont}
                   onChange={(e) => setAudioNameFont(e.target.value as FontKey)}
-                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+                  className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
                 >
                   {FONT_OPTIONS.map((f) => (
                     <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
@@ -890,7 +890,7 @@ export function CustomizeForm({ profile }: { profile: Profile | null }) {
             <select
               value={aboutTextFont}
               onChange={(e) => setAboutTextFont(e.target.value as FontKey)}
-              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500/50 sm:w-64"
+              className="w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none focus:border-signal-500/50 sm:w-64"
             >
               {FONT_OPTIONS.map((f) => (
                 <option key={f.key} value={f.key} className={cn("bg-ink-950", f.className)}>
@@ -1065,7 +1065,7 @@ function AssetTile({
         {label}
         {hint && <span className="ml-1.5 text-xs text-zinc-600">({hint})</span>}
       </p>
-      <div className="group relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] transition duration-200 ease-premium hover:border-violet-500/30 hover:shadow-elevate">
+      <div className="group relative aspect-video overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] transition duration-200 ease-premium hover:border-signal-500/30 hover:shadow-elevate">
         <label className="flex h-full w-full cursor-pointer items-center justify-center transition duration-200 group-hover:bg-white/[0.035]">
           {previewUrl ? (
             kind === "video" ? (

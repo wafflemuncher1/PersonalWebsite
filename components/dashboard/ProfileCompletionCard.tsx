@@ -27,7 +27,7 @@ export function ProfileCompletionCard({ profile }: { profile: Profile | null }) 
       <div className="mb-1 flex items-center gap-3">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-violet-600 to-violet-400 transition-all duration-500"
+            className="h-full rounded-full bg-gradient-to-r from-signal-600 to-signal-400 transition-all duration-500"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -55,7 +55,7 @@ export function ProfileCompletionCard({ profile }: { profile: Profile | null }) 
                 item.done
                   ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
                   : item.href
-                    ? "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-violet-500/30 hover:bg-white/[0.05]"
+                    ? "border-white/10 bg-white/[0.02] text-zinc-400 hover:border-signal-500/30 hover:bg-white/[0.05]"
                     : "border-white/10 bg-white/[0.02] text-zinc-500"
               )}
             >

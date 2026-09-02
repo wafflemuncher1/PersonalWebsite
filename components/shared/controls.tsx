@@ -61,7 +61,7 @@ export function Slider({
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-violet-500"
+        className="h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/10 accent-signal-500"
       />
     </div>
   );
@@ -124,7 +124,7 @@ export function ColorField({
             <input
               value={value}
               onChange={(e) => onChange(e.target.value)}
-              className="mt-2 w-full rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-center font-mono text-xs text-white outline-none focus:border-violet-500/50"
+              className="mt-2 w-full rounded-md border border-white/10 bg-white/[0.03] px-2 py-1 text-center font-mono text-xs text-white outline-none focus:border-signal-500/50"
             />
           </motion.div>
         )}
@@ -158,7 +158,7 @@ export function ToggleRow({
         onClick={() => onChange(!checked)}
         className={cn(
           "flex h-6 w-11 shrink-0 items-center rounded-full p-0.5 transition-colors duration-200",
-          checked ? "bg-violet-500" : "bg-white/10"
+          checked ? "bg-signal-500" : "bg-white/10"
         )}
       >
         <motion.span
@@ -207,7 +207,7 @@ export function UploadTile({
         whileTap={uploading ? undefined : { scale: 0.99 }}
         className={cn(
           "relative aspect-video cursor-pointer overflow-hidden rounded-xl border transition-colors",
-          isDragActive ? "border-violet-400 bg-violet-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.03]"
+          isDragActive ? "border-signal-400 bg-signal-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.03]"
         )}
       >
         <input {...getInputProps()} />
@@ -282,7 +282,7 @@ export function AudioDropzone({
         whileTap={uploading ? undefined : { scale: 0.995 }}
         className={cn(
           "flex cursor-pointer items-center justify-between gap-3 rounded-xl border px-4 py-3.5 transition-colors",
-          isDragActive ? "border-violet-400 bg-violet-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.03]"
+          isDragActive ? "border-signal-400 bg-signal-500/10" : "border-white/10 bg-white/[0.02] hover:bg-white/[0.03]"
         )}
       >
         <input {...getInputProps()} />
