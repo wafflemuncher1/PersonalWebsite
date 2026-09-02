@@ -3,15 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  LayoutGrid,
-  BarChart3,
-  Settings,
-  Search,
-  ArrowUpRight,
-  Share2,
-  Check,
-} from "lucide-react";
+import { Settings, Search, ArrowUpRight, Share2, Check } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -28,28 +20,17 @@ import {
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/Logo";
 import type { LucideIcon } from "lucide-react";
-import { NAV_GROUPS, DEV_GROUP, type NavItem } from "@/lib/dashboard-nav";
+import { NAV_GROUPS, type NavItem } from "@/lib/dashboard-nav";
 
-const NAV_TOP: NavItem[] = [{ href: "/dashboard", label: "Overview", icon: LayoutGrid, exact: true }];
+const NAV_BOTTOM: NavItem[] = [{ href: "/dashboard/settings", label: "Settings", icon: Settings }];
 
-const NAV_BOTTOM: NavItem[] = [
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
-];
-
-export function AppSidebar({
-  username,
-  isDev = false,
-}: {
-  username: string | null;
-  isDev?: boolean;
-}) {
+export function AppSidebar({ username }: { username: string | null }) {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [query, setQuery] = useState("");
   const q = query.trim().toLowerCase();
 
-  const groups = useMemo(() => (isDev ? [...NAV_GROUPS, DEV_GROUP] : NAV_GROUPS), [isDev]);
+  const groups = NAV_GROUPS;
 
   const matches = (label: string) => !q || label.toLowerCase().includes(q);
 
@@ -112,12 +93,6 @@ export function AppSidebar({
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>{NAV_TOP.map(renderItem)}</SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
         {groups.map((group) => {
           const items = group.items.filter((i) => matches(i.label));
           if (q && items.length === 0 && !group.label.toLowerCase().includes(q)) return null;

@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { formatDateTime } from "@/lib/utils";
-import { getPlan } from "@/lib/plans";
 import { isReservedUsername } from "@/lib/reserved-usernames";
 import { containsProfanity } from "@/lib/profanity";
 import type { Profile } from "@/lib/types";
@@ -40,7 +38,6 @@ export function SettingsPanel({
   const [displayNameError, setDisplayNameError] = useState("");
   const supabase = createClient();
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const lockedUntil = profile?.username_changed_at
     ? new Date(new Date(profile.username_changed_at).getTime() + USERNAME_COOLDOWN_DAYS * 24 * 60 * 60 * 1000)
@@ -164,10 +161,6 @@ export function SettingsPanel({
       </Reveal>
 
       <RevealGroup className="space-y-6" stagger={0.06}>
-        <RevealItem>
-          <BillingCard profile={profile} autoCheckout={searchParams.get("checkout")} />
-        </RevealItem>
-
         <RevealItem>
           <Card>
             <CardHeader>
@@ -301,96 +294,5 @@ export function SettingsPanel({
         </RevealItem>
       </RevealGroup>
     </div>
-  );
-}
-
-function BillingCard({
-  profile,
-  autoCheckout,
-}: {
-  profile: Profile | null;
-  autoCheckout: string | null;
-}) {
-  const [loading, setLoading] = useState<"checkout" | "portal" | null>(null);
-  const [error, setError] = useState("");
-  const plan = getPlan(profile?.plan ?? "free");
-
-  async function handleUpgrade() {
-    setError("");
-    setLoading("checkout");
-    try {
-      const res = await fetch("/api/stripe/checkout", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not start checkout.");
-      window.location.href = data.url;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not start checkout.");
-      setLoading(null);
-    }
-  }
-
-  async function handleManageBilling() {
-    setError("");
-    setLoading("portal");
-    try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Could not open billing portal.");
-      window.location.href = data.url;
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not open billing portal.");
-      setLoading(null);
-    }
-  }
-
-  useEffect(() => {
-    if (autoCheckout === "pro" && profile?.plan === "free") {
-      handleUpgrade();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [autoCheckout]);
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Billing</CardTitle>
-        <CardDescription>Manage your plan and payment method.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="glass-inset glass-inset-hover mb-4 flex items-center justify-between rounded-lg p-3.5">
-          <div>
-            <p className="text-sm">
-              {plan.name} plan
-              {profile?.subscription_status && profile.subscription_status !== "inactive" && (
-                <span className="ml-2">
-                  <Badge variant={profile.subscription_status === "active" ? "default" : "secondary"}>
-                    {profile.subscription_status}
-                  </Badge>
-                </span>
-              )}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {plan.price}
-              {plan.priceSuffix}
-            </p>
-          </div>
-        </div>
-
-        {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
-
-        <div className="flex gap-3">
-          {profile?.plan !== "pro" && (
-            <Button onClick={handleUpgrade} disabled={loading !== null}>
-              {loading === "checkout" ? "Redirecting…" : "Upgrade to Pro"}
-            </Button>
-          )}
-          {profile?.stripe_customer_id && (
-            <Button variant="secondary" onClick={handleManageBilling} disabled={loading !== null}>
-              {loading === "portal" ? "Redirecting…" : "Manage billing"}
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
   );
 }

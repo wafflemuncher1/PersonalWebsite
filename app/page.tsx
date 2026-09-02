@@ -3,7 +3,6 @@ import { ArrowRight, Flame, Globe, Link2, NotebookPen, Target, CalendarCheck } f
 import { Logo } from "@/components/Logo";
 import { Magnetic } from "@/components/ui/Magnetic";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
-import { PLANS } from "@/lib/plans";
 
 const STEPS = [
   {
@@ -57,9 +56,6 @@ export default function HomePage() {
       <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-6 pt-8">
         <Logo />
         <nav className="flex items-center gap-6 text-sm">
-          <Link href="/pricing" className="text-zinc-400 transition hover:text-white">
-            Pricing
-          </Link>
           <Link href="/login" className="text-zinc-400 transition hover:text-white">
             Log in
           </Link>
@@ -96,12 +92,6 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-0.5" />
                 </Link>
               </Magnetic>
-              <Link
-                href="/pricing"
-                className="rounded-lg border border-white/10 px-6 py-3 text-sm font-medium text-zinc-300 transition duration-200 ease-premium hover:border-white/25 hover:text-white active:scale-95"
-              >
-                See pricing
-              </Link>
             </div>
           </Reveal>
 
@@ -194,54 +184,12 @@ export default function HomePage() {
           </RevealGroup>
         </section>
 
-        {/* Pricing teaser */}
-        <section className="mt-32">
-          <Reveal>
-            <div className="mb-8 flex items-end justify-between gap-4">
-              <h2 className="font-display text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                Simple pricing
-              </h2>
-              <Link href="/pricing" className="hidden text-xs text-gold-400 hover:text-gold-300 sm:inline">
-                Full plan comparison
-              </Link>
-            </div>
-          </Reveal>
-
-          <RevealGroup className="grid gap-4 sm:grid-cols-2" stagger={0.08}>
-            {PLANS.map((plan) => (
-              <RevealItem key={plan.id}>
-                <div className="glass glass-hover rounded-xl p-6 transition duration-200 ease-premium hover:-translate-y-0.5">
-                  <div className="mb-1 flex items-baseline gap-1">
-                    <span className="text-2xl font-semibold text-white">{plan.price}</span>
-                    <span className="text-sm text-zinc-500">{plan.priceSuffix}</span>
-                  </div>
-                  <p className="mb-4 text-sm text-zinc-400">{plan.description}</p>
-                  <Link
-                    href={`/signup?plan=${plan.id}`}
-                    className="inline-flex rounded-lg bg-white/[0.06] px-4 py-2 text-sm font-medium text-white transition duration-200 ease-premium hover:bg-white/[0.1] active:scale-95"
-                  >
-                    {plan.cta}
-                  </Link>
-                </div>
-              </RevealItem>
-            ))}
-          </RevealGroup>
-          <p className="mt-4 text-center sm:hidden">
-            <Link href="/pricing" className="text-xs text-gold-400 hover:text-gold-300">
-              Full plan comparison
-            </Link>
-          </p>
-        </section>
-
         {/* Footer */}
         <footer className="mt-24 flex items-center justify-between border-t border-white/5 pt-6">
           <p className="font-mono text-[11px] text-zinc-600">
             © {new Date().getFullYear()} Nocturne
           </p>
           <div className="flex gap-4 font-mono text-[11px] text-zinc-600">
-            <Link href="/pricing" className="hover:text-gold-400">
-              Pricing
-            </Link>
             <Link href="/login" className="hover:text-gold-400">
               Log in
             </Link>

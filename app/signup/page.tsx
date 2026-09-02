@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -28,8 +28,6 @@ function SignupForm() {
   const [status, setStatus] = useState<"idle" | "loading" | "check-email" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const plan = searchParams.get("plan") === "pro" ? "pro" : null;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -98,7 +96,7 @@ function SignupForm() {
     }
 
     if (data.session) {
-      router.push(plan === "pro" ? "/dashboard/settings?checkout=pro" : "/dashboard");
+      router.push("/dashboard");
       router.refresh();
     } else {
       // Email confirmation is required before the session is issued.
@@ -138,11 +136,8 @@ function SignupForm() {
             ) : (
               <>
                 <h1 className="font-display mb-2 text-2xl font-semibold text-white">
-                  {plan === "pro" ? "Sign up for Pro" : "Sign up for Nocturne"}
+                  Sign up for Nocturne
                 </h1>
-                <p className="mb-6 text-sm text-zinc-400">
-                  Free forever plan. Upgrade any time from Settings.
-                </p>
 
                 <GoogleButton label="Sign up with Google" />
                 <p className="mt-2 text-center text-[11px] text-zinc-600">

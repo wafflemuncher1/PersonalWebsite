@@ -1,11 +1,3 @@
-export type Plan = "free" | "pro";
-export type SubscriptionStatus =
-  | "inactive"
-  | "trialing"
-  | "active"
-  | "past_due"
-  | "canceled";
-
 export type ProfileLink = {
   label: string;
   url: string;
@@ -151,10 +143,6 @@ export type Profile = {
   is_dev: boolean;
   is_banned: boolean;
   banned_at: string | null;
-  plan: Plan;
-  subscription_status: SubscriptionStatus;
-  stripe_customer_id: string | null;
-  stripe_subscription_id: string | null;
   view_count: number;
   created_at: string;
   updated_at: string;
@@ -170,99 +158,6 @@ export type BadgeDef = {
   created_at: string;
 };
 
-// Which badges a profile has earned and which are currently equipped
-// (shown on the public page, capped at 5 by a DB trigger).
-export type ProfileBadge = {
-  id: string;
-  profile_id: string;
-  badge_key: string;
-  equipped: boolean;
-  sort_order: number;
-  color: string | null;
-  size: number;
-  glow_enabled: boolean;
-  glow_strength: number;
-  glow_color: string;
-  earned_at: string;
-};
-
-export type Mood = "great" | "good" | "neutral" | "low" | "rough";
-
-export type JournalEntry = {
-  id: string;
-  user_id: string;
-  mood: Mood;
-  entry: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type PublicStats = {
-  goals_completed: number;
-  active_goals: number;
-  active_streaks: number;
-  total_check_ins: number;
-};
-
-export type ProfileViewEvent = {
-  id: string;
-  profile_id: string;
-  viewed_at: string;
-  country: string | null;
-  device: string | null;
-};
-
-export type LinkClickEvent = {
-  id: string;
-  profile_id: string;
-  link_label: string;
-  link_url: string;
-  clicked_at: string;
-};
-
-export type Note = {
-  id: string;
-  user_id: string;
-  title: string;
-  content: string;
-  pinned: boolean;
-  color: string;
-  created_at: string;
-  updated_at: string;
-};
-
-export type GoalCategory = {
-  id: string;
-  user_id: string;
-  name: string;
-  color: string;
-  sort_order: number;
-  created_at: string;
-};
-
-export type GoalStatus = "active" | "completed" | "archived";
-export type GoalPriority = "low" | "medium" | "high";
-
-export type GoalRecurrence = "weekly" | null;
-
-export type Goal = {
-  id: string;
-  user_id: string;
-  category_id: string | null;
-  title: string;
-  description: string;
-  status: GoalStatus;
-  priority: GoalPriority;
-  progress: number;
-  target_date: string | null;
-  is_recurring: boolean;
-  recurrence: GoalRecurrence;
-  period_start: string;
-  created_at: string;
-  updated_at: string;
-  completed_at: string | null;
-};
-
 export type Streak = {
   id: string;
   user_id: string;
@@ -272,14 +167,5 @@ export type Streak = {
   goal_per_week: number;
   archived: boolean;
   show_on_profile: boolean;
-  created_at: string;
-};
-
-export type StreakLog = {
-  id: string;
-  user_id: string;
-  streak_id: string;
-  log_date: string;
-  note: string | null;
   created_at: string;
 };

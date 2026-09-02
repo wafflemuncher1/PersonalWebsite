@@ -16,13 +16,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const TITLES: Record<string, string> = {
-  "/dashboard": "Overview",
-  "/dashboard/journal": "Journal",
-  "/dashboard/notes": "Notes",
-  "/dashboard/goals": "Goals",
-  "/dashboard/streaks": "Streaks",
-  "/dashboard/analytics": "Account Analytics",
-  "/dashboard/badges": "All Badges",
   "/dashboard/settings": "Settings",
   "/dashboard/profile/customize": "Customize",
   "/dashboard/profile/links": "Links",
