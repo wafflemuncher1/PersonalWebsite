@@ -12,11 +12,18 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { StatTile } from "@/components/ui/StatTile";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
-import { BarChart } from "@/components/charts/bar-chart";
-import { Bar } from "@/components/charts/bar";
-import { BarXAxis } from "@/components/charts/bar-x-axis";
-import { Grid } from "@/components/charts/grid";
-import { ChartTooltip } from "@/components/charts/tooltip";
+import {
+  HeatmapChart,
+  HeatmapCells,
+  HeatmapSeparator,
+  HeatmapXAxis,
+  HeatmapYAxis,
+  HeatmapTooltip,
+  HeatmapLegend,
+  HeatmapInteractionProvider,
+  HeatmapInteractionBoundary,
+  type HeatmapColumn,
+} from "@/components/charts/heatmap";
 import { computeStreakStats, todayKey, buildWeeks, toDateKey, cn } from "@/lib/utils";
 import type { Streak, StreakLog } from "@/lib/types";
 
@@ -89,17 +96,20 @@ export function StreaksGrid({
     return { activeCount: active.length, combinedCurrent, longestEver, weekRate };
   }, [streaks, logsByStreak]);
 
-  // Check-ins per day this week, summed across every active streak — feeds
-  // the bar chart above the grid.
-  const weeklyActivity = useMemo(() => {
-    const days = buildWeeks(1)[0];
-    const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  // Combined check-ins across every active streak, one column per week for
+  // the last ~20 weeks — feeds the GitHub-style heatmap above the grid.
+  // Matches the 140-day window app/dashboard/streaks/page.tsx already fetches.
+  const heatmapData: HeatmapColumn[] = useMemo(() => {
+    const weeks = buildWeeks(20);
     const active = streaks.filter((s) => !s.archived);
-    return days.map((d, i) => {
-      const key = toDateKey(d);
-      const count = active.reduce((sum, s) => sum + (logsByStreak.get(s.id)?.has(key) ? 1 : 0), 0);
-      return { day: dayLabels[i], checkIns: count };
-    });
+    return weeks.map((week, w) => ({
+      bin: w,
+      bins: week.map((d, i) => {
+        const key = toDateKey(d);
+        const count = active.reduce((sum, s) => sum + (logsByStreak.get(s.id)?.has(key) ? 1 : 0), 0);
+        return { bin: i, count, date: d };
+      }),
+    }));
   }, [streaks, logsByStreak]);
 
   async function toggleToday(s: Streak, e: React.MouseEvent) {
@@ -201,13 +211,32 @@ export function StreaksGrid({
       {streaks.some((s) => !s.archived) && (
         <Reveal delay={0.04}>
           <Card className="mb-6 p-4">
-            <p className="mb-2 text-sm font-medium">This week</p>
-            <BarChart data={weeklyActivity} xDataKey="day" aspectRatio="4 / 1">
-              <Grid horizontal />
-              <Bar dataKey="checkIns" fill="var(--chart-line-primary)" lineCap="round" />
-              <BarXAxis />
-              <ChartTooltip />
-            </BarChart>
+            <p className="mb-2 text-sm font-medium">Activity</p>
+            <HeatmapInteractionProvider>
+              <HeatmapInteractionBoundary>
+                <HeatmapChart data={heatmapData} gap={3} layout="fluid">
+                  <HeatmapCells cornerRadius={999} inactiveOpacity={0.8} inactiveScale={0.94} />
+                  <HeatmapSeparator
+                    groupBy="quarter"
+                    showLabels
+                    labelClassName="text-[var(--chart-3)]"
+                    spacing={12}
+                    startOffset={14}
+                    strokeOpacity={0.6}
+                  />
+                  <HeatmapXAxis />
+                  <HeatmapYAxis tickFilter="all" labelFormat="initial" />
+                  <HeatmapTooltip />
+                </HeatmapChart>
+                <HeatmapLegend
+                  align="center"
+                  cornerRadius={999}
+                  gap={3}
+                  inactiveOpacity={0.8}
+                  inactiveScale={0.94}
+                />
+              </HeatmapInteractionBoundary>
+            </HeatmapInteractionProvider>
           </Card>
         </Reveal>
       )}
