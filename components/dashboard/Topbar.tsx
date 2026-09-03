@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const TITLES: Record<string, string> = {
+  "/dashboard": "Overview",
+  "/dashboard/notes": "Notes",
+  "/dashboard/journal": "Journal",
+  "/dashboard/streaks": "Streaks",
+  "/dashboard/goals": "Goals",
   "/dashboard/settings": "Settings",
   "/dashboard/profile/customize": "Customize",
   "/dashboard/profile/links": "Links",
@@ -34,7 +39,9 @@ export function Topbar({
   const pathname = usePathname();
   const router = useRouter();
 
-  const title = TITLES[pathname ?? ""] ?? "Dashboard";
+  const title =
+    TITLES[pathname ?? ""] ??
+    (pathname?.startsWith("/dashboard/streaks") ? "Streak" : "Dashboard");
 
   async function handleSignOut() {
     const supabase = createClient();

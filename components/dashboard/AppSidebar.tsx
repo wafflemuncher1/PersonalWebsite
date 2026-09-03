@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Settings, Search, ArrowUpRight, Share2, Check } from "lucide-react";
+import { LayoutGrid, Settings, Search, ArrowUpRight, Share2, Check } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +22,7 @@ import { Logo } from "@/components/Logo";
 import type { LucideIcon } from "lucide-react";
 import { NAV_GROUPS, DEV_GROUP, type NavItem } from "@/lib/dashboard-nav";
 
+const NAV_TOP: NavItem[] = [{ href: "/dashboard", label: "Overview", icon: LayoutGrid, exact: true }];
 const NAV_BOTTOM: NavItem[] = [{ href: "/dashboard/settings", label: "Settings", icon: Settings }];
 
 export function AppSidebar({
@@ -68,9 +69,10 @@ export function AppSidebar({
         <SidebarMenuButton
           isActive={isActive}
           tooltip={item.label}
+          className="relative overflow-hidden data-[active=true]:font-medium"
           render={
             <Link href={item.href}>
-              <item.icon />
+              <item.icon className="h-4 w-4" strokeWidth={1.75} />
               <span>{item.label}</span>
             </Link>
           }
@@ -81,12 +83,12 @@ export function AppSidebar({
 
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="gap-3 px-2 py-3">
+      <SidebarHeader className="gap-3 px-2 py-3.5">
         <div className="flex items-center justify-between px-1">
           <Logo />
         </div>
         <div className="group-data-[collapsible=icon]:hidden">
-          <div className="flex items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-2.5 py-1.5">
+          <div className="flex items-center gap-2 rounded-lg border border-sidebar-border bg-sidebar-accent/40 px-2.5 py-1.5 transition-colors focus-within:border-signal-500/40">
             <Search className="h-3.5 w-3.5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
             <input
               value={query}
@@ -98,14 +100,23 @@ export function AppSidebar({
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
-        {groups.map((group) => {
-          const items = group.items.filter((i) => matches(i.label));
+      <SidebarContent className="gap-1">
+        <SidebarGroup className="pb-1">
+          <SidebarGroupContent>
+            <SidebarMenu>{NAV_TOP.map(renderItem)}</SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {groups.map((group, i) => {
+          const items = group.items.filter((it) => matches(it.label));
           if (q && items.length === 0 && !group.label.toLowerCase().includes(q)) return null;
           return (
-            <SidebarGroup key={group.key}>
-              <SidebarGroupLabel>
-                <group.icon className="mr-1.5 h-3.5 w-3.5" strokeWidth={1.75} />
+            <SidebarGroup
+              key={group.key}
+              className={i > 0 ? "border-t border-white/[0.06] pt-3" : ""}
+            >
+              <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                <group.icon className="mr-1.5 h-3.5 w-3.5" strokeWidth={2} />
                 {group.label}
               </SidebarGroupLabel>
               <SidebarGroupContent>
@@ -115,7 +126,7 @@ export function AppSidebar({
           );
         })}
 
-        <SidebarGroup className="mt-auto">
+        <SidebarGroup className="mt-auto border-t border-white/[0.06] pt-3">
           <SidebarGroupContent>
             <SidebarMenu>{NAV_BOTTOM.map(renderItem)}</SidebarMenu>
           </SidebarGroupContent>
@@ -123,21 +134,23 @@ export function AppSidebar({
       </SidebarContent>
 
       {username && (
-        <SidebarFooter className="gap-2 group-data-[collapsible=icon]:hidden">
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-center gap-1.5"
-            render={
-              <a href={`/${username}`} target="_blank" rel="noreferrer">
-                My page <ArrowUpRight className="h-3.5 w-3.5" />
-              </a>
-            }
-          />
-          <Button size="sm" className="w-full justify-center gap-1.5" onClick={handleShare}>
-            {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
-            {copied ? "Link copied" : "Share your profile"}
-          </Button>
+        <SidebarFooter className="group-data-[collapsible=icon]:hidden">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 justify-center gap-1.5"
+              render={
+                <a href={`/${username}`} target="_blank" rel="noreferrer">
+                  My page <ArrowUpRight className="h-3.5 w-3.5" />
+                </a>
+              }
+            />
+            <Button size="sm" className="flex-1 justify-center gap-1.5" onClick={handleShare}>
+              {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+              {copied ? "Copied" : "Share"}
+            </Button>
+          </div>
         </SidebarFooter>
       )}
       <SidebarRail />

@@ -5,6 +5,11 @@ import {
   ShoppingBag,
   LayoutTemplate,
   Terminal,
+  Moon,
+  NotebookPen,
+  BookOpen,
+  Flame,
+  Target,
   type LucideIcon,
 } from "lucide-react";
 
@@ -32,6 +37,17 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard/profile/links", label: "Links", icon: Link2 },
       { href: "/dashboard/profile/shop", label: "Shop", icon: ShoppingBag },
       { href: "/dashboard/profile/templates", label: "Templates", icon: LayoutTemplate },
+    ],
+  },
+  {
+    key: "lifestyle",
+    label: "Lifestyle",
+    icon: Moon,
+    items: [
+      { href: "/dashboard/notes", label: "Notes", icon: NotebookPen },
+      { href: "/dashboard/journal", label: "Journal", icon: BookOpen },
+      { href: "/dashboard/streaks", label: "Streaks", icon: Flame },
+      { href: "/dashboard/goals", label: "Goals", icon: Target },
     ],
   },
 ];

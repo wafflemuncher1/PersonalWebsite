@@ -233,6 +233,17 @@ body {
   background: linear-gradient(180deg, rgba(62, 194, 245, 0.16), rgba(62, 194, 245, 0.06)) !important;
   box-shadow: 0 0 0 1px rgba(62, 194, 245, 0.22) inset;
 }
+[data-sidebar="menu-button"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 15%;
+  bottom: 15%;
+  width: 2.5px;
+  border-radius: 0 2px 2px 0;
+  background: #3ec2f5;
+  box-shadow: 0 0 8px 1px rgba(62, 194, 245, 0.6);
+}
 
 /* Lighter glass tint for tiles nested inside an already-glass Card — full
    .glass blur stacked on .glass would muddy the blur, so this is a flat
