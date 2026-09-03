@@ -15,10 +15,26 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ToggleRow } from "@/components/shared/controls";
 import { StatTile } from "@/components/ui/StatTile";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { RingChart } from "@/components/charts/ring-chart";
+import { Ring } from "@/components/charts/ring";
+import { RingCenter } from "@/components/charts/ring-center";
 import { cn, formatDate, toDateKey } from "@/lib/utils";
 import type { Goal, GoalCategory, GoalPriority, GoalStatus } from "@/lib/types";
 
 const CATEGORY_COLORS = ["violet", "amber", "emerald", "blue", "pink", "zinc"];
+
+// Grows from 0 to `value` right after mount (and re-animates whenever value
+// changes) instead of the bar just appearing at its final width — Progress's
+// own indicator already has `transition-all`, so this just needs to change
+// the value a tick after render for that transition to have something to animate.
+function AnimatedProgress({ value, className }: { value: number; className?: string }) {
+  const [display, setDisplay] = useState(0);
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setDisplay(value));
+    return () => cancelAnimationFrame(t);
+  }, [value]);
+  return <Progress value={display} className={className} />;
+}
 
 const PRIORITY_COLOR: Record<GoalPriority, string> = {
   high: "red",
@@ -156,6 +172,18 @@ export function GoalsBoard({
     return { activeCount: active.length, completedThisMonth, avgProgress, recurringCount };
   }, [goals]);
 
+  // Completed / active / archived breakdown for the ring chart hero — each
+  // ring's own max is the total goal count, so the three arcs are directly
+  // comparable slices of the same whole rather than independently scaled.
+  const statusBreakdown = useMemo(() => {
+    const total = goals.length;
+    return [
+      { label: "Completed", value: goals.filter((g) => g.status === "completed").length, maxValue: total, color: "#3ec2f5" },
+      { label: "Active", value: goals.filter((g) => g.status === "active").length, maxValue: total, color: "#f59e0b" },
+      { label: "Archived", value: goals.filter((g) => g.status === "archived").length, maxValue: total, color: "#71717a" },
+    ];
+  }, [goals]);
+
   function openNewGoal(categoryId?: string) {
     setEditingGoal(null);
     setGoalForm({
@@ -274,30 +302,51 @@ export function GoalsBoard({
       </Reveal>
 
       {goals.length > 0 && (
-        <RevealGroup className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4" stagger={0.06}>
-          <RevealItem>
-            <StatTile icon={<Target className="h-4 w-4" />} label="Active" value={overview.activeCount} accent="violet" />
-          </RevealItem>
-          <RevealItem>
-            <StatTile
-              icon={<TrendingUp className="h-4 w-4" />}
-              label="Avg. progress"
-              value={`${overview.avgProgress}%`}
-              accent="blue"
-            />
-          </RevealItem>
-          <RevealItem>
-            <StatTile
-              icon={<Trophy className="h-4 w-4" />}
-              label="Completed this month"
-              value={overview.completedThisMonth}
-              accent="emerald"
-            />
-          </RevealItem>
-          <RevealItem>
-            <StatTile icon={<Repeat className="h-4 w-4" />} label="Weekly goals" value={overview.recurringCount} accent="amber" />
-          </RevealItem>
-        </RevealGroup>
+        <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+          <Reveal delay={0.02}>
+            <Card className="flex h-full flex-col items-center justify-center gap-1 py-6 transition-all duration-300 ease-premium hover:-translate-y-1 hover:border-primary/30">
+              <RingChart data={statusBreakdown} size={140} strokeWidth={10} ringGap={4}>
+                {statusBreakdown.map((item, index) => (
+                  <Ring key={item.label} index={index} />
+                ))}
+                <RingCenter defaultLabel="Goals" />
+              </RingChart>
+              <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-1">
+                {statusBreakdown.map((item) => (
+                  <span key={item.label} className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: item.color }} />
+                    {item.label}
+                  </span>
+                ))}
+              </div>
+            </Card>
+          </Reveal>
+
+          <RevealGroup className="grid grid-cols-2 gap-3" stagger={0.06}>
+            <RevealItem>
+              <StatTile icon={<Target className="h-4 w-4" />} label="Active" value={overview.activeCount} accent="signal" />
+            </RevealItem>
+            <RevealItem>
+              <StatTile
+                icon={<TrendingUp className="h-4 w-4" />}
+                label="Avg. progress"
+                value={`${overview.avgProgress}%`}
+                accent="blue"
+              />
+            </RevealItem>
+            <RevealItem>
+              <StatTile
+                icon={<Trophy className="h-4 w-4" />}
+                label="Completed this month"
+                value={overview.completedThisMonth}
+                accent="emerald"
+              />
+            </RevealItem>
+            <RevealItem>
+              <StatTile icon={<Repeat className="h-4 w-4" />} label="Weekly goals" value={overview.recurringCount} accent="amber" />
+            </RevealItem>
+          </RevealGroup>
+        </div>
       )}
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -554,7 +603,7 @@ function GoalGroup({
                   <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{g.description}</p>
                 )}
                 <div className="mt-3 flex items-center gap-3">
-                  <Progress value={g.progress} className="max-w-[180px]" />
+                  <AnimatedProgress value={g.progress} className="max-w-[180px]" />
                   <span className="font-mono text-[10px] text-muted-foreground">{g.progress}%</span>
                   {g.is_recurring ? (
                     <span className="font-mono text-[10px] text-muted-foreground">resets Monday</span>
