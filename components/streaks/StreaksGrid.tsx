@@ -12,6 +12,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { StatTile } from "@/components/ui/StatTile";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { BarChart } from "@/components/charts/bar-chart";
+import { Bar } from "@/components/charts/bar";
+import { BarXAxis } from "@/components/charts/bar-x-axis";
+import { Grid } from "@/components/charts/grid";
+import { ChartTooltip } from "@/components/charts/tooltip";
 import { computeStreakStats, todayKey, buildWeeks, toDateKey, cn } from "@/lib/utils";
 import type { Streak, StreakLog } from "@/lib/types";
 
@@ -82,6 +87,19 @@ export function StreaksGrid({
     }
     const weekRate = weekGoal > 0 ? Math.min(100, Math.round((weekDone / weekGoal) * 100)) : 0;
     return { activeCount: active.length, combinedCurrent, longestEver, weekRate };
+  }, [streaks, logsByStreak]);
+
+  // Check-ins per day this week, summed across every active streak — feeds
+  // the bar chart above the grid.
+  const weeklyActivity = useMemo(() => {
+    const days = buildWeeks(1)[0];
+    const dayLabels = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const active = streaks.filter((s) => !s.archived);
+    return days.map((d, i) => {
+      const key = toDateKey(d);
+      const count = active.reduce((sum, s) => sum + (logsByStreak.get(s.id)?.has(key) ? 1 : 0), 0);
+      return { day: dayLabels[i], checkIns: count };
+    });
   }, [streaks, logsByStreak]);
 
   async function toggleToday(s: Streak, e: React.MouseEvent) {
@@ -180,6 +198,20 @@ export function StreaksGrid({
         </RevealGroup>
       )}
 
+      {streaks.some((s) => !s.archived) && (
+        <Reveal delay={0.04}>
+          <Card className="mb-6 p-4">
+            <p className="mb-2 text-sm font-medium">This week</p>
+            <BarChart data={weeklyActivity} xDataKey="day" aspectRatio="4 / 1">
+              <Grid horizontal />
+              <Bar dataKey="checkIns" fill="var(--chart-line-primary)" lineCap="round" />
+              <BarXAxis />
+              <ChartTooltip />
+            </BarChart>
+          </Card>
+        </Reveal>
+      )}
+
       <div className="mb-6 flex items-center justify-between">
         <Tabs value={showArchived ? "archived" : "active"} onValueChange={(v) => setShowArchived(v === "archived")}>
           <TabsList>
@@ -197,21 +229,21 @@ export function StreaksGrid({
           {showArchived ? "No archived streaks." : "No streaks yet — start building momentum."}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <RevealGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" stagger={0.06}>
           {visible.map((s) => {
             const dateSet = logsByStreak.get(s.id) ?? new Set<string>();
             const stats = computeStreakStats(dateSet);
             const doneToday = dateSet.has(today);
             return (
+              <RevealItem key={s.id}>
               <Card
-                key={s.id}
                 role="button"
                 tabIndex={0}
                 onClick={() => router.push(`/dashboard/streaks/${s.id}`)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") router.push(`/dashboard/streaks/${s.id}`);
                 }}
-                className="group relative flex cursor-pointer flex-col overflow-hidden p-4 transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:border-primary/25"
+                className="group relative flex cursor-pointer flex-col overflow-hidden p-4 transition-all duration-200 ease-premium hover:-translate-y-1 hover:border-primary/30 hover:shadow-glow-signal"
               >
                 <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_DOT[s.color] ?? COLOR_DOT.amber)} />
                 <div className="mb-3 flex items-center justify-between pl-1.5">
@@ -272,9 +304,10 @@ export function StreaksGrid({
                   </div>
                 </div>
               </Card>
+              </RevealItem>
             );
           })}
-        </div>
+        </RevealGroup>
       )}
 
       <Dialog open={modalOpen} onOpenChange={(v) => !v && setModalOpen(false)}>
