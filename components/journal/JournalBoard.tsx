@@ -10,6 +10,11 @@ import { ToggleRow } from "@/components/shared/controls";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { HeroStat } from "@/components/dashboard/HeroStat";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { AreaChart } from "@/components/charts/area-chart";
+import { Area } from "@/components/charts/area";
+import { Grid } from "@/components/charts/grid";
+import { XAxis } from "@/components/charts/x-axis";
+import { ChartTooltip } from "@/components/charts/tooltip";
 import { computeStreakStats, cn, relativeTime, formatDateTime } from "@/lib/utils";
 import type { JournalEntry, Mood, Profile } from "@/lib/types";
 
@@ -22,6 +27,10 @@ const MOODS: { id: Mood; emoji: string; label: string; dot: string }[] = [
 ];
 
 const moodMeta = (id: Mood) => MOODS.find((m) => m.id === id) ?? MOODS[2];
+
+// 1–5 scale for the mood trend chart — index into MOODS since it's already
+// ordered great→rough.
+const MOOD_SCORE: Record<Mood, number> = { great: 5, good: 4, neutral: 3, low: 2, rough: 1 };
 
 export function JournalBoard({
   initialEntries,
@@ -53,6 +62,17 @@ export function JournalBoard({
 
   const loggedDates = useMemo(() => new Set(entryByDay.keys()), [entryByDay]);
   const journalStats = useMemo(() => computeStreakStats(loggedDates), [loggedDates]);
+
+  // Last 30 entries, oldest first, mood mapped to a 1-5 score — the trend
+  // line reads left-to-right as "how it's gone lately."
+  const moodTrend = useMemo(
+    () =>
+      [...entries]
+        .slice(0, 30)
+        .reverse()
+        .map((e) => ({ date: new Date(e.created_at), mood: MOOD_SCORE[e.mood] })),
+    [entries]
+  );
 
   const topMood = useMemo(() => {
     const cutoff = new Date();
@@ -160,6 +180,25 @@ export function JournalBoard({
         </RevealGroup>
       )}
 
+      {/* Mood trend */}
+      {moodTrend.length > 1 && (
+        <Reveal delay={0.04}>
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Mood trend</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <AreaChart data={moodTrend} xDataKey="date" aspectRatio="3 / 1">
+                <Grid horizontal />
+                <Area dataKey="mood" fill="var(--chart-line-primary)" />
+                <XAxis />
+                <ChartTooltip />
+              </AreaChart>
+            </CardContent>
+          </Card>
+        </Reveal>
+      )}
+
       {/* Mood & Activity heatmap */}
       {entries.length > 0 && (
         <Card className="mb-6">
@@ -252,31 +291,33 @@ export function JournalBoard({
           No entries yet — how's today going?
         </div>
       ) : (
-        <div className="space-y-3">
+        <RevealGroup className="space-y-3" stagger={0.05}>
           {entries.map((e) => (
-            <Card key={e.id} className="transition duration-200 ease-premium hover:-translate-y-0.5">
-              <CardContent>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg leading-none">{moodMeta(e.mood).emoji}</span>
-                    <span className="font-mono text-[10px] text-muted-foreground">
-                      {formatDateTime(e.created_at)} · {relativeTime(e.created_at)}
-                    </span>
+            <RevealItem key={e.id}>
+              <Card className="transition-all duration-200 ease-premium hover:-translate-y-0.5 hover:border-primary/25">
+                <CardContent>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="animate-scale-in text-lg leading-none">{moodMeta(e.mood).emoji}</span>
+                      <span className="font-mono text-[10px] text-muted-foreground">
+                        {formatDateTime(e.created_at)} · {relativeTime(e.created_at)}
+                      </span>
+                    </div>
+                    <div className="flex gap-2 text-xs">
+                      <button onClick={() => startEdit(e)} className="text-muted-foreground hover:text-primary">
+                        edit
+                      </button>
+                      <button onClick={() => remove(e.id)} className="text-muted-foreground hover:text-destructive">
+                        delete
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-2 text-xs">
-                    <button onClick={() => startEdit(e)} className="text-muted-foreground hover:text-primary">
-                      edit
-                    </button>
-                    <button onClick={() => remove(e.id)} className="text-muted-foreground hover:text-destructive">
-                      delete
-                    </button>
-                  </div>
-                </div>
-                <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{e.entry}</p>
-              </CardContent>
-            </Card>
+                  <p className="whitespace-pre-wrap text-sm leading-relaxed text-foreground/90">{e.entry}</p>
+                </CardContent>
+              </Card>
+            </RevealItem>
           ))}
-        </div>
+        </RevealGroup>
       )}
     </div>
   );
