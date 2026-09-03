@@ -31,7 +31,7 @@ export function Logo({
     >
       <span
         ref={dotRef}
-        className="h-2.5 w-2.5 rounded-full bg-gold-400 shadow-[0_0_14px_3px_rgba(212,169,79,0.6)]"
+        className="h-2.5 w-2.5 rounded-full bg-signal-400 shadow-[0_0_14px_3px_rgba(62,194,245,0.6)]"
       />
       <span className="text-sm font-semibold tracking-wide text-white">NOCTURNE</span>
     </button>

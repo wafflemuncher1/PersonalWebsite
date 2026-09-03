@@ -169,3 +169,66 @@ export type Streak = {
   show_on_profile: boolean;
   created_at: string;
 };
+
+export type StreakLog = {
+  id: string;
+  user_id: string;
+  streak_id: string;
+  log_date: string;
+  note: string | null;
+  created_at: string;
+};
+
+export type Mood = "great" | "good" | "neutral" | "low" | "rough";
+
+export type JournalEntry = {
+  id: string;
+  user_id: string;
+  mood: Mood;
+  entry: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Note = {
+  id: string;
+  user_id: string;
+  title: string;
+  content: string;
+  pinned: boolean;
+  color: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type GoalCategory = {
+  id: string;
+  user_id: string;
+  name: string;
+  color: string;
+  sort_order: number;
+  created_at: string;
+};
+
+export type GoalStatus = "active" | "completed" | "archived";
+export type GoalPriority = "low" | "medium" | "high";
+
+export type GoalRecurrence = "weekly" | null;
+
+export type Goal = {
+  id: string;
+  user_id: string;
+  category_id: string | null;
+  title: string;
+  description: string;
+  status: GoalStatus;
+  priority: GoalPriority;
+  progress: number;
+  target_date: string | null;
+  is_recurring: boolean;
+  recurrence: GoalRecurrence;
+  period_start: string;
+  created_at: string;
+  updated_at: string;
+  completed_at: string | null;
+};
