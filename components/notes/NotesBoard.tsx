@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Pin, StickyNote } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -197,39 +198,50 @@ export function NotesBoard({ initialNotes }: { initialNotes: Note[] }) {
         </div>
       ) : (
         <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
-          {filtered.map((n) => (
-            <Card
-              key={n.id}
-              className={cn(
-                "relative break-inside-avoid overflow-hidden ring-1 transition duration-200 ease-premium hover:-translate-y-0.5",
-                COLORS[n.color] ?? COLORS.zinc
-              )}
-            >
-              <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_BAR[n.color] ?? COLOR_BAR.zinc)} />
-              <div className="mb-2 flex items-start justify-between gap-2 px-4 pl-5">
-                <h3 className="font-medium">{n.title || "Untitled"}</h3>
-                <button
-                  onClick={() => togglePin(n)}
-                  className={cn("shrink-0 text-sm transition", n.pinned ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground")}
-                  title={n.pinned ? "Unpin" : "Pin"}
+          <AnimatePresence>
+            {filtered.map((n, i) => (
+              <motion.div
+                key={n.id}
+                layout
+                initial={{ opacity: 0, y: 12, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.35, delay: i * 0.03, ease: [0.16, 1, 0.3, 1] }}
+                className="break-inside-avoid"
+              >
+                <Card
+                  className={cn(
+                    "relative overflow-hidden ring-1 transition-all duration-200 ease-premium hover:-translate-y-1 hover:shadow-glow-signal",
+                    COLORS[n.color] ?? COLORS.zinc
+                  )}
                 >
-                  <Pin className={cn("h-3.5 w-3.5", n.pinned && "fill-primary")} />
-                </button>
-              </div>
-              <p className="whitespace-pre-wrap px-4 pl-5 text-sm leading-relaxed text-muted-foreground">{n.content}</p>
-              <div className="mt-3 flex items-center justify-between px-4 pl-5">
-                <span className="font-mono text-[10px] text-muted-foreground">{relativeTime(n.updated_at)}</span>
-                <div className="flex gap-2 text-xs">
-                  <button onClick={() => openEdit(n)} className="text-muted-foreground hover:text-primary">
-                    edit
-                  </button>
-                  <button onClick={() => remove(n.id)} className="text-muted-foreground hover:text-destructive">
-                    delete
-                  </button>
-                </div>
-              </div>
-            </Card>
-          ))}
+                  <span className={cn("absolute inset-y-0 left-0 w-1", COLOR_BAR[n.color] ?? COLOR_BAR.zinc)} />
+                  <div className="mb-2 flex items-start justify-between gap-2 px-4 pl-5">
+                    <h3 className="font-medium">{n.title || "Untitled"}</h3>
+                    <button
+                      onClick={() => togglePin(n)}
+                      className={cn("shrink-0 text-sm transition", n.pinned ? "text-primary" : "text-muted-foreground/60 hover:text-muted-foreground")}
+                      title={n.pinned ? "Unpin" : "Pin"}
+                    >
+                      <Pin className={cn("h-3.5 w-3.5", n.pinned && "fill-primary")} />
+                    </button>
+                  </div>
+                  <p className="whitespace-pre-wrap px-4 pl-5 text-sm leading-relaxed text-muted-foreground">{n.content}</p>
+                  <div className="mt-3 flex items-center justify-between px-4 pl-5">
+                    <span className="font-mono text-[10px] text-muted-foreground">{relativeTime(n.updated_at)}</span>
+                    <div className="flex gap-2 text-xs">
+                      <button onClick={() => openEdit(n)} className="text-muted-foreground hover:text-primary">
+                        edit
+                      </button>
+                      <button onClick={() => remove(n.id)} className="text-muted-foreground hover:text-destructive">
+                        delete
+                      </button>
+                    </div>
+                  </div>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
       )}
 
