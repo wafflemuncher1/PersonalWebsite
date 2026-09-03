@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Flame, Eye, Zap, Target, NotebookPen, BookOpen, ArrowRight } from "lucide-react";
+import { Flame, Eye, Target, NotebookPen, BookOpen, ArrowRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { HeroStat } from "@/components/dashboard/HeroStat";
 import { StatTile } from "@/components/dashboard/StatTile";
@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { TodayStreaks } from "@/components/streaks/TodayStreaks";
+import { Heatmap } from "@/components/streaks/Heatmap";
+import { Gauge } from "@/components/charts/gauge";
 import { computeStreakStats, relativeTime, todayKey } from "@/lib/utils";
 import type { Goal, JournalEntry, Note, Profile, Streak, StreakLog } from "@/lib/types";
 
@@ -74,6 +76,10 @@ export default async function OverviewPage() {
   const today = todayKey();
   const loggedToday = new Set(allLogs.filter((l) => l.log_date === today).map((l) => l.streak_id));
 
+  // Combined activity across every streak — the Overview's own heatmap is a
+  // superset of any single streak's, so it can't reuse a per-streak Set.
+  const combinedLoggedDates = new Set(allLogs.map((l) => l.log_date));
+
   const streakStatsById = new Map<string, { current: number; longest: number; total: number }>();
   for (const s of allStreaks) {
     const keys = new Set(allLogs.filter((l) => l.streak_id === s.id).map((l) => l.log_date));
@@ -130,36 +136,73 @@ export default async function OverviewPage() {
         <h1 className="font-display text-3xl font-semibold tracking-tight">Account overview</h1>
       </Reveal>
 
-      {/* Hero stats */}
-      <RevealGroup className="grid grid-cols-2 gap-4 lg:grid-cols-4" stagger={0.08}>
-        <RevealItem>
-          <HeroStat
-            label="Best streak"
-            value={bestCurrent}
-            sub={bestCurrent === 1 ? "day running" : "days running"}
-            icon={<Flame className="h-4 w-4" strokeWidth={1.75} />}
-          />
-        </RevealItem>
-        <RevealItem>
-          <HeroStat
-            label="Profile views"
-            value={(profile?.view_count ?? 0).toLocaleString()}
-            sub="all time"
-            icon={<Eye className="h-4 w-4" strokeWidth={1.75} />}
-          />
-        </RevealItem>
-        <RevealItem>
-          <HeroStat label="Momentum" value={momentum} sub={momentumVibe} icon={<Zap className="h-4 w-4" strokeWidth={1.75} />} />
-        </RevealItem>
-        <RevealItem>
-          <HeroStat
-            label="Active goals"
-            value={activeGoals.length}
-            sub={`${completedGoals.length} completed`}
-            icon={<Target className="h-4 w-4" strokeWidth={1.75} />}
-          />
-        </RevealItem>
-      </RevealGroup>
+      {/* Hero: momentum gauge + the rest of the top-line stats */}
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <Reveal delay={0.02}>
+          <Card className="flex h-full flex-col items-center justify-center gap-1 py-6 transition-all duration-300 ease-premium hover:-translate-y-1 hover:border-primary/30">
+            <Gauge
+              value={momentum}
+              centerValue={momentum}
+              defaultLabel="Momentum"
+              suffix="%"
+              spacing={22}
+              inactiveFillOpacity={0.35}
+              width={180}
+              height={180}
+            />
+            <p className="text-sm text-muted-foreground">{momentumVibe}</p>
+          </Card>
+        </Reveal>
+
+        <RevealGroup className="grid grid-cols-1 gap-4 sm:grid-cols-3" stagger={0.08}>
+          <RevealItem>
+            <HeroStat
+              label="Best streak"
+              value={bestCurrent}
+              sub={bestCurrent === 1 ? "day running" : "days running"}
+              icon={<Flame className="h-4 w-4" strokeWidth={1.75} />}
+            />
+          </RevealItem>
+          <RevealItem>
+            <HeroStat
+              label="Profile views"
+              value={(profile?.view_count ?? 0).toLocaleString()}
+              sub="all time"
+              icon={<Eye className="h-4 w-4" strokeWidth={1.75} />}
+            />
+          </RevealItem>
+          <RevealItem>
+            <HeroStat
+              label="Active goals"
+              value={activeGoals.length}
+              sub={`${completedGoals.length} completed`}
+              icon={<Target className="h-4 w-4" strokeWidth={1.75} />}
+            />
+          </RevealItem>
+        </RevealGroup>
+      </div>
+
+      {/* Combined activity across every streak */}
+      <Reveal delay={0.05}>
+        <Card>
+          <CardHeader>
+            <CardTitle>Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {allStreaks.length === 0 ? (
+              <EmptyState
+                message="No streaks yet. Start one to see your activity here."
+                href="/dashboard/streaks"
+                cta="Create a streak"
+              />
+            ) : (
+              <div className="overflow-x-auto pb-1">
+                <Heatmap loggedDates={combinedLoggedDates} weeksCount={18} size="sm" showMonths />
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </Reveal>
 
       <h2 className="font-display text-lg font-semibold">Account statistics</h2>
 
@@ -205,126 +248,135 @@ export default async function OverviewPage() {
 
       <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Your activity</h2>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <RevealGroup className="grid gap-6 lg:grid-cols-3" stagger={0.08}>
         {/* Today's streaks */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Today&apos;s streaks</CardTitle>
-            <Link href="/dashboard/streaks" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
-              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {allStreaks.length === 0 ? (
-              <EmptyState
-                message="No streaks yet. Start one to build momentum."
-                href="/dashboard/streaks"
-                cta="Create a streak"
-              />
-            ) : (
-              <TodayStreaks
-                streaks={allStreaks}
-                loggedTodayIds={Array.from(loggedToday)}
-                statsById={Object.fromEntries(streakStatsById)}
-              />
-            )}
-          </CardContent>
-        </Card>
+        <RevealItem className="lg:col-span-2">
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Today&apos;s streaks</CardTitle>
+              <Link href="/dashboard/streaks" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
+                view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {allStreaks.length === 0 ? (
+                <EmptyState
+                  message="No streaks yet. Start one to build momentum."
+                  href="/dashboard/streaks"
+                  cta="Create a streak"
+                />
+              ) : (
+                <TodayStreaks
+                  streaks={allStreaks}
+                  loggedTodayIds={Array.from(loggedToday)}
+                  statsById={Object.fromEntries(streakStatsById)}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </RevealItem>
 
         {/* Journal preview */}
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Journal</CardTitle>
-            <Link href="/dashboard/journal" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
-              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {recentJournal.length === 0 ? (
-              <EmptyState message="No entries yet." href="/dashboard/journal" cta="Write one" />
-            ) : (
-              <div className="space-y-3">
-                {recentJournal.map((e) => (
-                  <Link
-                    key={e.id}
-                    href="/dashboard/journal"
-                    className="glass-inset glass-inset-hover block rounded-lg p-3 transition-all duration-200 ease-premium hover:translate-x-0.5"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-base leading-none">{MOOD_EMOJI[e.mood] ?? "😐"}</span>
-                      <span className="font-mono text-[10px] text-muted-foreground">{relativeTime(e.created_at)}</span>
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{e.entry}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        <RevealItem>
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Journal</CardTitle>
+              <Link href="/dashboard/journal" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
+                view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {recentJournal.length === 0 ? (
+                <EmptyState message="No entries yet." href="/dashboard/journal" cta="Write one" />
+              ) : (
+                <RevealGroup className="space-y-3" stagger={0.06}>
+                  {recentJournal.map((e) => (
+                    <RevealItem key={e.id}>
+                      <Link
+                        href="/dashboard/journal"
+                        className="glass-inset glass-inset-hover block rounded-lg p-3 transition-all duration-200 ease-premium hover:translate-x-0.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-base leading-none">{MOOD_EMOJI[e.mood] ?? "😐"}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground">{relativeTime(e.created_at)}</span>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{e.entry}</p>
+                      </Link>
+                    </RevealItem>
+                  ))}
+                </RevealGroup>
+              )}
+            </CardContent>
+          </Card>
+        </RevealItem>
+      </RevealGroup>
 
       {/* Recent notes + priority goals */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Recent notes</CardTitle>
-            <Link href="/dashboard/notes" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
-              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {recentNotes.length === 0 ? (
-              <EmptyState message="No notes yet." href="/dashboard/notes" cta="Write one" />
-            ) : (
-              <div className="space-y-3">
-                {recentNotes.map((n) => (
-                  <Link
-                    key={n.id}
-                    href="/dashboard/notes"
-                    className="glass-inset glass-inset-hover block rounded-lg p-3 transition-all duration-200 ease-premium hover:translate-x-0.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="truncate text-sm font-medium">{n.title || "Untitled"}</p>
-                      {n.pinned && <span className="text-xs text-primary">★</span>}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{n.content || "Empty note"}</p>
-                    <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">{relativeTime(n.updated_at)}</p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <RevealGroup className="grid gap-6 lg:grid-cols-2" stagger={0.08}>
+        <RevealItem>
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Recent notes</CardTitle>
+              <Link href="/dashboard/notes" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
+                view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {recentNotes.length === 0 ? (
+                <EmptyState message="No notes yet." href="/dashboard/notes" cta="Write one" />
+              ) : (
+                <div className="space-y-3">
+                  {recentNotes.map((n) => (
+                    <Link
+                      key={n.id}
+                      href="/dashboard/notes"
+                      className="glass-inset glass-inset-hover block rounded-lg p-3 transition-all duration-200 ease-premium hover:translate-x-0.5"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="truncate text-sm font-medium">{n.title || "Untitled"}</p>
+                        {n.pinned && <span className="text-xs text-primary">★</span>}
+                      </div>
+                      <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{n.content || "Empty note"}</p>
+                      <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">{relativeTime(n.updated_at)}</p>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </RevealItem>
 
-        <Card>
-          <CardHeader className="flex-row items-center justify-between space-y-0">
-            <CardTitle>Priority goals</CardTitle>
-            <Link href="/dashboard/goals" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
-              view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </CardHeader>
-          <CardContent>
-            {topGoals.length === 0 ? (
-              <EmptyState message="No active goals yet." href="/dashboard/goals" cta="Set a goal" />
-            ) : (
-              <div className="space-y-3">
-                {topGoals.map((g) => (
-                  <div key={g.id} className="glass-inset rounded-lg p-4">
-                    <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="truncate text-sm font-medium">{g.title}</p>
-                      <Badge variant={g.priority === "high" ? "destructive" : g.priority === "medium" ? "secondary" : "outline"}>
-                        {g.priority}
-                      </Badge>
+        <RevealItem>
+          <Card>
+            <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardTitle>Priority goals</CardTitle>
+              <Link href="/dashboard/goals" className="group flex items-center gap-1 text-xs text-primary transition-all hover:gap-1.5">
+                view all <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+            </CardHeader>
+            <CardContent>
+              {topGoals.length === 0 ? (
+                <EmptyState message="No active goals yet." href="/dashboard/goals" cta="Set a goal" />
+              ) : (
+                <div className="space-y-3">
+                  {topGoals.map((g) => (
+                    <div key={g.id} className="glass-inset rounded-lg p-4">
+                      <div className="mb-2 flex items-center justify-between gap-2">
+                        <p className="truncate text-sm font-medium">{g.title}</p>
+                        <Badge variant={g.priority === "high" ? "destructive" : g.priority === "medium" ? "secondary" : "outline"}>
+                          {g.priority}
+                        </Badge>
+                      </div>
+                      <Progress value={g.progress} />
+                      <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">{g.progress}% complete</p>
                     </div>
-                    <Progress value={g.progress} />
-                    <p className="mt-1.5 font-mono text-[10px] text-muted-foreground">{g.progress}% complete</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </RevealItem>
+      </RevealGroup>
     </div>
   );
 }
