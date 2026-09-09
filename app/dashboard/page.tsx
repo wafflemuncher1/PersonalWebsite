@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { HeroStat } from "@/components/dashboard/HeroStat";
 import { StatTile } from "@/components/dashboard/StatTile";
 import { ManageAccountCard } from "@/components/dashboard/ManageAccountCard";
-import { PriorityGoalsCard } from "@/components/dashboard/PriorityGoalsCard";
 import { RecentNotesCard } from "@/components/dashboard/RecentNotesCard";
 import { QuickMoodCheckin } from "@/components/dashboard/QuickMoodCheckin";
+import { QuickRemindersCard } from "@/components/dashboard/QuickRemindersCard";
 import { Achievements, type Achievement } from "@/components/dashboard/Achievements";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { TodayStreaks } from "@/components/streaks/TodayStreaks";
 import { Heatmap } from "@/components/streaks/Heatmap";
 import { Gauge } from "@/components/charts/gauge";
 import { computeStreakStats, relativeTime, todayKey } from "@/lib/utils";
-import type { Goal, JournalEntry, Note, Profile, Streak, StreakLog } from "@/lib/types";
+import type { Goal, JournalEntry, Note, Profile, Reminder, Streak, StreakLog } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +35,7 @@ export default async function OverviewPage() {
     { data: journalEntries },
     journalCountRes,
     { data: profileData },
+    { data: reminders },
   ] = await Promise.all([
     supabase.from("notes").select("*").order("updated_at", { ascending: false }).limit(4),
     supabase.from("notes").select("*", { count: "exact", head: true }),
@@ -47,6 +48,7 @@ export default async function OverviewPage() {
     supabase.from("journal_entries").select("*").order("created_at", { ascending: false }).limit(30),
     supabase.from("journal_entries").select("*", { count: "exact", head: true }),
     user ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+    supabase.from("reminders").select("*").eq("completed", false).order("due_date", { ascending: true, nullsFirst: false }),
   ]);
 
   const notesCount = notesCountRes.count ?? 0;
@@ -56,6 +58,7 @@ export default async function OverviewPage() {
   const allStreaks = (streaks ?? []) as Streak[];
   const allLogs = (logs ?? []) as StreakLog[];
   const recentNotes = (notes ?? []) as Note[];
+  const openReminders = (reminders ?? []) as Reminder[];
   const recentJournal = ((journalEntries ?? []) as JournalEntry[]).slice(0, 3);
   const journalForStats = (journalEntries ?? []) as JournalEntry[];
   const profile = profileData as Profile | null;
@@ -226,10 +229,10 @@ export default async function OverviewPage() {
         </RevealItem>
       </RevealGroup>
 
-      {/* Priority goals + recent notes, both quick-editable in place */}
+      {/* Reminders + recent notes, both quick-editable in place */}
       <RevealGroup className="grid gap-6 lg:grid-cols-2" stagger={0.08}>
         <RevealItem>
-          <PriorityGoalsCard initialGoals={topGoals} />
+          <QuickRemindersCard initialReminders={openReminders} />
         </RevealItem>
         <RevealItem>
           <RecentNotesCard initialNotes={recentNotes} />

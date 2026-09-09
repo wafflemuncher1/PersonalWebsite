@@ -10,6 +10,7 @@ import {
   BookOpen,
   Flame,
   Target,
+  BellRing,
   type LucideIcon,
 } from "lucide-react";
 
@@ -48,6 +49,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard/journal", label: "Journal", icon: BookOpen },
       { href: "/dashboard/streaks", label: "Streaks", icon: Flame },
       { href: "/dashboard/goals", label: "Goals", icon: Target },
+      { href: "/dashboard/reminders", label: "Reminders", icon: BellRing },
     ],
   },
 ];

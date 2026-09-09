@@ -21,6 +21,7 @@ const TITLES: Record<string, string> = {
   "/dashboard/journal": "Journal",
   "/dashboard/streaks": "Streaks",
   "/dashboard/goals": "Goals",
+  "/dashboard/reminders": "Reminders",
   "/dashboard/settings": "Settings",
   "/dashboard/profile/customize": "Customize",
   "/dashboard/profile/links": "Links",

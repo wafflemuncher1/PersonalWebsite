@@ -232,3 +232,20 @@ export type Goal = {
   updated_at: string;
   completed_at: string | null;
 };
+
+export type ReminderPriority = "low" | "medium" | "high";
+export type ReminderRepeat = "daily" | "weekly" | "monthly" | null;
+
+export type Reminder = {
+  id: string;
+  user_id: string;
+  title: string;
+  notes: string;
+  due_date: string | null;
+  priority: ReminderPriority;
+  repeat: ReminderRepeat;
+  completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
