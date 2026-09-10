@@ -22,12 +22,14 @@ const TITLES: Record<string, string> = {
   "/dashboard/streaks": "Streaks",
   "/dashboard/goals": "Goals",
   "/dashboard/reminders": "Reminders",
+  "/dashboard/report-issue": "Report an issue",
   "/dashboard/settings": "Settings",
   "/dashboard/profile/customize": "Customize",
   "/dashboard/profile/links": "Links",
   "/dashboard/profile/shop": "Shop",
   "/dashboard/profile/templates": "Templates",
   "/dashboard/developer": "Developer",
+  "/dashboard/developer/issues": "Issues",
 };
 
 export function Topbar({

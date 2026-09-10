@@ -11,6 +11,8 @@ import {
   Flame,
   Target,
   BellRing,
+  Bug,
+  ListChecks,
   type LucideIcon,
 } from "lucide-react";
 
@@ -52,6 +54,12 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/dashboard/reminders", label: "Reminders", icon: BellRing },
     ],
   },
+  {
+    key: "testing",
+    label: "Testing",
+    icon: Bug,
+    items: [{ href: "/dashboard/report-issue", label: "Report an issue", icon: Bug }],
+  },
 ];
 
 // Only ever shown to profiles with role = 'dev'.
@@ -59,5 +67,8 @@ export const DEV_GROUP: NavGroup = {
   key: "developer",
   label: "Developer",
   icon: Terminal,
-  items: [{ href: "/dashboard/developer", label: "Developer", icon: Terminal }],
+  items: [
+    { href: "/dashboard/developer", label: "Developer", icon: Terminal, exact: true },
+    { href: "/dashboard/developer/issues", label: "Issues", icon: ListChecks },
+  ],
 };

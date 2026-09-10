@@ -233,6 +233,29 @@ export type Goal = {
   completed_at: string | null;
 };
 
+export type IssueSeverity = "low" | "medium" | "high" | "critical";
+export type IssueStatus = "open" | "in_progress" | "resolved" | "wontfix";
+
+export type IssueReport = {
+  id: string;
+  user_id: string;
+  title: string;
+  description: string;
+  page_path: string;
+  severity: IssueSeverity;
+  status: IssueStatus;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+};
+
+// Populated only when a query embeds the reporter's profile
+// (`.select("*, profiles(username, display_name)")`) — used by the dev
+// Issues board, never by the tester-facing report form.
+export type IssueReportWithReporter = IssueReport & {
+  profiles: { username: string; display_name: string } | null;
+};
+
 export type ReminderPriority = "low" | "medium" | "high";
 export type ReminderRepeat = "daily" | "weekly" | "monthly" | null;
 
