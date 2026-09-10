@@ -48,7 +48,7 @@ export default async function OverviewPage() {
     supabase.from("journal_entries").select("*").order("created_at", { ascending: false }).limit(30),
     supabase.from("journal_entries").select("*", { count: "exact", head: true }),
     user ? supabase.from("profiles").select("*").eq("id", user.id).maybeSingle() : Promise.resolve({ data: null }),
-    supabase.from("reminders").select("*").eq("completed", false).order("due_date", { ascending: true, nullsFirst: false }),
+    supabase.from("reminders").select("*").order("due_date", { ascending: true, nullsFirst: false }),
   ]);
 
   const notesCount = notesCountRes.count ?? 0;
@@ -58,16 +58,14 @@ export default async function OverviewPage() {
   const allStreaks = (streaks ?? []) as Streak[];
   const allLogs = (logs ?? []) as StreakLog[];
   const recentNotes = (notes ?? []) as Note[];
-  const openReminders = (reminders ?? []) as Reminder[];
+  const allReminders = (reminders ?? []) as Reminder[];
+  const openReminders = allReminders.filter((r) => !r.completed);
   const recentJournal = ((journalEntries ?? []) as JournalEntry[]).slice(0, 3);
   const journalForStats = (journalEntries ?? []) as JournalEntry[];
   const profile = profileData as Profile | null;
 
   const activeGoals = allGoals.filter((g) => g.status === "active");
   const completedGoals = allGoals.filter((g) => g.status === "completed");
-  const avgProgress = activeGoals.length
-    ? Math.round(activeGoals.reduce((s, g) => s + g.progress, 0) / activeGoals.length)
-    : 0;
 
   const today = todayKey();
   const loggedToday = new Set(allLogs.filter((l) => l.log_date === today).map((l) => l.streak_id));
@@ -102,13 +100,31 @@ export default async function OverviewPage() {
     })
     .slice(0, 4);
 
-  // Momentum: blended, gamified score — not a metric anyone else can see.
-  const journalLast7 = journalForStats.filter(
-    (e) => Date.now() - new Date(e.created_at).getTime() < 7 * 24 * 60 * 60 * 1000
-  ).length;
-  const momentum = Math.round(
-    (avgProgress / 100) * 40 + (Math.min(bestCurrent, 14) / 14) * 30 + (Math.min(journalLast7, 7) / 7) * 30
-  );
+  // Momentum: "did today's stuff get done" — not a blended long-term score,
+  // just today's checklist. Each applicable item is an equal share of 100%;
+  // an item with nothing to do today (no streaks, no reminders due today)
+  // is excluded from the denominator entirely rather than counted as free
+  // credit, so momentum only ever reflects things you actually could have
+  // done today.
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date(startOfToday.getTime() + 86400000);
+  const remindersDueToday = allReminders.filter((r) => {
+    if (!r.due_date) return false;
+    const due = new Date(r.due_date);
+    return due >= startOfToday && due < endOfToday;
+  });
+
+  const momentumItems = [
+    allStreaks.length > 0 ? allStreaks.every((s) => loggedToday.has(s.id)) : null,
+    Boolean(todaysJournalEntry), // "write a journal entry today"
+    Boolean(todaysJournalEntry), // "log your mood today" — same check-in, same row
+    remindersDueToday.length > 0 ? remindersDueToday.every((r) => r.completed) : null,
+  ].filter((item): item is boolean => item !== null);
+
+  const momentum = momentumItems.length
+    ? Math.round((momentumItems.filter(Boolean).length / momentumItems.length) * 100)
+    : 0;
   const momentumVibe =
     momentum >= 85
       ? "Locked in"
